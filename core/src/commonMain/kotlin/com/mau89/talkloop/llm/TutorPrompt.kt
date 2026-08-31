@@ -7,7 +7,7 @@ package com.mau89.talkloop.llm
  * но держать её в одном месте — есть, иначе CLI и приложение разъедутся.
  */
 
-const val DEFAULT_MODEL = "claude-opus-5"
+const val DEFAULT_MODEL = "claude-haiku-4-5"
 const val DEFAULT_MAX_TOKENS = 2048
 
 val TUTOR_SYSTEM_PROMPT = """

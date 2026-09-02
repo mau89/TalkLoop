@@ -2,5 +2,5 @@ package com.mau89.talkloop
 
 import androidx.compose.ui.window.ComposeUIViewController
 
-// Ключ на iOS пока не прокинут — экран покажет подсказку. Android идёт первым (Strategy.md).
-fun MainViewController() = ComposeUIViewController { App(apiKey = "") }
+// Ключ подставляет Gradle в Secrets.kt из secrets.properties, как и на Android.
+fun MainViewController() = ComposeUIViewController { App(apiKey = IOS_ANTHROPIC_API_KEY) }

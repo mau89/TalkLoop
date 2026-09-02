@@ -21,13 +21,7 @@ import java.util.Properties
 fun main() {
     val apiKey = readApiKey()
     if (apiKey == null) {
-        println(
-            """
-            Не найден ключ Anthropic API. Любой из вариантов:
-              export ANTHROPIC_API_KEY=sk-ant-...
-              cp secrets.properties.example secrets.properties  # и вписать ключ, файл в .gitignore
-            """.trimIndent()
-        )
+        println(MISSING_KEY_HINT)
         return
     }
 
@@ -80,8 +74,15 @@ private fun ask(client: AnthropicClient, turns: List<Pair<Boolean, String>>): St
     }
 }
 
+/** Подсказка на случай, если ключа нет ни в окружении, ни в файле. */
+internal val MISSING_KEY_HINT = """
+    Не найден ключ Anthropic API. Любой из вариантов:
+      export ANTHROPIC_API_KEY=sk-ant-...
+      cp secrets.properties.example secrets.properties  # и вписать ключ, файл в .gitignore
+""".trimIndent()
+
 /** Ключ берём из окружения, иначе — из secrets.properties в корне репозитория (он в .gitignore). */
-private fun readApiKey(): String? {
+internal fun readApiKey(): String? {
     System.getenv("ANTHROPIC_API_KEY")?.takeIf { it.isNotBlank() }?.let { return it }
 
     val file = File("secrets.properties")

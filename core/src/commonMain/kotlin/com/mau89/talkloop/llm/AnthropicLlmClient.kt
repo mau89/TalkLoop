@@ -14,6 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Anthropic Messages API поверх ktor-client: официального KMP-SDK нет,
@@ -28,11 +29,21 @@ class AnthropicLlmClient(
     private val http = HttpClient {
         expectSuccess = true
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    // Иначе в запрос уедут "stop_sequences": null и "output_config": null,
+                    // а API на такое отвечает 400.
+                    explicitNulls = false
+                }
+            )
         }
     }
 
-    override suspend fun reply(history: List<ChatMessage>): String {
+    override suspend fun reply(history: List<ChatMessage>): String =
+        answer(history, ResponseSpec(system = systemPrompt)).text
+
+    override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
         val response: MessagesResponse = try {
             http.post(ENDPOINT) {
                 header("x-api-key", apiKey)
@@ -41,13 +52,17 @@ class AnthropicLlmClient(
                 setBody(
                     MessagesRequest(
                         model = model,
-                        maxTokens = DEFAULT_MAX_TOKENS,
-                        system = systemPrompt,
+                        maxTokens = spec.maxTokens,
+                        system = spec.system,
                         messages = history.map { message ->
                             ApiMessage(
-                                role = if (message.fromLearner) "user" else "assistant",
+                                role = if (message.fromUser) "user" else "assistant",
                                 content = message.text,
                             )
+                        },
+                        stopSequences = spec.stopSequences.ifEmpty { null },
+                        outputConfig = spec.jsonSchema?.let { schema ->
+                            OutputConfig(FormatSpec(type = "json_schema", schema = schema))
                         },
                     )
                 )
@@ -56,11 +71,17 @@ class AnthropicLlmClient(
             throw LlmException("${e.response.status.value}: ${e.response.bodyAsText()}", e)
         }
 
-        return response.content
-            .filter { it.type == "text" }
-            .mapNotNull { it.text }
-            .joinToString("\n")
-            .trim()
+        return LlmAnswer(
+            text = response.content
+                .filter { it.type == "text" }
+                .mapNotNull { it.text }
+                .joinToString("\n")
+                .trim(),
+            stopReason = response.stopReason,
+            stopSequence = response.stopSequence,
+            inputTokens = response.usage?.inputTokens ?: 0,
+            outputTokens = response.usage?.outputTokens ?: 0,
+        )
     }
 
     private companion object {
@@ -73,15 +94,35 @@ class AnthropicLlmClient(
 private data class MessagesRequest(
     val model: String,
     @SerialName("max_tokens") val maxTokens: Int,
-    val system: String,
+    val system: String? = null,
     val messages: List<ApiMessage>,
+    @SerialName("stop_sequences") val stopSequences: List<String>? = null,
+    @SerialName("output_config") val outputConfig: OutputConfig? = null,
 )
 
 @Serializable
 private data class ApiMessage(val role: String, val content: String)
 
+/** Structured outputs: схему ответа проверяет уже сам API, а не промпт. */
 @Serializable
-private data class MessagesResponse(val content: List<ContentBlock>)
+private data class OutputConfig(val format: FormatSpec)
+
+@Serializable
+private data class FormatSpec(val type: String, val schema: JsonObject)
+
+@Serializable
+private data class MessagesResponse(
+    val content: List<ContentBlock>,
+    @SerialName("stop_reason") val stopReason: String? = null,
+    @SerialName("stop_sequence") val stopSequence: String? = null,
+    val usage: ApiUsage? = null,
+)
 
 @Serializable
 private data class ContentBlock(val type: String, val text: String? = null)
+
+@Serializable
+private data class ApiUsage(
+    @SerialName("input_tokens") val inputTokens: Int = 0,
+    @SerialName("output_tokens") val outputTokens: Int = 0,
+)

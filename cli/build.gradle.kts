@@ -19,3 +19,12 @@ tasks.named<JavaExec>("run") {
     standardInput = System.`in`          // без этого CLI не читает ввод из терминала
     workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
 }
+
+// День 2: сравнение ответа без ограничений и с ограничениями формата.
+tasks.register<JavaExec>("day2") {
+    group = "application"
+    description = "День 2: один и тот же запрос без ограничений и с ограничениями формата"
+    mainClass = "com.mau89.talkloop.cli.Day2Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
+}

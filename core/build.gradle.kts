@@ -30,6 +30,9 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
+            // api, а не implementation: схема формата ответа (JsonObject) торчит
+            // в публичном API LlmClient, значит нужна и потребителям core.
+            api(libs.kotlinx.serializationJson)
             implementation(libs.ktor.clientCore)
             implementation(libs.ktor.clientContentNegotiation)
             implementation(libs.ktor.serializationJson)

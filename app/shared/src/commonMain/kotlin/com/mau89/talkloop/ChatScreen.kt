@@ -22,11 +22,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,17 +37,21 @@ import kotlinx.coroutines.launch
 
 /**
  * Экран диалога: то же, что делает CLI, только с текстовым вводом на телефоне.
- * Историю держим в памяти экрана — профиль ученика и SRS появятся, когда формат подтвердится.
+ * История приходит снаружи (App.kt), чтобы пережить переключение вкладки;
+ * профиль ученика и SRS появятся, когда формат подтвердится.
  */
 @Composable
-fun ChatScreen(apiKey: String, modifier: Modifier = Modifier) {
+fun ChatScreen(
+    apiKey: String,
+    history: SnapshotStateList<ChatMessage>,
+    modifier: Modifier = Modifier,
+) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
         return
     }
 
     val client = remember(apiKey) { AnthropicLlmClient(apiKey) }
-    val history = remember { mutableStateListOf<ChatMessage>() }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     var input by remember { mutableStateOf("") }
@@ -61,11 +65,11 @@ fun ChatScreen(apiKey: String, modifier: Modifier = Modifier) {
         if (waiting || text.isBlank()) return
         error = null
         waiting = true
-        history += ChatMessage(fromLearner = true, text = text)
+        history += ChatMessage(fromUser = true, text = text)
         scope.launch {
             try {
                 val reply = client.reply(history.toList())
-                history += ChatMessage(fromLearner = false, text = reply)
+                history += ChatMessage(fromUser = false, text = reply)
             } catch (e: Exception) {
                 // Реплику возвращаем в поле ввода, чтобы написанное не пропало.
                 history.removeAt(history.lastIndex)
@@ -147,10 +151,10 @@ fun ChatScreen(apiKey: String, modifier: Modifier = Modifier) {
 private fun Bubble(message: ChatMessage) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.fromLearner) Arrangement.End else Arrangement.Start,
+        horizontalArrangement = if (message.fromUser) Arrangement.End else Arrangement.Start,
     ) {
         Surface(
-            color = if (message.fromLearner) {
+            color = if (message.fromUser) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
                 MaterialTheme.colorScheme.surfaceVariant
@@ -168,7 +172,7 @@ private fun Bubble(message: ChatMessage) {
 }
 
 @Composable
-private fun MissingKeyHint(modifier: Modifier = Modifier) {
+internal fun MissingKeyHint(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,

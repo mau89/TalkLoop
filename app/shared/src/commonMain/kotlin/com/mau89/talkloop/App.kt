@@ -1,17 +1,45 @@
 package com.mau89.talkloop
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.mau89.talkloop.llm.ChatMessage
+
+private val TABS = listOf("Разговор", "Формат")
 
 @Composable
 fun App(apiKey: String) {
     MaterialTheme {
-        ChatScreen(
-            apiKey = apiKey,
-            modifier = Modifier.fillMaxSize().safeContentPadding(),
-        )
+        // История живёт здесь, а не в ChatScreen: иначе переключение вкладки
+        // выбрасывает её из композиции вместе с разговором.
+        val history = remember { mutableStateListOf<ChatMessage>() }
+        var tab by remember { mutableStateOf(0) }
+
+        Column(Modifier.fillMaxSize().safeContentPadding()) {
+            PrimaryTabRow(selectedTabIndex = tab) {
+                TABS.forEachIndexed { index, title ->
+                    Tab(
+                        selected = tab == index,
+                        onClick = { tab = index },
+                        text = { Text(title) },
+                    )
+                }
+            }
+            when (tab) {
+                0 -> ChatScreen(apiKey, history, Modifier.fillMaxSize())
+                else -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+            }
+        }
     }
 }

@@ -1,7 +1,32 @@
 package com.mau89.talkloop.llm
 
+import kotlinx.serialization.json.JsonObject
+
 /** Одна реплика разговора. */
-data class ChatMessage(val fromLearner: Boolean, val text: String)
+data class ChatMessage(val fromUser: Boolean, val text: String)
+
+/**
+ * Чем запрос ограничивает ответ модели.
+ *
+ * Разделение принципиальное: [system] и [stopSequences] — это просьба и грубый
+ * обрыв, их модель может обойти. [jsonSchema] проверяет API, и только он даёт
+ * гарантию, что формат будет одинаковым от запроса к запросу.
+ */
+data class ResponseSpec(
+    val system: String? = null,
+    val maxTokens: Int = DEFAULT_MAX_TOKENS,
+    val stopSequences: List<String> = emptyList(),
+    val jsonSchema: JsonObject? = null,
+)
+
+/** Ответ модели вместе с тем, как он закончился — без этого режимы не сравнить. */
+data class LlmAnswer(
+    val text: String,
+    val stopReason: String?,
+    val stopSequence: String?,
+    val inputTokens: Int,
+    val outputTokens: Int,
+)
 
 /**
  * Абстракция над провайдером LLM: смена провайдера или модели не должна
@@ -10,6 +35,9 @@ data class ChatMessage(val fromLearner: Boolean, val text: String)
 interface LlmClient {
     /** Отправляет всю историю разговора и возвращает ответ репетитора. */
     suspend fun reply(history: List<ChatMessage>): String
+
+    /** То же, но с явными ограничениями формата и с диагностикой ответа. */
+    suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer
 }
 
 class LlmException(message: String, cause: Throwable? = null) : Exception(message, cause)

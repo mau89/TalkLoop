@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mau89.talkloop.llm.ChatMessage
 
-private val TABS = listOf("Разговор", "Формат")
+private val TABS = listOf("Разговор", "Формат", "Мышление")
 
 @Composable
 fun App(apiKey: String) {
@@ -38,7 +38,8 @@ fun App(apiKey: String) {
             }
             when (tab) {
                 0 -> ChatScreen(apiKey, history, Modifier.fillMaxSize())
-                else -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                1 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                else -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }
     }

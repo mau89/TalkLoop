@@ -28,3 +28,12 @@ tasks.register<JavaExec>("day2") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
 }
+
+// День 3: одна задача — четыре способа рассуждения.
+tasks.register<JavaExec>("day3") {
+    group = "application"
+    description = "День 3: одна задача четырьмя способами рассуждения"
+    mainClass = "com.mau89.talkloop.cli.Day3Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
+}

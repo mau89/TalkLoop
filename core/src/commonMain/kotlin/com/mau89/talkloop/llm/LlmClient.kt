@@ -17,6 +17,8 @@ data class ResponseSpec(
     val maxTokens: Int = DEFAULT_MAX_TOKENS,
     val stopSequences: List<String> = emptyList(),
     val jsonSchema: JsonObject? = null,
+    /** null — температура провайдера по умолчанию (обычно 1.0). */
+    val temperature: Double? = null,
 )
 
 /** Ответ модели вместе с тем, как он закончился — без этого режимы не сравнить. */

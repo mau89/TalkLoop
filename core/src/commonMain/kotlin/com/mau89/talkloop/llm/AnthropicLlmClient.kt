@@ -61,6 +61,7 @@ class AnthropicLlmClient(
                             )
                         },
                         stopSequences = spec.stopSequences.ifEmpty { null },
+                        temperature = spec.temperature,
                         outputConfig = spec.jsonSchema?.let { schema ->
                             OutputConfig(FormatSpec(type = "json_schema", schema = schema))
                         },
@@ -97,6 +98,7 @@ private data class MessagesRequest(
     val system: String? = null,
     val messages: List<ApiMessage>,
     @SerialName("stop_sequences") val stopSequences: List<String>? = null,
+    val temperature: Double? = null,
     @SerialName("output_config") val outputConfig: OutputConfig? = null,
 )
 

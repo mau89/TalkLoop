@@ -46,3 +46,12 @@ tasks.register<JavaExec>("day4") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
 }
+
+// День 5: один запрос — слабая, средняя и сильная модель.
+tasks.register<JavaExec>("day5") {
+    group = "application"
+    description = "День 5: один запрос на Haiku, Sonnet и Opus"
+    mainClass = "com.mau89.talkloop.cli.Day5Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
+}

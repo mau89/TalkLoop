@@ -2,6 +2,9 @@ package com.mau89.talkloop.llm
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
@@ -28,6 +31,13 @@ class AnthropicLlmClient(
 
     private val http = HttpClient {
         expectSuccess = true
+        // Opus с adaptive thinking легко сидит дольше дефолтных ~10 с OkHttp.
+        // Без этого лаборатория моделей обрывается на сильной модели.
+        install(HttpTimeout) {
+            requestTimeoutMillis = REQUEST_TIMEOUT_MS
+            connectTimeoutMillis = CONNECT_TIMEOUT_MS
+            socketTimeoutMillis = REQUEST_TIMEOUT_MS
+        }
         install(ContentNegotiation) {
             json(
                 Json {
@@ -70,6 +80,18 @@ class AnthropicLlmClient(
             }.body()
         } catch (e: ResponseException) {
             throw LlmException("${e.response.status.value}: ${e.response.bodyAsText()}", e)
+        } catch (e: HttpRequestTimeoutException) {
+            throw LlmException(
+                "Модель $model не успела ответить за ${REQUEST_TIMEOUT_MS / 1000} с — " +
+                    "сильные модели с thinking часто дольше. Повторите прогон.",
+                e,
+            )
+        } catch (e: SocketTimeoutException) {
+            throw LlmException(
+                "Соединение с $model оборвалось по таймауту. " +
+                    "Сильная модель думает дольше — повторите прогон.",
+                e,
+            )
         }
 
         return LlmAnswer(
@@ -88,6 +110,9 @@ class AnthropicLlmClient(
     private companion object {
         const val ENDPOINT = "https://api.anthropic.com/v1/messages"
         const val ANTHROPIC_VERSION = "2023-06-01"
+        /** Opus с adaptive thinking легко занимает минуты — дефолт OkHttp ~10 с мало. */
+        const val REQUEST_TIMEOUT_MS = 300_000L
+        const val CONNECT_TIMEOUT_MS = 30_000L
     }
 }
 

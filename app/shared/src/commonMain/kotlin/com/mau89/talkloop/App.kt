@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mau89.talkloop.llm.ChatMessage
 
-private val TABS = listOf("Разговор", "Формат", "Мышление", "Температура")
+private val TABS = listOf("Разговор", "Формат", "Мышление", "Температура", "Модели")
 
 @Composable
 fun App(apiKey: String) {
@@ -27,7 +27,7 @@ fun App(apiKey: String) {
         var tab by remember { mutableStateOf(0) }
 
         Column(Modifier.fillMaxSize().safeContentPadding()) {
-            PrimaryTabRow(selectedTabIndex = tab) {
+            PrimaryScrollableTabRow(selectedTabIndex = tab) {
                 TABS.forEachIndexed { index, title ->
                     Tab(
                         selected = tab == index,
@@ -40,7 +40,8 @@ fun App(apiKey: String) {
                 0 -> ChatScreen(apiKey, history, Modifier.fillMaxSize())
                 1 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
                 2 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
-                else -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                3 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }
     }

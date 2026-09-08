@@ -22,16 +22,18 @@ class AgentRuntime(
     fun spawn(
         config: AgentConfig,
         initialHistory: List<ChatMessage> = emptyList(),
+        historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
     ): TalkLoopAgent {
         val agent = TalkLoopAgent(
             llmClient = sharedLlmClient,
             config = config,
             initialHistory = initialHistory,
+            historyStore = historyStore,
         )
         mutableAgentCount.update { it + 1 }
         return agent
     }
 
     fun spawn(configs: Iterable<AgentConfig>): List<TalkLoopAgent> =
-        configs.map(::spawn)
+        configs.map { config -> spawn(config) }
 }

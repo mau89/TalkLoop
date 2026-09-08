@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -45,7 +44,6 @@ import kotlinx.coroutines.launch
 fun ChatScreen(
     apiKey: String,
     agent: TalkLoopAgent,
-    history: SnapshotStateList<ChatMessage>,
     modifier: Modifier = Modifier,
     title: String = "TalkLoop",
     showRecap: Boolean = true,
@@ -61,29 +59,31 @@ fun ChatScreen(
 
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val history by agent.history.collectAsState()
     val statistics by agent.statistics.collectAsState()
     var input by remember { mutableStateOf("") }
     var waiting by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var pendingMessage by remember { mutableStateOf<ChatMessage?>(null) }
 
     // Запрос разбора не показываем в ленте — это служебная реплика, а не часть разговора.
-    val visible = history.filter { it.text != RECAP_REQUEST }
+    val visible = history.filter { it.text != RECAP_REQUEST } + listOfNotNull(pendingMessage)
 
     fun send(text: String) {
         if (waiting || text.isBlank()) return
         error = null
         waiting = true
-        history += ChatMessage(fromUser = true, text = text)
+        pendingMessage = text.takeUnless { it == RECAP_REQUEST }
+            ?.let { ChatMessage(fromUser = true, text = it) }
         scope.launch {
             try {
-                val reply = agent.respond(text)
-                history += ChatMessage(fromUser = false, text = reply)
+                agent.respond(text)
             } catch (e: Exception) {
                 // Реплику возвращаем в поле ввода, чтобы написанное не пропало.
-                history.removeAt(history.lastIndex)
                 if (text != RECAP_REQUEST) input = text
                 error = e.message ?: "Не дошло до модели"
             } finally {
+                pendingMessage = null
                 waiting = false
             }
         }

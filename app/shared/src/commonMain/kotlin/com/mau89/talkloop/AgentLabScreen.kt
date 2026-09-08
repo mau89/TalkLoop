@@ -21,18 +21,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
-import com.mau89.talkloop.llm.ChatMessage
 import com.mau89.talkloop.llm.TalkLoopAgent
 
 /**
- * День 6. Отдельный интерфейс первого агента.
+ * День 7. Интерфейс агента с восстановлением сохранённого контекста.
  *
  * Экран переиспользует чат, но работает со своей историей и без функций
  * предыдущего эксперимента вроде итогового разбора разговора.
@@ -43,12 +41,11 @@ fun AgentLabScreen(
     agentRuntime: AgentRuntime,
     agent: TalkLoopAgent,
     config: AgentConfig,
-    history: SnapshotStateList<ChatMessage>,
     onCreateAgent: (AgentConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val agentCount by agentRuntime.agentCount.collectAsState()
-    var settingsExpanded by remember { mutableStateOf(true) }
+    var settingsExpanded by remember { mutableStateOf(agent.history.value.isEmpty()) }
     var systemPrompt by remember(config) { mutableStateOf(config.systemPrompt) }
     var model by remember(config) { mutableStateOf(config.model) }
     var temperature by remember(config) {
@@ -147,7 +144,7 @@ fun AgentLabScreen(
                         )
                         }
                         Text(
-                            text = "При создании начнётся новая независимая история диалога.",
+                            text = "Новый агент начнёт с пустой истории и заменит сохранённый диалог.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -175,9 +172,8 @@ fun AgentLabScreen(
             ChatScreen(
                 apiKey = apiKey,
                 agent = agent,
-                history = history,
                 modifier = Modifier.weight(1f),
-                title = "День 6 · Первый агент",
+                title = "День 7 · Сохранение контекста",
                 showRecap = false,
                 inputPlaceholder = "Введите сообщение…",
                 sendButtonText = "Отправить",

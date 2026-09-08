@@ -34,16 +34,20 @@ class TalkLoopAgent(
     private val llmClient: LlmClient,
     private val config: AgentConfig = AgentConfig(systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT),
     initialHistory: List<ChatMessage> = emptyList(),
+    private val historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
 ) {
     private val mutex = Mutex()
-    private val history = initialHistory.toMutableList()
+    private val mutableHistory = MutableStateFlow(
+        historyStore.load().ifEmpty { initialHistory.toList() }
+    )
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
+    val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
 
     suspend fun respond(userRequest: String): String {
         return mutex.withLock {
-            val historySnapshot = history.toList()
+            val historySnapshot = mutableHistory.value
             val request = config.inputPolicies.foldSuspend(userRequest) { input, policy ->
                 policy.apply(input, InputPolicyContext(historySnapshot))
             }
@@ -84,8 +88,12 @@ class TalkLoopAgent(
                 throw AgentRejectedException(verdict.reason ?: "Judge отклонил ответ модели")
             }
 
-            history += userMessage
-            history += ChatMessage(fromUser = false, text = response)
+            val updatedHistory = historySnapshot + userMessage +
+                ChatMessage(fromUser = false, text = response)
+            // Сначала подтверждаем постоянную запись. Если она не удалась,
+            // оперативная история тоже остаётся на прежнем согласованном состоянии.
+            historyStore.save(updatedHistory)
+            mutableHistory.value = updatedHistory
             response
         }
     }

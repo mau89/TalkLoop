@@ -42,6 +42,37 @@ class TalkLoopAgentTest {
     }
 
     @Test
+    fun `новый экземпляр агента продолжает сохранённый до перезапуска диалог`() = runTest {
+        val storage = MapStringStore()
+        val firstClient = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("Приятно познакомиться, Маша!")),
+        )
+        val firstLaunch = TalkLoopAgent(
+            firstClient,
+            historyStore = JsonChatHistoryStore(storage),
+        )
+        firstLaunch.respond("Меня зовут Маша")
+
+        val secondClient = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("Тебя зовут Маша.")),
+        )
+        val afterRestart = TalkLoopAgent(
+            secondClient,
+            historyStore = JsonChatHistoryStore(storage),
+        )
+
+        assertEquals("Тебя зовут Маша.", afterRestart.respond("Как меня зовут?"))
+        assertEquals(
+            listOf(
+                ChatMessage(fromUser = true, text = "Меня зовут Маша"),
+                ChatMessage(fromUser = false, text = "Приятно познакомиться, Маша!"),
+                ChatMessage(fromUser = true, text = "Как меня зовут?"),
+            ),
+            secondClient.requests.single(),
+        )
+    }
+
+    @Test
     fun `агент не добавляет неуспешный запрос в историю`() = runTest {
         val client = FakeLlmClient(
             responses = ArrayDeque<Any>(listOf(LlmException("API недоступен"), "Recovered")),

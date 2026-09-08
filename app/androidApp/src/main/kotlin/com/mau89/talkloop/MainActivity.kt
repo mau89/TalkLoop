@@ -11,9 +11,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val agentHistoryStore = createPersistentChatHistoryStore(applicationContext)
 
         setContent {
-            App(apiKey = BuildConfig.ANTHROPIC_API_KEY)
+            App(
+                apiKey = BuildConfig.ANTHROPIC_API_KEY,
+                agentHistoryStore = agentHistoryStore,
+            )
         }
     }
 }

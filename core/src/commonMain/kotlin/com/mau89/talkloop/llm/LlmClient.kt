@@ -1,8 +1,10 @@
 package com.mau89.talkloop.llm
 
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.Serializable
 
 /** Одна реплика разговора. */
+@Serializable
 data class ChatMessage(val fromUser: Boolean, val text: String)
 
 /**

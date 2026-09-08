@@ -19,6 +19,8 @@ data class ResponseSpec(
     val jsonSchema: JsonObject? = null,
     /** null — температура провайдера по умолчанию (обычно 1.0). */
     val temperature: Double? = null,
+    /** null — модель транспорта по умолчанию; агент всегда задаёт её явно. */
+    val model: String? = null,
 )
 
 /** Ответ модели вместе с тем, как он закончился — без этого режимы не сравнить. */

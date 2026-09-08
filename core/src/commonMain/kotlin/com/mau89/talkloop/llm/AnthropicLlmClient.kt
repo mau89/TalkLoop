@@ -54,6 +54,7 @@ class AnthropicLlmClient(
         answer(history, ResponseSpec(system = systemPrompt)).text
 
     override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
+        val requestModel = spec.model ?: model
         val response: MessagesResponse = try {
             http.post(ENDPOINT) {
                 header("x-api-key", apiKey)
@@ -61,7 +62,7 @@ class AnthropicLlmClient(
                 contentType(ContentType.Application.Json)
                 setBody(
                     MessagesRequest(
-                        model = model,
+                        model = requestModel,
                         maxTokens = spec.maxTokens,
                         system = spec.system,
                         messages = history.map { message ->
@@ -82,13 +83,13 @@ class AnthropicLlmClient(
             throw LlmException("${e.response.status.value}: ${e.response.bodyAsText()}", e)
         } catch (e: HttpRequestTimeoutException) {
             throw LlmException(
-                "Модель $model не успела ответить за ${REQUEST_TIMEOUT_MS / 1000} с — " +
+                "Модель $requestModel не успела ответить за ${REQUEST_TIMEOUT_MS / 1000} с — " +
                     "сильные модели с thinking часто дольше. Повторите прогон.",
                 e,
             )
         } catch (e: SocketTimeoutException) {
             throw LlmException(
-                "Соединение с $model оборвалось по таймауту. " +
+                "Соединение с $requestModel оборвалось по таймауту. " +
                     "Сильная модель думает дольше — повторите прогон.",
                 e,
             )

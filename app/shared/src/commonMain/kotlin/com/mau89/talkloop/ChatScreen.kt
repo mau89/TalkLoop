@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +31,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.ChatMessage
 import com.mau89.talkloop.llm.RECAP_REQUEST
+import com.mau89.talkloop.llm.TalkLoopAgent
 import kotlinx.coroutines.launch
 
 /**
@@ -43,17 +44,24 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
     apiKey: String,
+    agent: TalkLoopAgent,
     history: SnapshotStateList<ChatMessage>,
     modifier: Modifier = Modifier,
+    title: String = "TalkLoop",
+    showRecap: Boolean = true,
+    inputPlaceholder: String = "Say something in English…",
+    sendButtonText: String = "Send",
+    showStatistics: Boolean = false,
+    agentCount: Int? = null,
 ) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
         return
     }
 
-    val client = remember(apiKey) { AnthropicLlmClient(apiKey) }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val statistics by agent.statistics.collectAsState()
     var input by remember { mutableStateOf("") }
     var waiting by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -68,7 +76,7 @@ fun ChatScreen(
         history += ChatMessage(fromUser = true, text = text)
         scope.launch {
             try {
-                val reply = client.reply(history.toList())
+                val reply = agent.respond(text)
                 history += ChatMessage(fromUser = false, text = reply)
             } catch (e: Exception) {
                 // Реплику возвращаем в поле ввода, чтобы написанное не пропало.
@@ -88,15 +96,17 @@ fun ChatScreen(
     Column(modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "TalkLoop",
+                text = title,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(
-                onClick = { send(RECAP_REQUEST) },
-                enabled = !waiting && history.isNotEmpty(),
-            ) {
-                Text("Разбор")
+            if (showRecap) {
+                TextButton(
+                    onClick = { send(RECAP_REQUEST) },
+                    enabled = !waiting && history.isNotEmpty(),
+                ) {
+                    Text("Разбор")
+                }
             }
         }
 
@@ -130,7 +140,7 @@ fun ChatScreen(
                 onValueChange = { input = it },
                 modifier = Modifier.weight(1f),
                 enabled = !waiting,
-                placeholder = { Text("Say something in English…") },
+                placeholder = { Text(inputPlaceholder) },
             )
             Spacer(Modifier.width(8.dp))
             Button(
@@ -141,8 +151,22 @@ fun ChatScreen(
                 },
                 enabled = !waiting && input.isNotBlank(),
             ) {
-                Text("Send")
+                Text(sendButtonText)
             }
+        }
+
+        if (showStatistics) {
+            Text(
+                text = buildString {
+                    append("Создано агентов: ${agentCount ?: 1}")
+                    append(" · Запросов: ${statistics.requestCount}")
+                    append(" · Токенов: ${statistics.totalTokens}")
+                    append(" (${statistics.inputTokens} вход / ${statistics.outputTokens} выход)")
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            )
         }
     }
 }

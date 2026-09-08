@@ -31,6 +31,9 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   — прогонов на температуру: `--args=5`
 - CLI-демо Дня 5 (один запрос на слабой, средней и сильной модели): `./gradlew :cli:day5 -q --console=plain`
   — сверка с эталоном необязательна: `--args=8`
+- День 6 (первый агент): запустите Android/iOS-приложение и откройте вкладку «Агент».
+  `TalkLoopAgent` принимает реплику, хранит контекст диалога и вызывает LLM через `LlmClient`;
+  Compose-экран только отображает запрос, состояние загрузки и полученный ответ.
 - Android app: `./gradlew :app:androidApp:assembleDebug` — ключ берётся из того же `secrets.properties`
   и вкомпилируется в APK, поэтому собранное приложение никому не раздавать; для этого понадобится
   прокси через `:server`
@@ -188,6 +191,33 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
 [ModelVersions.kt](core/src/commonMain/kotlin/com/mau89/talkloop/llm/ModelVersions.kt)
 и покрыты тестами без обращения к сети. Те же три модели в консоли:
 `./gradlew :cli:day5 -q --console=plain`.
+
+### День 6 — первый агент
+
+Во вкладке «Агент» запрос не отправляется из UI напрямую. Отдельная
+сущность [TalkLoopAgent](core/src/commonMain/kotlin/com/mau89/talkloop/llm/TalkLoopAgent.kt)
+инкапсулирует полный цикл: пропускает реплику через input policies, добавляет
+накопленный контекст, вызывает `LlmClient`, применяет output policies и при
+необходимости передаёт результат judge. Новая пара сообщений сохраняется только
+после успешного прохождения всех этапов.
+
+[AgentConfig](core/src/commonMain/kotlin/com/mau89/talkloop/llm/AgentConfig.kt)
+задаёт модель, системный промпт, лимиты, политики и judge отдельно для каждого
+логического агента. [AgentRuntime](core/src/commonMain/kotlin/com/mau89/talkloop/llm/AgentRuntime.kt)
+использует один общий `AnthropicLlmClient` и создаёт любое количество независимых
+агентных сессий со своими конфигурациями, историями и `Mutex`. Поэтому 100 агентов
+не означают 100 сетевых клиентов; реальное число одновременных API-вызовов всё
+равно должно учитывать rate limit провайдера.
+
+`AnthropicLlmClient` остаётся общим HTTP-адаптером, а Compose отвечает только за
+ввод и отображение результата. Под полем ввода мелким текстом показывается число
+созданных runtime-агентов, выполненных LLM-запросов, а также входных, выходных и
+суммарных токенов текущего агента.
+
+Во вкладке «Агент» конфигурацию можно менять без правки кода: доступны системный
+промпт, модель, temperature и max tokens. Кнопка «Создать нового агента» создаёт
+в том же runtime новую независимую сессию с пустой историей, не создавая новый
+HTTP-клиент.
 
 ### Running tests
 

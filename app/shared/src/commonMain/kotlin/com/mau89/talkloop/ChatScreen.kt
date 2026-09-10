@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.ChatMessage
 import com.mau89.talkloop.llm.RECAP_REQUEST
 import com.mau89.talkloop.llm.TalkLoopAgent
+import com.mau89.talkloop.llm.TokenTurnOutcome
+import com.mau89.talkloop.llm.formatUsd
 import kotlinx.coroutines.launch
 
 /**
@@ -156,19 +159,71 @@ fun ChatScreen(
         }
 
         if (showStatistics) {
-            Text(
-                text = buildString {
-                    append("Создано агентов: ${agentCount ?: 1}")
-                    append(" · Запросов: ${statistics.requestCount}")
-                    append(" · Токенов: ${statistics.totalTokens}")
-                    append(" (${statistics.inputTokens} вход / ${statistics.outputTokens} выход)")
-                },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            )
+            Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                ) {
+                    Text("Токены и стоимость", style = MaterialTheme.typography.titleSmall)
+                    statistics.lastTurn?.let { turn ->
+                        val status = when (turn.outcome) {
+                            TokenTurnOutcome.COMPLETED -> "готово"
+                            TokenTurnOutcome.REJECTED_BEFORE_SEND -> "переполнение до отправки"
+                            TokenTurnOutcome.RESPONSE_REACHED_CONTEXT_LIMIT ->
+                                "ответ оборван окном контекста"
+                        }
+                        Text(
+                            "Ход ${turn.turn}: текущий запрос ${turn.requestTokens} · " +
+                                "вся история ${turn.inputTokens}/${turn.contextWindowTokens} · " +
+                                "ответ ${turn.outputTokens}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            "Контекст ${formatPercent(turn.contextUsage)} · " +
+                                "стоимость хода ${formatUsd(turn.costUsd)} · " +
+                                "stop: ${turn.stopReason ?: "до API"} · $status",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (turn.outcome == TokenTurnOutcome.COMPLETED) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
+                        )
+                    } ?: Text(
+                        "Отправьте первую реплику — здесь появятся три отдельных счётчика.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        "За диалог: ${statistics.requestCount} попыток · " +
+                            "${statistics.inputTokens} вход / ${statistics.outputTokens} выход · " +
+                            "${statistics.totalTokens} токенов · ${formatUsd(statistics.totalCostUsd)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (statistics.turns.size > 1) {
+                        Text(
+                            text = "Рост полного входа: " + statistics.turns.takeLast(6)
+                                .joinToString(" → ") { turn ->
+                                    "${turn.turn}: ${turn.inputTokens}"
+                                },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Text(
+                        "Создано агентов: ${agentCount ?: 1}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
+}
+
+private fun formatPercent(value: Double): String {
+    val tenths = (value * 1_000.0).toInt().coerceAtLeast(0)
+    return "${tenths / 10}.${tenths % 10}%"
 }
 
 @Composable

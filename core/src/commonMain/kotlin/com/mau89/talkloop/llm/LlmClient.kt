@@ -32,7 +32,15 @@ data class LlmAnswer(
     val stopSequence: String?,
     val inputTokens: Int,
     val outputTokens: Int,
-)
+    val cacheCreationInputTokens: Int = 0,
+    val cacheReadInputTokens: Int = 0,
+    val cacheCreation5mInputTokens: Int = 0,
+    val cacheCreation1hInputTokens: Int = 0,
+) {
+    /** Полный вход контекста; API выносит кэшированные части в отдельные поля. */
+    val totalInputTokens: Int
+        get() = inputTokens + cacheCreationInputTokens + cacheReadInputTokens
+}
 
 /**
  * Абстракция над провайдером LLM: смена провайдера или модели не должна
@@ -44,6 +52,9 @@ interface LlmClient {
 
     /** То же, но с явными ограничениями формата и с диагностикой ответа. */
     suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer
+
+    /** Оценка полного входа тем же токенизатором, который использует выбранная модель. */
+    suspend fun countInputTokens(history: List<ChatMessage>, spec: ResponseSpec): Int
 }
 
 class LlmException(message: String, cause: Throwable? = null) : Exception(message, cause)

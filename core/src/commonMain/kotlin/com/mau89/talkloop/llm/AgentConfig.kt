@@ -10,6 +10,8 @@ data class AgentConfig(
     val model: String = DEFAULT_MODEL,
     val systemPrompt: String,
     val maxTokens: Int = DEFAULT_MAX_TOKENS,
+    /** Можно уменьшить в лаборатории, чтобы безопасно воспроизвести переполнение. */
+    val contextWindowTokens: Int = contextWindowForModel(model),
     val temperature: Double? = null,
     val stopSequences: List<String> = emptyList(),
     val inputPolicies: List<InputPolicy> = listOf(NonBlankInputPolicy),
@@ -19,6 +21,7 @@ data class AgentConfig(
     init {
         require(model.isNotBlank()) { "Модель агента не должна быть пустой" }
         require(maxTokens > 0) { "maxTokens должен быть больше нуля" }
+        require(contextWindowTokens > 0) { "contextWindowTokens должен быть больше нуля" }
     }
 }
 

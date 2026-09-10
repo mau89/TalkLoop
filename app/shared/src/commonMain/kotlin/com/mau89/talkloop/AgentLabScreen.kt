@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
 import com.mau89.talkloop.llm.TalkLoopAgent
+import com.mau89.talkloop.llm.contextWindowForModel
 
 /**
- * День 7. Интерфейс агента с восстановлением сохранённого контекста.
+ * День 8. Интерфейс агента с восстановлением контекста и метриками токенов.
  *
  * Экран переиспользует чат, но работает со своей историей и без функций
  * предыдущего эксперимента вроде итогового разбора разговора.
@@ -52,17 +53,23 @@ fun AgentLabScreen(
         mutableStateOf(config.temperature?.toString().orEmpty())
     }
     var maxTokens by remember(config) { mutableStateOf(config.maxTokens.toString()) }
+    var contextWindowTokens by remember(config) {
+        mutableStateOf(config.contextWindowTokens.toString())
+    }
 
     val parsedTemperature = temperature.trim()
         .replace(',', '.')
         .takeIf(String::isNotEmpty)
         ?.toDoubleOrNull()
     val parsedMaxTokens = maxTokens.trim().toIntOrNull()
+    val parsedContextWindowTokens = contextWindowTokens.trim().toIntOrNull()
     val temperatureValid = temperature.isBlank() ||
         (parsedTemperature != null && parsedTemperature in 0.0..1.0)
     val maxTokensValid = parsedMaxTokens != null && parsedMaxTokens > 0
+    val contextWindowValid = parsedContextWindowTokens != null &&
+        parsedContextWindowTokens > 0
     val canCreate = systemPrompt.isNotBlank() && model.isNotBlank() &&
-        temperatureValid && maxTokensValid
+        temperatureValid && maxTokensValid && contextWindowValid
 
     Column(modifier) {
         Row(
@@ -76,7 +83,7 @@ fun AgentLabScreen(
         }
         Text(
             text = "${config.model} · temperature: ${config.temperature ?: "по умолчанию"} · " +
-                "max tokens: ${config.maxTokens}",
+                "max tokens: ${config.maxTokens} · окно: ${config.contextWindowTokens}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -143,6 +150,33 @@ fun AgentLabScreen(
                             modifier = Modifier.weight(1f),
                         )
                         }
+                        OutlinedTextField(
+                            value = contextWindowTokens,
+                            onValueChange = { contextWindowTokens = it },
+                            label = { Text("Лимит окна контекста") },
+                            supportingText = {
+                                Text(
+                                    "Для ${model.ifBlank { "модели" }} обычно: " +
+                                        contextWindowForModel(model) +
+                                        ". Поставьте 200–500 для безопасного теста переполнения."
+                                )
+                            },
+                            isError = !contextWindowValid,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done,
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text(
+                            text = "Сравнение: сначала отправьте короткую реплику; затем " +
+                                "несколько длинных — полный вход будет расти на каждом ходе. " +
+                                "Для сценария переполнения создайте нового агента с учебным " +
+                                "лимитом 200–500 токенов.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         Text(
                             text = "Новый агент начнёт с пустой истории и заменит сохранённый диалог.",
                             style = MaterialTheme.typography.bodySmall,
@@ -156,6 +190,7 @@ fun AgentLabScreen(
                                         model = model.trim(),
                                         temperature = parsedTemperature,
                                         maxTokens = parsedMaxTokens!!,
+                                        contextWindowTokens = parsedContextWindowTokens!!,
                                     )
                                 )
                                 settingsExpanded = false
@@ -173,7 +208,7 @@ fun AgentLabScreen(
                 apiKey = apiKey,
                 agent = agent,
                 modifier = Modifier.weight(1f),
-                title = "День 7 · Сохранение контекста",
+                title = "День 8 · Работа с токенами",
                 showRecap = false,
                 inputPlaceholder = "Введите сообщение…",
                 sendButtonText = "Отправить",

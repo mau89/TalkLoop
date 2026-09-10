@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class TalkLoopAgentTest {
 
@@ -31,14 +32,10 @@ class TalkLoopAgentTest {
             ),
             client.requests[1],
         )
-        assertEquals(
-            AgentStatistics(
-                requestCount = 2,
-                inputTokens = 4,
-                outputTokens = 6,
-            ),
-            agent.statistics.value,
-        )
+        assertEquals(2, agent.statistics.value.requestCount)
+        assertEquals(4, agent.statistics.value.inputTokens)
+        assertEquals(6, agent.statistics.value.outputTokens)
+        assertEquals(2, agent.statistics.value.turns.size)
     }
 
     @Test
@@ -168,10 +165,115 @@ class TalkLoopAgentTest {
         assertEquals((0 until 100).map { "model-$it" }, client.specs.map { it.model })
         assertEquals((0 until 100).map { "agent-$it" }, client.specs.map { it.system })
     }
+
+    @Test
+    fun `день 8 считает текущий запрос всю историю ответ и стоимость`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(
+                listOf(
+                    LlmAnswer("one", "end_turn", null, inputTokens = 30, outputTokens = 5),
+                    LlmAnswer(
+                        text = "two",
+                        stopReason = "end_turn",
+                        stopSequence = null,
+                        inputTokens = 10,
+                        outputTokens = 7,
+                        cacheCreationInputTokens = 20,
+                        cacheReadInputTokens = 30,
+                        cacheCreation5mInputTokens = 20,
+                    ),
+                )
+            ),
+            tokenCounter = { history, spec ->
+                history.sumOf { it.text.length } + if (spec.system == null) 0 else 20
+            },
+        )
+        val agent = TalkLoopAgent(client)
+
+        agent.respond("short")
+        agent.respond("a much longer request")
+
+        val first = agent.statistics.value.turns[0]
+        val second = agent.statistics.value.turns[1]
+        assertEquals(5, first.requestTokens)
+        assertEquals(30, first.inputTokens)
+        assertEquals(5, first.outputTokens)
+        assertEquals(21, second.requestTokens)
+        assertEquals(60, second.inputTokens)
+        assertEquals(7, second.outputTokens)
+        assertTrue(second.inputTokens > first.inputTokens)
+        assertEquals(90, agent.statistics.value.inputTokens)
+        assertEquals(12, agent.statistics.value.outputTokens)
+        // Haiku: base input $1/MTok, 5m cache write x1.25, cache read x0.1,
+        // output $5/MTok. Полный вход при этом всё равно включает все три части usage.
+        assertEquals(0.000128, agent.statistics.value.totalCostUsd, absoluteTolerance = 0.0000001)
+    }
+
+    @Test
+    fun `переполнение видно до вызова модели и не портит историю`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("не должен быть вызван")),
+            tokenCounter = { history, spec ->
+                if (spec.system == null) 8 else history.sumOf { it.text.length } + 20
+            },
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "test",
+                contextWindowTokens = 25,
+            ),
+        )
+
+        val error = assertFailsWith<ContextWindowExceededException> {
+            agent.respond("1234567890")
+        }
+
+        assertEquals(30, error.inputTokens)
+        assertEquals(emptyList(), client.requests)
+        assertEquals(emptyList(), agent.history.value)
+        assertEquals(TokenTurnOutcome.REJECTED_BEFORE_SEND, agent.statistics.value.lastTurn?.outcome)
+        assertEquals(0, agent.statistics.value.inputTokens)
+        assertEquals(0.0, agent.statistics.value.totalCostUsd)
+    }
+
+    @Test
+    fun `ответ оборванный окном контекста оплачивается но не сохраняется`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(
+                listOf(
+                    LlmAnswer(
+                        text = "неполный",
+                        stopReason = "model_context_window_exceeded",
+                        stopSequence = null,
+                        inputTokens = 80,
+                        outputTokens = 20,
+                    )
+                )
+            ),
+            tokenCounter = { _, spec -> if (spec.system == null) 4 else 80 },
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(systemPrompt = "test", contextWindowTokens = 100),
+        )
+
+        assertFailsWith<ContextWindowExceededException> { agent.respond("test") }
+
+        assertEquals(emptyList(), agent.history.value)
+        assertEquals(100, agent.statistics.value.totalTokens)
+        assertEquals(
+            TokenTurnOutcome.RESPONSE_REACHED_CONTEXT_LIMIT,
+            agent.statistics.value.lastTurn?.outcome,
+        )
+    }
 }
 
 private class FakeLlmClient(
     private val responses: ArrayDeque<Any>,
+    private val tokenCounter: (List<ChatMessage>, ResponseSpec) -> Int = { history, spec ->
+        history.sumOf { it.text.length } + if (spec.system == null) 0 else 5
+    },
 ) : LlmClient {
     val requests = mutableListOf<List<ChatMessage>>()
     val specs = mutableListOf<ResponseSpec>()
@@ -182,16 +284,21 @@ private class FakeLlmClient(
     override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
         requests += history
         specs += spec
-        val text = when (val response = responses.removeFirst()) {
+        return when (val response = responses.removeFirst()) {
             is Throwable -> throw response
-            else -> response as String
+            is LlmAnswer -> response
+            else -> LlmAnswer(
+                text = response as String,
+                stopReason = "end_turn",
+                stopSequence = null,
+                inputTokens = 2,
+                outputTokens = 3,
+            )
         }
-        return LlmAnswer(
-            text = text,
-            stopReason = "end_turn",
-            stopSequence = null,
-            inputTokens = 2,
-            outputTokens = 3,
-        )
     }
+
+    override suspend fun countInputTokens(
+        history: List<ChatMessage>,
+        spec: ResponseSpec,
+    ): Int = tokenCounter(history, spec)
 }

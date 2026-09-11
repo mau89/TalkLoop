@@ -20,8 +20,40 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":1"))
+        assertTrue(storage.values.values.single().contains("\"version\":2"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
+    }
+
+    @Test
+    fun `summary хранится отдельно от последних сообщений`() {
+        val storage = MapStringStore()
+        val store = JsonChatHistoryStore(storage)
+        val recent = listOf(
+            ChatMessage(fromUser = true, text = "Как меня зовут?"),
+            ChatMessage(fromUser = false, text = "Маша"),
+        )
+
+        store.save(recent, summary = "Пользователя зовут Маша.")
+        val afterRestart = JsonChatHistoryStore(storage)
+
+        assertEquals(recent, afterRestart.load())
+        assertEquals("Пользователя зовут Маша.", afterRestart.loadSummary())
+        assertTrue(storage.values.values.single().contains("\"summary\""))
+    }
+
+    @Test
+    fun `формат первого дня сохранения остаётся читаемым`() {
+        val storage = MapStringStore(
+            mutableMapOf(
+                "talkloop.agent.history" to
+                    """{"version":1,"messages":[{"fromUser":true,"text":"Привет"}]}"""
+            )
+        )
+
+        val store = JsonChatHistoryStore(storage)
+
+        assertEquals(listOf(ChatMessage(true, "Привет")), store.load())
+        assertEquals(null, store.loadSummary())
     }
 
     @Test

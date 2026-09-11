@@ -17,6 +17,7 @@ import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
 import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.ChatHistoryStore
+import com.mau89.talkloop.llm.ContextCompressionConfig
 import com.mau89.talkloop.llm.GENERAL_AGENT_SYSTEM_PROMPT
 import com.mau89.talkloop.llm.InMemoryChatHistoryStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
@@ -36,7 +37,12 @@ fun App(
             agentRuntime.spawn(AgentConfig(systemPrompt = TUTOR_SYSTEM_PROMPT))
         }
         var generalAgentConfig by remember(agentRuntime) {
-            mutableStateOf(AgentConfig(systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT))
+            mutableStateOf(
+                AgentConfig(
+                    systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
+                    contextCompression = ContextCompressionConfig(enabled = true),
+                )
+            )
         }
         var generalAgent by remember(agentRuntime, agentHistoryStore) {
             mutableStateOf(

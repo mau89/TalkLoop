@@ -14,6 +14,7 @@ data class AgentConfig(
     val contextWindowTokens: Int = contextWindowForModel(model),
     val temperature: Double? = null,
     val stopSequences: List<String> = emptyList(),
+    val contextCompression: ContextCompressionConfig = ContextCompressionConfig(),
     val inputPolicies: List<InputPolicy> = listOf(NonBlankInputPolicy),
     val outputPolicies: List<OutputPolicy> = listOf(NonBlankOutputPolicy),
     val judge: AgentJudge? = null,

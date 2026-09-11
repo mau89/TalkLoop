@@ -54,6 +54,7 @@ fun ChatScreen(
     sendButtonText: String = "Send",
     showStatistics: Boolean = false,
     agentCount: Int? = null,
+    compressionEnabled: Boolean = false,
 ) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
@@ -63,11 +64,13 @@ fun ChatScreen(
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val history by agent.history.collectAsState()
+    val summary by agent.summary.collectAsState()
     val statistics by agent.statistics.collectAsState()
     var input by remember { mutableStateOf("") }
     var waiting by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var pendingMessage by remember { mutableStateOf<ChatMessage?>(null) }
+    var summaryExpanded by remember { mutableStateOf(false) }
 
     // Запрос разбора не показываем в ленте — это служебная реплика, а не часть разговора.
     val visible = history.filter { it.text != RECAP_REQUEST } + listOfNotNull(pendingMessage)
@@ -109,6 +112,25 @@ fun ChatScreen(
                     enabled = !waiting && history.isNotEmpty(),
                 ) {
                     Text("Разбор")
+                }
+            }
+        }
+
+        summary?.let { memory ->
+            Card(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Summary старой истории", Modifier.weight(1f))
+                        TextButton(onClick = { summaryExpanded = !summaryExpanded }) {
+                            Text(if (summaryExpanded) "Скрыть" else "Показать")
+                        }
+                    }
+                    if (summaryExpanded) {
+                        Text(memory, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         }
@@ -165,6 +187,11 @@ fun ChatScreen(
                     verticalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
                     Text("Токены и стоимость", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        if (compressionEnabled) "Режим: summary + последние сообщения"
+                        else "Режим: полная история без сжатия",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                     statistics.lastTurn?.let { turn ->
                         val status = when (turn.outcome) {
                             TokenTurnOutcome.COMPLETED -> "готово"
@@ -195,8 +222,8 @@ fun ChatScreen(
                     )
                     Text(
                         "За диалог: ${statistics.requestCount} попыток · " +
-                            "${statistics.inputTokens} вход / ${statistics.outputTokens} выход · " +
-                            "${statistics.totalTokens} токенов · ${formatUsd(statistics.totalCostUsd)}",
+                            "${statistics.allInputTokens} вход / ${statistics.allOutputTokens} выход · " +
+                            "${statistics.allTokens} токенов · ${formatUsd(statistics.allCostUsd)}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -209,6 +236,42 @@ fun ChatScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                    if (compressionEnabled) {
+                        val compression = statistics.compression
+                        Text(
+                            "Сжатий: ${compression.compressionCount} · заменено сообщений: " +
+                                "${compression.compressedMessages} · summary: " +
+                                "${compression.summaryInputTokens} вход / " +
+                                "${compression.summaryOutputTokens} выход · " +
+                                formatUsd(compression.summaryCostUsd),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (compression.latestBeforeTokens != null &&
+                            compression.latestAfterTokens != null
+                        ) {
+                            val savedTokens = compression.latestSavedTokens ?: 0
+                            val change = if (savedTokens >= 0) {
+                                "экономия $savedTokens " +
+                                    "(${formatPercent(compression.latestSavedFraction ?: 0.0)})"
+                            } else {
+                                "summary длиннее на ${-savedTokens} токенов"
+                            }
+                            Text(
+                                "Последнее сжатие: ${compression.latestBeforeTokens} → " +
+                                    "${compression.latestAfterTokens} токенов · $change",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        compression.lastError?.let { compressionError ->
+                            Text(
+                                "Summary не обновлён: $compressionError",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
                     }
                     Text(
                         "Создано агентов: ${agentCount ?: 1}",

@@ -5,10 +5,12 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-/** Хранилище уже подтверждённых пар реплик агента. */
+/** Хранилище summary и подтверждённого дословного хвоста диалога. */
 interface ChatHistoryStore {
     fun load(): List<ChatMessage>
+    fun loadSummary(): String? = null
     fun save(messages: List<ChatMessage>)
+    fun save(messages: List<ChatMessage>, summary: String?) = save(messages)
     fun clear()
 }
 
@@ -32,45 +34,76 @@ class JsonChatHistoryStore(
     },
 ) : ChatHistoryStore {
     override fun load(): List<ChatMessage> {
-        val value = storage.read(key) ?: return emptyList()
-        return runCatching {
-            val stored = json.decodeFromString<StoredChatHistory>(value)
-            stored.messages.takeIf { stored.version == CURRENT_VERSION }.orEmpty()
-        }.getOrDefault(emptyList())
+        return loadStored()?.messages.orEmpty()
+    }
+
+    override fun loadSummary(): String? {
+        return loadStored()?.summary?.takeIf(String::isNotBlank)
     }
 
     override fun save(messages: List<ChatMessage>) {
-        storage.write(key, json.encodeToString(StoredChatHistory(messages = messages)))
+        save(messages, summary = null)
+    }
+
+    override fun save(messages: List<ChatMessage>, summary: String?) {
+        storage.write(
+            key,
+            json.encodeToString(
+                StoredChatHistory(
+                    summary = summary?.takeIf(String::isNotBlank),
+                    messages = messages,
+                )
+            ),
+        )
     }
 
     override fun clear() {
         storage.remove(key)
     }
 
+    private fun loadStored(): StoredChatHistory? {
+        val value = storage.read(key) ?: return null
+        return runCatching {
+            json.decodeFromString<StoredChatHistory>(value)
+                .takeIf { it.version in 1..CURRENT_VERSION }
+        }.getOrNull()
+    }
+
     private companion object {
         const val DEFAULT_HISTORY_KEY = "talkloop.agent.history"
-        const val CURRENT_VERSION = 1
+        const val CURRENT_VERSION = 2
     }
 }
 
 class InMemoryChatHistoryStore(
     initialHistory: List<ChatMessage> = emptyList(),
+    initialSummary: String? = null,
 ) : ChatHistoryStore {
     private var messages = initialHistory.toList()
+    private var summary = initialSummary
 
     override fun load(): List<ChatMessage> = messages.toList()
 
+    override fun loadSummary(): String? = summary
+
     override fun save(messages: List<ChatMessage>) {
+        save(messages, summary = null)
+    }
+
+    override fun save(messages: List<ChatMessage>, summary: String?) {
         this.messages = messages.toList()
+        this.summary = summary
     }
 
     override fun clear() {
         messages = emptyList()
+        summary = null
     }
 }
 
 @Serializable
 private data class StoredChatHistory(
-    val version: Int = 1,
+    val version: Int = 2,
+    val summary: String? = null,
     val messages: List<ChatMessage>,
 )

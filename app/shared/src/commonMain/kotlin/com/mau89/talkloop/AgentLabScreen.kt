@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,11 +28,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
+import com.mau89.talkloop.llm.ContextCompressionConfig
 import com.mau89.talkloop.llm.TalkLoopAgent
 import com.mau89.talkloop.llm.contextWindowForModel
 
 /**
- * День 8. Интерфейс агента с восстановлением контекста и метриками токенов.
+ * День 9. Интерфейс агента с долговременной памятью и сжатием контекста.
  *
  * Экран переиспользует чат, но работает со своей историей и без функций
  * предыдущего эксперимента вроде итогового разбора разговора.
@@ -56,6 +58,15 @@ fun AgentLabScreen(
     var contextWindowTokens by remember(config) {
         mutableStateOf(config.contextWindowTokens.toString())
     }
+    var compressionEnabled by remember(config) {
+        mutableStateOf(config.contextCompression.enabled)
+    }
+    var keepLastMessages by remember(config) {
+        mutableStateOf(config.contextCompression.keepLastMessages.toString())
+    }
+    var summaryMaxTokens by remember(config) {
+        mutableStateOf(config.contextCompression.summaryMaxTokens.toString())
+    }
 
     val parsedTemperature = temperature.trim()
         .replace(',', '.')
@@ -63,13 +74,18 @@ fun AgentLabScreen(
         ?.toDoubleOrNull()
     val parsedMaxTokens = maxTokens.trim().toIntOrNull()
     val parsedContextWindowTokens = contextWindowTokens.trim().toIntOrNull()
+    val parsedKeepLastMessages = keepLastMessages.trim().toIntOrNull()
+    val parsedSummaryMaxTokens = summaryMaxTokens.trim().toIntOrNull()
     val temperatureValid = temperature.isBlank() ||
         (parsedTemperature != null && parsedTemperature in 0.0..1.0)
     val maxTokensValid = parsedMaxTokens != null && parsedMaxTokens > 0
     val contextWindowValid = parsedContextWindowTokens != null &&
         parsedContextWindowTokens > 0
+    val compressionNumbersValid = parsedKeepLastMessages != null &&
+        parsedKeepLastMessages > 0 && parsedKeepLastMessages % 2 == 0 &&
+        parsedSummaryMaxTokens != null && parsedSummaryMaxTokens > 0
     val canCreate = systemPrompt.isNotBlank() && model.isNotBlank() &&
-        temperatureValid && maxTokensValid && contextWindowValid
+        temperatureValid && maxTokensValid && contextWindowValid && compressionNumbersValid
 
     Column(modifier) {
         Row(
@@ -83,7 +99,12 @@ fun AgentLabScreen(
         }
         Text(
             text = "${config.model} · temperature: ${config.temperature ?: "по умолчанию"} · " +
-                "max tokens: ${config.maxTokens} · окно: ${config.contextWindowTokens}",
+                "max tokens: ${config.maxTokens} · окно: ${config.contextWindowTokens} · " +
+                if (config.contextCompression.enabled) {
+                    "сжатие: последние ${config.contextCompression.keepLastMessages}"
+                } else {
+                    "сжатие: выкл"
+                },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -127,28 +148,28 @@ fun AgentLabScreen(
                                 onValueChange = { temperature = it },
                                 label = { Text("Temperature") },
                                 placeholder = { Text("по умолчанию") },
-                            supportingText = { Text("Пусто или 0–1") },
-                            isError = !temperatureValid,
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal,
-                                imeAction = ImeAction.Next,
-                            ),
-                            modifier = Modifier.weight(1f),
-                        )
+                                supportingText = { Text("Пусто или 0–1") },
+                                isError = !temperatureValid,
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Decimal,
+                                    imeAction = ImeAction.Next,
+                                ),
+                                modifier = Modifier.weight(1f),
+                            )
                             OutlinedTextField(
                                 value = maxTokens,
                                 onValueChange = { maxTokens = it },
                                 label = { Text("Max tokens") },
-                            supportingText = { Text("Больше нуля") },
-                            isError = !maxTokensValid,
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Done,
-                            ),
-                            modifier = Modifier.weight(1f),
-                        )
+                                supportingText = { Text("Больше нуля") },
+                                isError = !maxTokensValid,
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done,
+                                ),
+                                modifier = Modifier.weight(1f),
+                            )
                         }
                         OutlinedTextField(
                             value = contextWindowTokens,
@@ -169,11 +190,53 @@ fun AgentLabScreen(
                             ),
                             modifier = Modifier.fillMaxWidth(),
                         )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Сжимать историю", style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    "Summary отдельно + свежие сообщения дословно",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Switch(
+                                checked = compressionEnabled,
+                                onCheckedChange = { compressionEnabled = it },
+                            )
+                        }
+                        OutlinedTextField(
+                            value = keepLastMessages,
+                            onValueChange = { keepLastMessages = it },
+                            label = { Text("Последние N сообщений") },
+                            supportingText = {
+                                Text("Чётное число; всё более старое сразу уйдёт в summary")
+                            },
+                            isError = parsedKeepLastMessages == null ||
+                                parsedKeepLastMessages <= 0 || parsedKeepLastMessages % 2 != 0,
+                            enabled = compressionEnabled,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        OutlinedTextField(
+                            value = summaryMaxTokens,
+                            onValueChange = { summaryMaxTokens = it },
+                            label = { Text("Max tokens для summary") },
+                            supportingText = { Text("Обычно 256–512") },
+                            isError = parsedSummaryMaxTokens == null || parsedSummaryMaxTokens <= 0,
+                            enabled = compressionEnabled,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                         Text(
-                            text = "Сравнение: сначала отправьте короткую реплику; затем " +
-                                "несколько длинных — полный вход будет расти на каждом ходе. " +
-                                "Для сценария переполнения создайте нового агента с учебным " +
-                                "лимитом 200–500 токенов.",
+                            text = "Для сравнения сначала пройдите один сценарий без сжатия, " +
+                                "затем создайте агента со сжатием и повторите его. После первого " +
+                                "summary карточка покажет точный контекст до и после; качество " +
+                                "проверьте вопросом о ранних фактах.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -191,6 +254,11 @@ fun AgentLabScreen(
                                         temperature = parsedTemperature,
                                         maxTokens = parsedMaxTokens!!,
                                         contextWindowTokens = parsedContextWindowTokens!!,
+                                        contextCompression = ContextCompressionConfig(
+                                            enabled = compressionEnabled,
+                                            keepLastMessages = parsedKeepLastMessages!!,
+                                            summaryMaxTokens = parsedSummaryMaxTokens!!,
+                                        ),
                                     )
                                 )
                                 settingsExpanded = false
@@ -208,12 +276,13 @@ fun AgentLabScreen(
                 apiKey = apiKey,
                 agent = agent,
                 modifier = Modifier.weight(1f),
-                title = "День 8 · Работа с токенами",
+                title = "День 9 · Сжатие истории",
                 showRecap = false,
                 inputPlaceholder = "Введите сообщение…",
                 sendButtonText = "Отправить",
                 showStatistics = true,
                 agentCount = agentCount,
+                compressionEnabled = config.contextCompression.enabled,
             )
         }
     }

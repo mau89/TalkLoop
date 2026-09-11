@@ -267,6 +267,134 @@ class TalkLoopAgentTest {
             agent.statistics.value.lastTurn?.outcome,
         )
     }
+
+    @Test
+    fun `день 9 заменяет старые сообщения summary и оставляет последние N дословно`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(
+                listOf(
+                    "Ответ 1",
+                    "Ответ 2",
+                    LlmAnswer(
+                        text = "Пользователя зовут Маша.",
+                        stopReason = "end_turn",
+                        stopSequence = null,
+                        inputTokens = 40,
+                        outputTokens = 8,
+                    ),
+                    "Тебя зовут Маша.",
+                    "Пользователя зовут Маша, он просил это запомнить.",
+                )
+            ),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "test-system",
+                contextCompression = ContextCompressionConfig(
+                    enabled = true,
+                    keepLastMessages = 2,
+                    summaryMaxTokens = 100,
+                ),
+            ),
+        )
+
+        agent.respond("Меня зовут Маша")
+        agent.respond("Запомни это")
+
+        assertEquals("Пользователя зовут Маша.", agent.summary.value)
+        assertEquals(
+            listOf(
+                ChatMessage(true, "Запомни это"),
+                ChatMessage(false, "Ответ 2"),
+            ),
+            agent.history.value,
+        )
+        assertEquals(1, agent.statistics.value.compression.compressionCount)
+        assertEquals(2, agent.statistics.value.compression.compressedMessages)
+        assertEquals(40, agent.statistics.value.compression.summaryInputTokens)
+        assertEquals(8, agent.statistics.value.compression.summaryOutputTokens)
+        assertEquals(45, agent.statistics.value.compression.latestBeforeTokens)
+        assertEquals(23, agent.statistics.value.compression.latestAfterTokens)
+        assertEquals(22, agent.statistics.value.compression.latestSavedTokens)
+        assertEquals(58, agent.statistics.value.allTokens)
+
+        assertEquals("Тебя зовут Маша.", agent.respond("Как меня зовут?"))
+        assertEquals(
+            listOf(
+                ChatMessage(true, "Запомни это"),
+                ChatMessage(false, "Ответ 2"),
+                ChatMessage(true, "Как меня зовут?"),
+            ),
+            client.requests[3],
+        )
+        assertTrue(client.specs[3].system.orEmpty().contains("Пользователя зовут Маша."))
+    }
+
+    @Test
+    fun `summary и свежий хвост восстанавливаются после перезапуска`() = runTest {
+        val storage = MapStringStore()
+        val config = AgentConfig(
+            systemPrompt = "test-system",
+            contextCompression = ContextCompressionConfig(
+                enabled = true,
+                keepLastMessages = 2,
+            ),
+        )
+        val firstClient = FakeLlmClient(
+            responses = ArrayDeque<Any>(
+                listOf("A1", "A2", "Сжатая память"),
+            ),
+        )
+        val first = TalkLoopAgent(
+            firstClient,
+            config,
+            historyStore = JsonChatHistoryStore(storage),
+        )
+        first.respond("U1")
+        first.respond("U2")
+
+        val secondClient = FakeLlmClient(
+            ArrayDeque<Any>(listOf("A3", "Обновлённая сжатая память")),
+        )
+        val afterRestart = TalkLoopAgent(
+            secondClient,
+            config,
+            historyStore = JsonChatHistoryStore(storage),
+        )
+
+        assertEquals("Сжатая память", afterRestart.summary.value)
+        afterRestart.respond("U3")
+
+        assertEquals("Обновлённая сжатая память", afterRestart.summary.value)
+        assertEquals(listOf("U2", "A2", "U3"), secondClient.requests.first().map { it.text })
+        assertTrue(secondClient.specs.first().system.orEmpty().contains("Сжатая память"))
+    }
+
+    @Test
+    fun `сбой summarizer не отменяет готовый ответ и оставляет полную историю`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("A1", "A2", LlmException("summary offline"))),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "test",
+                contextCompression = ContextCompressionConfig(
+                    enabled = true,
+                    keepLastMessages = 2,
+                ),
+            ),
+        )
+
+        agent.respond("U1")
+        assertEquals("A2", agent.respond("U2"))
+
+        assertEquals(listOf("U1", "A1", "U2", "A2"), agent.history.value.map { it.text })
+        assertEquals(null, agent.summary.value)
+        assertEquals(0, agent.statistics.value.compression.compressionCount)
+        assertEquals("summary offline", agent.statistics.value.compression.lastError)
+    }
 }
 
 private class FakeLlmClient(

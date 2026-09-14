@@ -14,6 +14,8 @@ data class AgentConfig(
     val contextWindowTokens: Int = contextWindowForModel(model),
     val temperature: Double? = null,
     val stopSequences: List<String> = emptyList(),
+    /** Стратегия Дня 10; summary используется только в совместимом FullHistory. */
+    val contextStrategy: ContextStrategy = ContextStrategy.FullHistory,
     val contextCompression: ContextCompressionConfig = ContextCompressionConfig(),
     val inputPolicies: List<InputPolicy> = listOf(NonBlankInputPolicy),
     val outputPolicies: List<OutputPolicy> = listOf(NonBlankOutputPolicy),
@@ -23,6 +25,9 @@ data class AgentConfig(
         require(model.isNotBlank()) { "Модель агента не должна быть пустой" }
         require(maxTokens > 0) { "maxTokens должен быть больше нуля" }
         require(contextWindowTokens > 0) { "contextWindowTokens должен быть больше нуля" }
+        require(contextStrategy == ContextStrategy.FullHistory || !contextCompression.enabled) {
+            "Стратегии Дня 10 работают без summary; отключите contextCompression"
+        }
     }
 }
 

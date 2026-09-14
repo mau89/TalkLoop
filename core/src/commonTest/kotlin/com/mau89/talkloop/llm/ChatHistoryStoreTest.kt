@@ -20,7 +20,7 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":2"))
+        assertTrue(storage.values.values.single().contains("\"version\":3"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
     }
 
@@ -39,6 +39,26 @@ class ChatHistoryStoreTest {
         assertEquals(recent, afterRestart.load())
         assertEquals("Пользователя зовут Маша.", afterRestart.loadSummary())
         assertTrue(storage.values.values.single().contains("\"summary\""))
+    }
+
+    @Test
+    fun `facts checkpoint и ветки сохраняются одним снимком`() {
+        val storage = MapStringStore()
+        val store = JsonChatHistoryStore(storage)
+        val common = listOf(ChatMessage(true, "Общее требование"))
+        val checkpoint = DialogueCheckpoint("checkpoint-1", "Развилка", common)
+        val branch = DialogueBranch("branch-a", "Вариант A", checkpoint.id, common)
+        val expected = AgentMemorySnapshot(
+            messages = common,
+            facts = mapOf("goal" to "собрать ТЗ"),
+            activeBranchId = branch.id,
+            branches = listOf(branch),
+            checkpoints = listOf(checkpoint),
+        )
+
+        store.saveMemory(expected)
+
+        assertEquals(expected, JsonChatHistoryStore(storage).loadMemory())
     }
 
     @Test

@@ -18,6 +18,7 @@ import com.mau89.talkloop.llm.AgentRuntime
 import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.ChatHistoryStore
 import com.mau89.talkloop.llm.ContextCompressionConfig
+import com.mau89.talkloop.llm.ContextStrategy
 import com.mau89.talkloop.llm.GENERAL_AGENT_SYSTEM_PROMPT
 import com.mau89.talkloop.llm.InMemoryChatHistoryStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
@@ -40,7 +41,8 @@ fun App(
             mutableStateOf(
                 AgentConfig(
                     systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
-                    contextCompression = ContextCompressionConfig(enabled = true),
+                    contextStrategy = ContextStrategy.SlidingWindow(keepLastMessages = 10),
+                    contextCompression = ContextCompressionConfig(enabled = false),
                 )
             )
         }

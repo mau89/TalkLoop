@@ -55,6 +55,8 @@ fun ChatScreen(
     showStatistics: Boolean = false,
     agentCount: Int? = null,
     compressionEnabled: Boolean = false,
+    strategyLabel: String? = null,
+    factsEnabled: Boolean = false,
 ) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
@@ -71,6 +73,7 @@ fun ChatScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var pendingMessage by remember { mutableStateOf<ChatMessage?>(null) }
     var summaryExpanded by remember { mutableStateOf(false) }
+    var statisticsExpanded by remember { mutableStateOf(false) }
 
     // Запрос разбора не показываем в ленте — это служебная реплика, а не часть разговора.
     val visible = history.filter { it.text != RECAP_REQUEST } + listOfNotNull(pendingMessage)
@@ -186,40 +189,56 @@ fun ChatScreen(
                     modifier = Modifier.fillMaxWidth().padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
-                    Text("Токены и стоимость", style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        if (compressionEnabled) "Режим: summary + последние сообщения"
-                        else "Режим: полная история без сжатия",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    statistics.lastTurn?.let { turn ->
-                        val status = when (turn.outcome) {
-                            TokenTurnOutcome.COMPLETED -> "готово"
-                            TokenTurnOutcome.REJECTED_BEFORE_SEND -> "переполнение до отправки"
-                            TokenTurnOutcome.RESPONSE_REACHED_CONTEXT_LIMIT ->
-                                "ответ оборван окном контекста"
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "Токены и стоимость",
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        TextButton(onClick = { statisticsExpanded = !statisticsExpanded }) {
+                            Text(if (statisticsExpanded) "Скрыть" else "Подробнее")
                         }
-                        Text(
-                            "Ход ${turn.turn}: текущий запрос ${turn.requestTokens} · " +
-                                "вся история ${turn.inputTokens}/${turn.contextWindowTokens} · " +
-                                "ответ ${turn.outputTokens}",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Text(
-                            "Контекст ${formatPercent(turn.contextUsage)} · " +
-                                "стоимость хода ${formatUsd(turn.costUsd)} · " +
-                                "stop: ${turn.stopReason ?: "до API"} · $status",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (turn.outcome == TokenTurnOutcome.COMPLETED) {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                        )
-                    } ?: Text(
-                        "Отправьте первую реплику — здесь появятся три отдельных счётчика.",
+                    }
+                    Text(
+                        strategyLabel?.let { "Стратегия: $it" }
+                            ?: if (compressionEnabled) "Режим: summary + последние сообщения"
+                            else "Режим: полная история без сжатия",
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    if (statisticsExpanded) {
+                        statistics.lastTurn?.let { turn ->
+                            val status = when (turn.outcome) {
+                                TokenTurnOutcome.COMPLETED -> "готово"
+                                TokenTurnOutcome.REJECTED_BEFORE_SEND ->
+                                    "переполнение до отправки"
+                                TokenTurnOutcome.RESPONSE_REACHED_CONTEXT_LIMIT ->
+                                    "ответ оборван окном контекста"
+                            }
+                            Text(
+                                "Ход ${turn.turn}: текущий запрос ${turn.requestTokens} · " +
+                                    "вся история ${turn.inputTokens}/${turn.contextWindowTokens} · " +
+                                    "ответ ${turn.outputTokens}",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                "Контекст ${formatPercent(turn.contextUsage)} · " +
+                                    "стоимость хода ${formatUsd(turn.costUsd)} · " +
+                                    "stop: ${turn.stopReason ?: "до API"} · $status",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (turn.outcome == TokenTurnOutcome.COMPLETED) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                },
+                            )
+                        } ?: Text(
+                            "Отправьте первую реплику — здесь появятся три счётчика.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                     Text(
                         "За диалог: ${statistics.requestCount} попыток · " +
                             "${statistics.allInputTokens} вход / ${statistics.allOutputTokens} выход · " +
@@ -227,57 +246,76 @@ fun ChatScreen(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    if (statistics.turns.size > 1) {
-                        Text(
-                            text = "Рост полного входа: " + statistics.turns.takeLast(6)
-                                .joinToString(" → ") { turn ->
-                                    "${turn.turn}: ${turn.inputTokens}"
-                                },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    if (compressionEnabled) {
-                        val compression = statistics.compression
-                        Text(
-                            "Сжатий: ${compression.compressionCount} · заменено сообщений: " +
-                                "${compression.compressedMessages} · summary: " +
-                                "${compression.summaryInputTokens} вход / " +
-                                "${compression.summaryOutputTokens} выход · " +
-                                formatUsd(compression.summaryCostUsd),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        if (compression.latestBeforeTokens != null &&
-                            compression.latestAfterTokens != null
-                        ) {
-                            val savedTokens = compression.latestSavedTokens ?: 0
-                            val change = if (savedTokens >= 0) {
-                                "экономия $savedTokens " +
-                                    "(${formatPercent(compression.latestSavedFraction ?: 0.0)})"
-                            } else {
-                                "summary длиннее на ${-savedTokens} токенов"
+                    if (statisticsExpanded) {
+                        if (statistics.turns.size > 1) {
+                            Text(
+                                text = "Рост полного входа: " + statistics.turns.takeLast(6)
+                                    .joinToString(" → ") { turn ->
+                                        "${turn.turn}: ${turn.inputTokens}"
+                                    },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        if (compressionEnabled) {
+                            val compression = statistics.compression
+                            Text(
+                                "Сжатий: ${compression.compressionCount} · заменено сообщений: " +
+                                    "${compression.compressedMessages} · summary: " +
+                                    "${compression.summaryInputTokens} вход / " +
+                                    "${compression.summaryOutputTokens} выход · " +
+                                    formatUsd(compression.summaryCostUsd),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (compression.latestBeforeTokens != null &&
+                                compression.latestAfterTokens != null
+                            ) {
+                                val savedTokens = compression.latestSavedTokens ?: 0
+                                val change = if (savedTokens >= 0) {
+                                    "экономия $savedTokens " +
+                                        "(${formatPercent(compression.latestSavedFraction ?: 0.0)})"
+                                } else {
+                                    "summary длиннее на ${-savedTokens} токенов"
+                                }
+                                Text(
+                                    "Последнее сжатие: ${compression.latestBeforeTokens} → " +
+                                        "${compression.latestAfterTokens} токенов · $change",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
                             }
-                            Text(
-                                "Последнее сжатие: ${compression.latestBeforeTokens} → " +
-                                    "${compression.latestAfterTokens} токенов · $change",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
+                            compression.lastError?.let { compressionError ->
+                                Text(
+                                    "Summary не обновлён: $compressionError",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         }
-                        compression.lastError?.let { compressionError ->
+                        if (factsEnabled) {
+                            val facts = statistics.facts
                             Text(
-                                "Summary не обновлён: $compressionError",
+                                "Обновлений facts: ${facts.updateCount} · " +
+                                    "${facts.inputTokens} вход / ${facts.outputTokens} выход · " +
+                                    formatUsd(facts.costUsd),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.error,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            facts.lastError?.let { factsError ->
+                                Text(
+                                    "Facts не обновлены: $factsError",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         }
+                        Text(
+                            "Создано агентов: ${agentCount ?: 1}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                    Text(
-                        "Создано агентов: ${agentCount ?: 1}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
             }
         }

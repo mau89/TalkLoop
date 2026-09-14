@@ -22,14 +22,18 @@ data class AgentStatistics(
     val outputTokens: Int = 0,
     val turns: List<AgentTurnUsage> = emptyList(),
     val compression: ContextCompressionStatistics = ContextCompressionStatistics(),
+    val facts: FactsUpdateStatistics = FactsUpdateStatistics(),
 ) {
     val totalTokens: Int get() = inputTokens + outputTokens
     val totalCostUsd: Double get() = turns.sumOf(AgentTurnUsage::costUsd)
     val lastTurn: AgentTurnUsage? get() = turns.lastOrNull()
-    val allInputTokens: Int get() = inputTokens + compression.summaryInputTokens
-    val allOutputTokens: Int get() = outputTokens + compression.summaryOutputTokens
+    val allInputTokens: Int
+        get() = inputTokens + compression.summaryInputTokens + facts.inputTokens
+    val allOutputTokens: Int
+        get() = outputTokens + compression.summaryOutputTokens + facts.outputTokens
     val allTokens: Int get() = allInputTokens + allOutputTokens
-    val allCostUsd: Double get() = totalCostUsd + compression.summaryCostUsd
+    val allCostUsd: Double
+        get() = totalCostUsd + compression.summaryCostUsd + facts.costUsd
 }
 
 /**
@@ -46,17 +50,86 @@ class TalkLoopAgent(
     private val historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
 ) {
     private val mutex = Mutex()
-    private val mutableHistory = MutableStateFlow(
-        historyStore.load().ifEmpty { initialHistory.toList() }
-    )
+    private val restoredMemory = historyStore.loadMemory()
+    private val restoredMessages = restoredMemory.messages.ifEmpty { initialHistory.toList() }
+    private val initialBranches = if (config.contextStrategy == ContextStrategy.Branching) {
+        restoredMemory.branches.ifEmpty {
+            listOf(DialogueBranch(MAIN_BRANCH_ID, "Основная", messages = restoredMessages))
+        }
+    } else {
+        emptyList()
+    }
+    private val initialActiveBranchId = restoredMemory.activeBranchId
+        ?.takeIf { id -> initialBranches.any { it.id == id } }
+        ?: initialBranches.firstOrNull()?.id
+    private val initialActiveMessages = initialBranches
+        .firstOrNull { it.id == initialActiveBranchId }
+        ?.messages
+        ?: restoredMessages
+    private val mutableHistory = MutableStateFlow(initialActiveMessages)
     private val mutableSummary = MutableStateFlow(
-        historyStore.loadSummary().takeIf { config.contextCompression.enabled }
+        restoredMemory.summary.takeIf {
+            config.contextStrategy == ContextStrategy.FullHistory &&
+                config.contextCompression.enabled
+        }
     )
+    private val mutableFacts = MutableStateFlow(
+        restoredMemory.facts.takeIf { config.contextStrategy is ContextStrategy.StickyFacts }
+            .orEmpty()
+    )
+    private val mutableBranches = MutableStateFlow(initialBranches)
+    private val mutableCheckpoints = MutableStateFlow(
+        restoredMemory.checkpoints.takeIf { config.contextStrategy == ContextStrategy.Branching }
+            .orEmpty()
+    )
+    private val mutableActiveBranchId = MutableStateFlow(initialActiveBranchId)
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
     val summary: StateFlow<String?> = mutableSummary.asStateFlow()
+    val facts: StateFlow<Map<String, String>> = mutableFacts.asStateFlow()
+    val branches: StateFlow<List<DialogueBranch>> = mutableBranches.asStateFlow()
+    val checkpoints: StateFlow<List<DialogueCheckpoint>> = mutableCheckpoints.asStateFlow()
+    val activeBranchId: StateFlow<String?> = mutableActiveBranchId.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+
+    suspend fun createCheckpoint(name: String): DialogueCheckpoint = mutex.withLock {
+        requireBranching()
+        val checkpoint = DialogueCheckpoint(
+            id = nextId("checkpoint", mutableCheckpoints.value.map { it.id }),
+            name = name.trim().ifEmpty { "Checkpoint ${mutableCheckpoints.value.size + 1}" },
+            messages = mutableHistory.value,
+        )
+        val updated = mutableCheckpoints.value + checkpoint
+        persistMemory(checkpoints = updated)
+        mutableCheckpoints.value = updated
+        checkpoint
+    }
+
+    suspend fun createBranch(name: String, checkpointId: String): DialogueBranch = mutex.withLock {
+        requireBranching()
+        val checkpoint = mutableCheckpoints.value.firstOrNull { it.id == checkpointId }
+            ?: throw IllegalArgumentException("Checkpoint не найден: $checkpointId")
+        val branch = DialogueBranch(
+            id = nextId("branch", mutableBranches.value.map { it.id }),
+            name = name.trim().ifEmpty { "Ветка ${mutableBranches.value.size + 1}" },
+            checkpointId = checkpoint.id,
+            messages = checkpoint.messages,
+        )
+        val updated = mutableBranches.value + branch
+        persistMemory(branches = updated)
+        mutableBranches.value = updated
+        branch
+    }
+
+    suspend fun switchBranch(branchId: String) = mutex.withLock {
+        requireBranching()
+        val branch = mutableBranches.value.firstOrNull { it.id == branchId }
+            ?: throw IllegalArgumentException("Ветка не найдена: $branchId")
+        persistMemory(messages = branch.messages, activeBranchId = branch.id)
+        mutableActiveBranchId.value = branch.id
+        mutableHistory.value = branch.messages
+    }
 
     suspend fun respond(userRequest: String): String {
         return mutex.withLock {
@@ -67,15 +140,30 @@ class TalkLoopAgent(
             val userMessage = ChatMessage(fromUser = true, text = request)
             val turn = mutableStatistics.value.requestCount + 1
             val summarySnapshot = mutableSummary.value
+            mutableStatistics.value = mutableStatistics.value.copy(requestCount = turn)
+            val factsSnapshot = mutableFacts.value
+            val stagedFacts = when (val strategy = config.contextStrategy) {
+                is ContextStrategy.StickyFacts -> updateFacts(
+                    strategy = strategy,
+                    currentFacts = factsSnapshot,
+                    userMessage = request,
+                )
+                else -> factsSnapshot
+            }
+            val conversationSystemPrompt = when (config.contextStrategy) {
+                ContextStrategy.FullHistory ->
+                    systemPromptWithSummary(config.systemPrompt, summarySnapshot)
+                is ContextStrategy.StickyFacts ->
+                    systemPromptWithFacts(config.systemPrompt, stagedFacts)
+                else -> config.systemPrompt
+            }
             val spec = ResponseSpec(
-                system = systemPromptWithSummary(config.systemPrompt, summarySnapshot),
+                system = conversationSystemPrompt,
                 maxTokens = config.maxTokens,
                 stopSequences = config.stopSequences,
                 temperature = config.temperature,
                 model = config.model,
             )
-            mutableStatistics.value = mutableStatistics.value.copy(requestCount = turn)
-
             // Текущую реплику считаем отдельно, а полный контекст — вместе с system prompt
             // и всей историей. Это две разные метрики из задания, их нельзя подменять
             // длиной строки или делением количества символов на четыре.
@@ -171,20 +259,145 @@ class TalkLoopAgent(
                 throw AgentRejectedException(verdict.reason ?: "Judge отклонил ответ модели")
             }
 
-            val updatedHistory = historySnapshot + userMessage +
+            val completeHistory = historySnapshot + userMessage +
                 ChatMessage(fromUser = false, text = response)
-            val compacted = compactIfNeeded(
-                messages = updatedHistory,
-                previousSummary = summarySnapshot,
-                conversationSpec = spec,
+            val nextContext = when (val strategy = config.contextStrategy) {
+                ContextStrategy.FullHistory -> compactIfNeeded(
+                    messages = completeHistory,
+                    previousSummary = summarySnapshot,
+                    conversationSpec = spec,
+                )
+                is ContextStrategy.SlidingWindow -> CompactedContext(
+                    messages = recentMessages(completeHistory, strategy.keepLastMessages),
+                    summary = null,
+                )
+                is ContextStrategy.StickyFacts -> CompactedContext(
+                    messages = recentMessages(completeHistory, strategy.keepLastMessages),
+                    summary = null,
+                )
+                ContextStrategy.Branching -> CompactedContext(
+                    messages = completeHistory,
+                    summary = null,
+                )
+            }
+            val nextBranches = if (config.contextStrategy == ContextStrategy.Branching) {
+                mutableBranches.value.map { branch ->
+                    if (branch.id == mutableActiveBranchId.value) {
+                        branch.copy(messages = nextContext.messages)
+                    } else {
+                        branch
+                    }
+                }
+            } else {
+                mutableBranches.value
+            }
+            // Все части памяти фиксируются одним снимком только после успешного ответа.
+            persistMemory(
+                messages = nextContext.messages,
+                summary = nextContext.summary,
+                facts = stagedFacts,
+                branches = nextBranches,
             )
-            // История и summary записываются одним JSON-документом: после сбоя не
-            // получится состояния, где новая память относится к старым репликам.
-            historyStore.save(compacted.messages, compacted.summary)
-            mutableHistory.value = compacted.messages
-            mutableSummary.value = compacted.summary
+            mutableHistory.value = nextContext.messages
+            mutableSummary.value = nextContext.summary
+            mutableFacts.value = stagedFacts
+            mutableBranches.value = nextBranches
             response
         }
+    }
+
+    private suspend fun updateFacts(
+        strategy: ContextStrategy.StickyFacts,
+        currentFacts: Map<String, String>,
+        userMessage: String,
+    ): Map<String, String> {
+        val factsSpec = ResponseSpec(
+            system = factsUpdateSystemPrompt(strategy.maxFacts),
+            maxTokens = strategy.updateMaxTokens,
+            jsonSchema = FACTS_SCHEMA,
+            model = config.model,
+        )
+        return try {
+            val answer = llmClient.answer(
+                history = listOf(factsUpdateInput(currentFacts, userMessage)),
+                spec = factsSpec,
+            )
+            val updated = parseFacts(answer.text, strategy.maxFacts)
+            val (inputCost, outputCost) = estimateTokenCostUsd(
+                pricing = tokenPricingForModel(config.model),
+                inputTokens = answer.inputTokens,
+                outputTokens = answer.outputTokens,
+                cacheCreationInputTokens = answer.cacheCreationInputTokens,
+                cacheReadInputTokens = answer.cacheReadInputTokens,
+                cacheCreation5mInputTokens = answer.cacheCreation5mInputTokens,
+                cacheCreation1hInputTokens = answer.cacheCreation1hInputTokens,
+            )
+            mutableStatistics.value = mutableStatistics.value.let { current ->
+                current.copy(
+                    facts = current.facts.copy(
+                        updateCount = current.facts.updateCount + 1,
+                        inputTokens = current.facts.inputTokens + answer.totalInputTokens,
+                        outputTokens = current.facts.outputTokens + answer.outputTokens,
+                        costUsd = current.facts.costUsd + inputCost + outputCost,
+                        lastError = null,
+                    )
+                )
+            }
+            updated
+        } catch (error: Exception) {
+            if (error is CancellationException) throw error
+            mutableStatistics.value = mutableStatistics.value.let { current ->
+                current.copy(
+                    facts = current.facts.copy(
+                        lastError = error.message ?: "Не удалось обновить facts",
+                    )
+                )
+            }
+            throw AgentPolicyException(
+                "Facts не обновлены, поэтому сообщение не отправлено: " +
+                    (error.message ?: "неизвестная ошибка")
+            )
+        }
+    }
+
+    private fun requireBranching() {
+        check(config.contextStrategy == ContextStrategy.Branching) {
+            "Checkpoint и ветки доступны только в стратегии Branching"
+        }
+    }
+
+    private fun persistMemory(
+        messages: List<ChatMessage> = mutableHistory.value,
+        summary: String? = mutableSummary.value,
+        facts: Map<String, String> = mutableFacts.value,
+        activeBranchId: String? = mutableActiveBranchId.value,
+        branches: List<DialogueBranch> = mutableBranches.value,
+        checkpoints: List<DialogueCheckpoint> = mutableCheckpoints.value,
+    ) {
+        historyStore.saveMemory(
+            AgentMemorySnapshot(
+                messages = messages,
+                summary = summary,
+                facts = facts,
+                activeBranchId = activeBranchId,
+                branches = branches,
+                checkpoints = checkpoints,
+            )
+        )
+    }
+
+    private fun nextId(prefix: String, existing: List<String>): String {
+        var index = existing.size + 1
+        var candidate = "$prefix-$index"
+        while (candidate in existing) {
+            index++
+            candidate = "$prefix-$index"
+        }
+        return candidate
+    }
+
+    private companion object {
+        const val MAIN_BRANCH_ID = "branch-main"
     }
 
     private suspend fun compactIfNeeded(

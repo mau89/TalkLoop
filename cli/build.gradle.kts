@@ -13,6 +13,7 @@ application {
 dependencies {
     implementation(project(":core"))
     implementation(libs.anthropic.java)
+    implementation(libs.kotlinx.coroutines.core)
 }
 
 tasks.named<JavaExec>("run") {
@@ -54,4 +55,13 @@ tasks.register<JavaExec>("day5") {
     mainClass = "com.mau89.talkloop.cli.Day5Kt"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir  // secrets.properties лежит в корне репозитория
+}
+
+// День 10: один сценарий сбора ТЗ с тремя стратегиями контекста.
+tasks.register<JavaExec>("day10") {
+    group = "application"
+    description = "День 10: Sliding Window, Sticky Facts и Branching на одном сценарии"
+    mainClass = "com.mau89.talkloop.cli.Day10Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
 }

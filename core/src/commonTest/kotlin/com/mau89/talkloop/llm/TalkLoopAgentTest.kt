@@ -9,6 +9,134 @@ import kotlin.test.assertTrue
 class TalkLoopAgentTest {
 
     @Test
+    fun `sliding window на сценарии из 12 реплик хранит только последние N сообщений`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(List(12) { index -> "Ответ ${index + 1}" }),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "Собирай ТЗ",
+                contextStrategy = ContextStrategy.SlidingWindow(keepLastMessages = 4),
+            ),
+        )
+
+        val scenario = listOf(
+            "Цель — приложение записи к репетитору",
+            "Пользователи — ученики и преподаватели",
+            "Платформы Android и iOS",
+            "Вход по email",
+            "Нужен офлайн-режим",
+            "Аналитику не подключаем",
+            "Язык интерфейса русский",
+            "Срок — 15 ноября",
+            "Оплата картой",
+            "Нужны push-уведомления",
+            "Админка остаётся веб-приложением",
+            "Сформируй итоговое ТЗ",
+        )
+        scenario.forEach { agent.respond(it) }
+
+        assertEquals(4, agent.history.value.size)
+        assertEquals(
+            listOf(
+                "Админка остаётся веб-приложением",
+                "Ответ 11",
+                "Сформируй итоговое ТЗ",
+                "Ответ 12",
+            ),
+            agent.history.value.map { it.text },
+        )
+        assertTrue(client.requests.drop(2).all { it.size <= 5 })
+        assertTrue(client.requests.last().none { it.text.contains("Android") })
+    }
+
+    @Test
+    fun `sticky facts обновляет key-value память на каждом ходе и добавляет её в запрос`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(
+                listOf(
+                    """{"facts":[{"key":"goal","value":"приложение записи"}]}""",
+                    "Принято",
+                    """{"facts":[{"key":"goal","value":"приложение записи"},{"key":"offline","value":"обязателен"}]}""",
+                    "Учёл",
+                    """{"facts":[{"key":"goal","value":"приложение записи"},{"key":"offline","value":"обязателен"},{"key":"analytics","value":"не подключать"}]}""",
+                    "Итог готов",
+                )
+            ),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "Собирай ТЗ",
+                contextStrategy = ContextStrategy.StickyFacts(
+                    keepLastMessages = 2,
+                    maxFacts = 5,
+                ),
+            ),
+        )
+
+        agent.respond("Цель — приложение записи")
+        agent.respond("Офлайн обязателен")
+        agent.respond("Аналитику не подключать")
+
+        assertEquals(
+            mapOf(
+                "goal" to "приложение записи",
+                "offline" to "обязателен",
+                "analytics" to "не подключать",
+            ),
+            agent.facts.value,
+        )
+        assertEquals(2, agent.history.value.size)
+        assertEquals(3, agent.statistics.value.facts.updateCount)
+        assertEquals(6, client.requests.size)
+        assertEquals(FACTS_SCHEMA, client.specs[0].jsonSchema)
+        assertTrue(client.specs[5].system.orEmpty().contains("goal = приложение записи"))
+        assertTrue(client.specs[5].system.orEmpty().contains("offline = обязателен"))
+    }
+
+    @Test
+    fun `две ветки от checkpoint продолжаются независимо и переключаются`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("A1", "A2", "A-ответ", "B-ответ")),
+        )
+        val store = InMemoryChatHistoryStore()
+        val config = AgentConfig(
+            systemPrompt = "Собирай ТЗ",
+            contextStrategy = ContextStrategy.Branching,
+        )
+        val agent = TalkLoopAgent(client, config, historyStore = store)
+        agent.respond("Общая цель")
+        agent.respond("Общий срок")
+        val checkpoint = agent.createCheckpoint("До выбора платформы")
+        val android = agent.createBranch("Android", checkpoint.id)
+        val ios = agent.createBranch("iOS", checkpoint.id)
+
+        agent.switchBranch(android.id)
+        agent.respond("Делаем только Android")
+        agent.switchBranch(ios.id)
+        agent.respond("Делаем только iOS")
+
+        val androidHistory = agent.branches.value.single { it.id == android.id }.messages
+        val iosHistory = agent.branches.value.single { it.id == ios.id }.messages
+        assertTrue(androidHistory.any { it.text == "Делаем только Android" })
+        assertTrue(androidHistory.none { it.text == "Делаем только iOS" })
+        assertTrue(iosHistory.any { it.text == "Делаем только iOS" })
+        assertTrue(iosHistory.none { it.text == "Делаем только Android" })
+        assertEquals(ios.id, agent.activeBranchId.value)
+        assertEquals(4, checkpoint.messages.size)
+
+        val restored = TalkLoopAgent(
+            FakeLlmClient(ArrayDeque()),
+            config,
+            historyStore = store,
+        )
+        assertEquals(ios.id, restored.activeBranchId.value)
+        assertEquals(iosHistory, restored.history.value)
+    }
+
+    @Test
     fun `агент отправляет запрос и сохраняет контекст между вызовами`() = runTest {
         val client = FakeLlmClient(
             responses = ArrayDeque<Any>(listOf("Hello!", "I am fine.")),

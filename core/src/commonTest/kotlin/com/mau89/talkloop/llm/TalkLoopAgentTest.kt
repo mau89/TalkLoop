@@ -9,6 +9,132 @@ import kotlin.test.assertTrue
 class TalkLoopAgentTest {
 
     @Test
+    fun `memory layers хранят данные отдельно и явно добавляют их в ответный контекст`() = runTest {
+        val client = FakeLlmClient(
+            responses = ArrayDeque<Any>(listOf("Принято", "Учёл", "Отвечаю с памятью")),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            config = AgentConfig(
+                systemPrompt = "Помогай с задачей",
+                contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 4),
+            ),
+        )
+
+        agent.remember(MemoryWrite.Working("deadline", "15 ноября"))
+        agent.remember(
+            MemoryWrite.LongTerm(
+                LongTermMemoryKind.PROFILE,
+                "answer_language",
+                "русский",
+            )
+        )
+        agent.respond("Первое сообщение")
+        agent.respond("Второе сообщение")
+        agent.respond("Какой срок и на каком языке отвечать?")
+
+        assertEquals(listOf(MemoryItem("deadline", "15 ноября")), agent.workingMemory.value.items)
+        assertEquals(
+            listOf(
+                LongTermMemoryItem(
+                    LongTermMemoryKind.PROFILE,
+                    "answer_language",
+                    "русский",
+                )
+            ),
+            agent.longTermMemory.value.items,
+        )
+        assertEquals(4, agent.history.value.size)
+        assertTrue(agent.history.value.none { it.text == "Первое сообщение" })
+        assertTrue(client.specs.last().system.orEmpty().contains("deadline = 15 ноября"))
+        assertTrue(
+            client.specs.last().system.orEmpty()
+                .contains("profile.answer_language = русский")
+        )
+    }
+
+    @Test
+    fun `новая задача очищает short-term и working но сохраняет long-term`() = runTest {
+        val store = InMemoryChatHistoryStore()
+        val config = AgentConfig(
+            systemPrompt = "test",
+            contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 4),
+        )
+        val agent = TalkLoopAgent(
+            llmClient = FakeLlmClient(ArrayDeque<Any>(listOf("Ответ"))),
+            config = config,
+            historyStore = store,
+        )
+        agent.remember(MemoryWrite.Working("draft", "черновик ТЗ"))
+        agent.remember(
+            MemoryWrite.LongTerm(LongTermMemoryKind.DECISION, "platforms", "Android и iOS")
+        )
+        agent.respond("Продолжим первую задачу")
+
+        agent.startNewTask("Вторая задача")
+
+        assertEquals(emptyList(), agent.history.value)
+        assertEquals("Вторая задача", agent.workingMemory.value.taskName)
+        assertEquals(emptyList(), agent.workingMemory.value.items)
+        assertEquals(1, agent.longTermMemory.value.items.size)
+
+        val restored = TalkLoopAgent(
+            llmClient = FakeLlmClient(ArrayDeque()),
+            config = config,
+            historyStore = store,
+        )
+        assertEquals(emptyList(), restored.history.value)
+        assertEquals("Вторая задача", restored.workingMemory.value.taskName)
+        assertEquals(agent.longTermMemory.value, restored.longTermMemory.value)
+    }
+
+    @Test
+    fun `ответ меняется после очистки working и продолжает учитывать long-term`() = runTest {
+        val agent = TalkLoopAgent(
+            llmClient = MemoryAwareFakeLlmClient(),
+            config = AgentConfig(
+                systemPrompt = "test",
+                contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 4),
+            ),
+        )
+        agent.remember(MemoryWrite.Working("deadline", "15 ноября"))
+        agent.remember(
+            MemoryWrite.LongTerm(LongTermMemoryKind.PROFILE, "answer_language", "русский")
+        )
+
+        assertEquals("срок: 15 ноября; язык: русский", agent.respond("Что ты помнишь?"))
+
+        agent.startNewTask("Другая задача")
+
+        assertEquals("срок: не задан; язык: русский", agent.respond("Что ты помнишь теперь?"))
+    }
+
+    @Test
+    fun `одинаковые ключи заменяются только в явно выбранном слое`() = runTest {
+        val agent = TalkLoopAgent(
+            llmClient = FakeLlmClient(ArrayDeque()),
+            config = AgentConfig(
+                systemPrompt = "test",
+                contextStrategy = ContextStrategy.MemoryLayers(),
+            ),
+        )
+
+        agent.remember(MemoryWrite.Working("language", "Kotlin"))
+        agent.remember(
+            MemoryWrite.LongTerm(LongTermMemoryKind.PROFILE, "language", "русский")
+        )
+        agent.remember(MemoryWrite.Working("language", "Swift"))
+
+        assertEquals(listOf(MemoryItem("language", "Swift")), agent.workingMemory.value.items)
+        assertEquals("русский", agent.longTermMemory.value.items.single().value)
+
+        agent.forget(MemoryLayer.WORKING, "language")
+
+        assertEquals(emptyList(), agent.workingMemory.value.items)
+        assertEquals("русский", agent.longTermMemory.value.items.single().value)
+    }
+
+    @Test
     fun `sliding window на сценарии из 12 реплик хранит только последние N сообщений`() = runTest {
         val client = FakeLlmClient(
             responses = ArrayDeque<Any>(List(12) { index -> "Ответ ${index + 1}" }),
@@ -557,4 +683,27 @@ private class FakeLlmClient(
         history: List<ChatMessage>,
         spec: ResponseSpec,
     ): Int = tokenCounter(history, spec)
+}
+
+/** Детерминированная модель для проверки причинного влияния слоёв на текст ответа. */
+private class MemoryAwareFakeLlmClient : LlmClient {
+    override suspend fun reply(history: List<ChatMessage>): String = error("Не используется")
+
+    override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
+        val system = spec.system.orEmpty()
+        val deadline = if ("deadline = 15 ноября" in system) "15 ноября" else "не задан"
+        val language = if ("profile.answer_language = русский" in system) "русский" else "не задан"
+        return LlmAnswer(
+            text = "срок: $deadline; язык: $language",
+            stopReason = "end_turn",
+            stopSequence = null,
+            inputTokens = 2,
+            outputTokens = 3,
+        )
+    }
+
+    override suspend fun countInputTokens(
+        history: List<ChatMessage>,
+        spec: ResponseSpec,
+    ): Int = 5
 }

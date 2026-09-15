@@ -55,6 +55,7 @@ class JsonChatHistoryStore(
             activeBranchId = stored.activeBranchId,
             branches = stored.branches,
             checkpoints = stored.checkpoints,
+            layers = stored.layers,
         )
     }
 
@@ -77,6 +78,7 @@ class JsonChatHistoryStore(
                     activeBranchId = memory.activeBranchId,
                     branches = memory.branches,
                     checkpoints = memory.checkpoints,
+                    layers = memory.layers,
                 )
             ),
         )
@@ -96,7 +98,7 @@ class JsonChatHistoryStore(
 
     private companion object {
         const val DEFAULT_HISTORY_KEY = "talkloop.agent.history"
-        const val CURRENT_VERSION = 3
+        const val CURRENT_VERSION = 4
     }
 }
 
@@ -117,6 +119,7 @@ class InMemoryChatHistoryStore(
         facts = memory.facts.toMap(),
         branches = memory.branches.map { it.copy(messages = it.messages.toList()) },
         checkpoints = memory.checkpoints.map { it.copy(messages = it.messages.toList()) },
+        layers = memory.layers.deepCopy(),
     )
 
     override fun save(messages: List<ChatMessage>) {
@@ -135,6 +138,7 @@ class InMemoryChatHistoryStore(
             facts = memory.facts.toMap(),
             branches = memory.branches.map { it.copy(messages = it.messages.toList()) },
             checkpoints = memory.checkpoints.map { it.copy(messages = it.messages.toList()) },
+            layers = memory.layers.deepCopy(),
         )
         messages = this.memory.messages
         summary = this.memory.summary
@@ -149,11 +153,18 @@ class InMemoryChatHistoryStore(
 
 @Serializable
 private data class StoredChatHistory(
-    val version: Int = 3,
+    val version: Int = 4,
     val summary: String? = null,
     val messages: List<ChatMessage>,
     val facts: Map<String, String> = emptyMap(),
     val activeBranchId: String? = null,
     val branches: List<DialogueBranch> = emptyList(),
     val checkpoints: List<DialogueCheckpoint> = emptyList(),
+    val layers: MemoryLayersSnapshot = MemoryLayersSnapshot(),
+)
+
+private fun MemoryLayersSnapshot.deepCopy(): MemoryLayersSnapshot = copy(
+    shortTerm = shortTerm.copy(messages = shortTerm.messages.toList()),
+    working = working.copy(items = working.items.toList()),
+    longTerm = longTerm.copy(items = longTerm.items.toList()),
 )

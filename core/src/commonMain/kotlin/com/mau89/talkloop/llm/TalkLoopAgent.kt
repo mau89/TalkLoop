@@ -51,7 +51,13 @@ class TalkLoopAgent(
 ) {
     private val mutex = Mutex()
     private val restoredMemory = historyStore.loadMemory()
-    private val restoredMessages = restoredMemory.messages.ifEmpty { initialHistory.toList() }
+    private val restoredMessages = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
+        restoredMemory.layers.shortTerm.messages.ifEmpty {
+            restoredMemory.messages.ifEmpty { initialHistory.toList() }
+        }
+    } else {
+        restoredMemory.messages.ifEmpty { initialHistory.toList() }
+    }
     private val initialBranches = if (config.contextStrategy == ContextStrategy.Branching) {
         restoredMemory.branches.ifEmpty {
             listOf(DialogueBranch(MAIN_BRANCH_ID, "Основная", messages = restoredMessages))
@@ -83,6 +89,16 @@ class TalkLoopAgent(
             .orEmpty()
     )
     private val mutableActiveBranchId = MutableStateFlow(initialActiveBranchId)
+    private val mutableWorkingMemory = MutableStateFlow(
+        restoredMemory.layers.working.takeIf {
+            config.contextStrategy is ContextStrategy.MemoryLayers
+        } ?: WorkingMemory()
+    )
+    private val mutableLongTermMemory = MutableStateFlow(
+        restoredMemory.layers.longTerm.takeIf {
+            config.contextStrategy is ContextStrategy.MemoryLayers
+        } ?: LongTermMemory()
+    )
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
@@ -91,7 +107,76 @@ class TalkLoopAgent(
     val branches: StateFlow<List<DialogueBranch>> = mutableBranches.asStateFlow()
     val checkpoints: StateFlow<List<DialogueCheckpoint>> = mutableCheckpoints.asStateFlow()
     val activeBranchId: StateFlow<String?> = mutableActiveBranchId.asStateFlow()
+    val workingMemory: StateFlow<WorkingMemory> = mutableWorkingMemory.asStateFlow()
+    val longTermMemory: StateFlow<LongTermMemory> = mutableLongTermMemory.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+
+    /**
+     * Явная запись в выбранный вызывающим кодом слой. Одинаковый ключ заменяет
+     * прежнее значение только внутри своего слоя (и категории для long-term).
+     */
+    suspend fun remember(write: MemoryWrite) = mutex.withLock {
+        requireMemoryLayers()
+        when (write) {
+            is MemoryWrite.Working -> {
+                val item = MemoryItem(
+                    key = requireMemoryText(write.key, "Ключ"),
+                    value = requireMemoryText(write.value, "Значение"),
+                )
+                mutableWorkingMemory.value = mutableWorkingMemory.value.copy(
+                    items = mutableWorkingMemory.value.items.upsert(item) { it.key == item.key },
+                )
+            }
+            is MemoryWrite.LongTerm -> {
+                val item = LongTermMemoryItem(
+                    kind = write.kind,
+                    key = requireMemoryText(write.key, "Ключ"),
+                    value = requireMemoryText(write.value, "Значение"),
+                )
+                mutableLongTermMemory.value = mutableLongTermMemory.value.copy(
+                    items = mutableLongTermMemory.value.items.upsert(item) {
+                        it.kind == item.kind && it.key == item.key
+                    },
+                )
+            }
+        }
+        persistLayeredMemory()
+    }
+
+    /** Удаление так же требует назвать слой; совпадающий ключ в другом слое не затрагивается. */
+    suspend fun forget(
+        layer: MemoryLayer,
+        key: String,
+        longTermKind: LongTermMemoryKind? = null,
+    ) = mutex.withLock {
+        requireMemoryLayers()
+        val normalizedKey = requireMemoryText(key, "Ключ")
+        when (layer) {
+            MemoryLayer.WORKING -> mutableWorkingMemory.value = mutableWorkingMemory.value.copy(
+                items = mutableWorkingMemory.value.items.filterNot { it.key == normalizedKey },
+            )
+            MemoryLayer.LONG_TERM -> {
+                requireNotNull(longTermKind) {
+                    "Для удаления из долговременной памяти укажите категорию"
+                }
+                mutableLongTermMemory.value = mutableLongTermMemory.value.copy(
+                    items = mutableLongTermMemory.value.items.filterNot {
+                        it.kind == longTermKind && it.key == normalizedKey
+                    },
+                )
+            }
+        }
+        persistLayeredMemory()
+    }
+
+    /** Новая задача начинает чистый диалог и рабочий слой, сохраняя long-term. */
+    suspend fun startNewTask(name: String? = null) = mutex.withLock {
+        requireMemoryLayers()
+        val normalizedName = name?.trim()?.takeIf(String::isNotEmpty)
+        mutableHistory.value = emptyList()
+        mutableWorkingMemory.value = WorkingMemory(taskName = normalizedName)
+        persistLayeredMemory()
+    }
 
     suspend fun createCheckpoint(name: String): DialogueCheckpoint = mutex.withLock {
         requireBranching()
@@ -155,6 +240,11 @@ class TalkLoopAgent(
                     systemPromptWithSummary(config.systemPrompt, summarySnapshot)
                 is ContextStrategy.StickyFacts ->
                     systemPromptWithFacts(config.systemPrompt, stagedFacts)
+                is ContextStrategy.MemoryLayers -> systemPromptWithMemoryLayers(
+                    systemPrompt = config.systemPrompt,
+                    working = mutableWorkingMemory.value,
+                    longTerm = mutableLongTermMemory.value,
+                )
                 else -> config.systemPrompt
             }
             val spec = ResponseSpec(
@@ -279,6 +369,10 @@ class TalkLoopAgent(
                     messages = completeHistory,
                     summary = null,
                 )
+                is ContextStrategy.MemoryLayers -> CompactedContext(
+                    messages = recentMessages(completeHistory, strategy.keepLastMessages),
+                    summary = null,
+                )
             }
             val nextBranches = if (config.contextStrategy == ContextStrategy.Branching) {
                 mutableBranches.value.map { branch ->
@@ -297,6 +391,11 @@ class TalkLoopAgent(
                 summary = nextContext.summary,
                 facts = stagedFacts,
                 branches = nextBranches,
+                layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
+                    currentLayers(shortTermMessages = nextContext.messages)
+                } else {
+                    restoredMemory.layers
+                },
             )
             mutableHistory.value = nextContext.messages
             mutableSummary.value = nextContext.summary
@@ -366,6 +465,32 @@ class TalkLoopAgent(
         }
     }
 
+    private fun requireMemoryLayers() {
+        check(config.contextStrategy is ContextStrategy.MemoryLayers) {
+            "Операция доступна только в стратегии Memory Layers"
+        }
+    }
+
+    private fun requireMemoryText(value: String, label: String): String =
+        value.trim().takeIf(String::isNotEmpty)
+            ?: throw AgentPolicyException("$label памяти не должен быть пустым")
+
+    private fun currentLayers(
+        shortTermMessages: List<ChatMessage> = mutableHistory.value,
+    ) = MemoryLayersSnapshot(
+        shortTerm = ShortTermMemory(shortTermMessages),
+        working = mutableWorkingMemory.value,
+        longTerm = mutableLongTermMemory.value,
+    )
+
+    private fun persistLayeredMemory() {
+        persistMemory(
+            messages = mutableHistory.value,
+            summary = null,
+            layers = currentLayers(),
+        )
+    }
+
     private fun persistMemory(
         messages: List<ChatMessage> = mutableHistory.value,
         summary: String? = mutableSummary.value,
@@ -373,6 +498,7 @@ class TalkLoopAgent(
         activeBranchId: String? = mutableActiveBranchId.value,
         branches: List<DialogueBranch> = mutableBranches.value,
         checkpoints: List<DialogueCheckpoint> = mutableCheckpoints.value,
+        layers: MemoryLayersSnapshot = restoredMemory.layers,
     ) {
         historyStore.saveMemory(
             AgentMemorySnapshot(
@@ -382,6 +508,7 @@ class TalkLoopAgent(
                 activeBranchId = activeBranchId,
                 branches = branches,
                 checkpoints = checkpoints,
+                layers = layers,
             )
         )
     }
@@ -483,6 +610,11 @@ class TalkLoopAgent(
             CompactedContext(messages = messages, summary = previousSummary)
         }
     }
+}
+
+private fun <T> List<T>.upsert(item: T, matches: (T) -> Boolean): List<T> {
+    val index = indexOfFirst(matches)
+    return if (index < 0) this + item else toMutableList().also { it[index] = item }
 }
 
 private data class CompactedContext(

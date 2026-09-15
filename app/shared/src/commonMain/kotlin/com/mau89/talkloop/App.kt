@@ -41,7 +41,7 @@ fun App(
             mutableStateOf(
                 AgentConfig(
                     systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
-                    contextStrategy = ContextStrategy.SlidingWindow(keepLastMessages = 10),
+                    contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 10),
                     contextCompression = ContextCompressionConfig(enabled = false),
                 )
             )
@@ -78,7 +78,6 @@ fun App(
                     agent = generalAgent,
                     config = generalAgentConfig,
                     onCreateAgent = { config ->
-                        agentHistoryStore.clear()
                         generalAgentConfig = config
                         generalAgent = agentRuntime.spawn(
                             config = config,

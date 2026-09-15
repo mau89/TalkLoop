@@ -65,3 +65,12 @@ tasks.register<JavaExec>("day10") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+// День 11: явные краткосрочная, рабочая и долговременная память.
+tasks.register<JavaExec>("day11") {
+    group = "application"
+    description = "День 11: три слоя памяти и переход между задачами"
+    mainClass = "com.mau89.talkloop.cli.Day11Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

@@ -20,7 +20,7 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":3"))
+        assertTrue(storage.values.values.single().contains("\"version\":4"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
     }
 
@@ -59,6 +59,41 @@ class ChatHistoryStoreTest {
         store.saveMemory(expected)
 
         assertEquals(expected, JsonChatHistoryStore(storage).loadMemory())
+    }
+
+    @Test
+    fun `три слоя памяти сериализуются в отдельные секции`() {
+        val storage = MapStringStore()
+        val store = JsonChatHistoryStore(storage)
+        val expected = MemoryLayersSnapshot(
+            shortTerm = ShortTermMemory(listOf(ChatMessage(true, "Текущий диалог"))),
+            working = WorkingMemory(
+                taskName = "Подготовить релиз",
+                items = listOf(MemoryItem("deadline", "15 ноября")),
+            ),
+            longTerm = LongTermMemory(
+                listOf(
+                    LongTermMemoryItem(
+                        LongTermMemoryKind.PROFILE,
+                        "language",
+                        "русский",
+                    )
+                )
+            ),
+        )
+
+        store.saveMemory(
+            AgentMemorySnapshot(
+                messages = expected.shortTerm.messages,
+                layers = expected,
+            )
+        )
+
+        val raw = storage.values.values.single()
+        assertTrue(raw.contains("\"shortTerm\""))
+        assertTrue(raw.contains("\"working\""))
+        assertTrue(raw.contains("\"longTerm\""))
+        assertEquals(expected, JsonChatHistoryStore(storage).loadMemory().layers)
     }
 
     @Test

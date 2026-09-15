@@ -1,5 +1,9 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
+Исходные формулировки и результаты новых учебных дней сохраняются в
+[архиве ежедневных заданий](docs/daily-assignments.md). Дословный архив начинается
+с Дня 11; для предыдущих дней ниже сохранено описание реализованных возможностей.
+
 * [/app/iosApp](./app/iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 

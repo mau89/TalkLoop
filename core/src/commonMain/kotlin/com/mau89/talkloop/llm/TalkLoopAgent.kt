@@ -163,6 +163,12 @@ class TalkLoopAgent(
         expectedActor: TaskActor = TaskActor.AGENT,
         completionCriteria: List<String> = emptyList(),
     ) = mutex.withLock {
+        mutableTaskState.value?.let { current ->
+            require(current.stage == TaskStage.DONE) {
+                "Нельзя заменить активную задачу «${current.taskName}» на этапе " +
+                    "${current.stage.name.lowercase()}. Сначала завершите её или явно начните новую задачу."
+            }
+        }
         mutableTaskState.value = newTaskState(
             name = name,
             currentStep = currentStep,
@@ -471,6 +477,10 @@ class TalkLoopAgent(
                 policy.apply(input, InputPolicyContext(historySnapshot))
             }
             val userMessage = ChatMessage(fromUser = true, text = request)
+            taskLifecycleRefusal(mutableTaskState.value, request)?.let { refusal ->
+                persistLocalTurn(historySnapshot, userMessage, refusal)
+                return@withLock refusal
+            }
             val invariantSnapshot = invariantStore.load()
             val requestInvariantCheck = invariantGuard.evaluate(
                 text = request,

@@ -14,6 +14,155 @@ import kotlin.test.assertTrue
 class TaskStateMachineTest {
 
     @Test
+    fun `все переходы вне разрешённого графа отклоняются без изменения состояния`() = runTest {
+        val transitionEvents = setOf(
+            TaskEventType.PLAN_APPROVED,
+            TaskEventType.EXECUTION_FINISHED,
+            TaskEventType.VALIDATION_PASSED,
+            TaskEventType.VALIDATION_FAILED,
+        )
+
+        TaskStage.entries.forEach { stage ->
+            transitionEvents.minus(stage.allowedEvents()).forEach { forbidden ->
+                val agent = agentAt(stage)
+                val before = agent.taskState.value!!
+
+                assertFailsWith<IllegalArgumentException>("$forbidden не должен работать в $stage") {
+                    agent.dispatch(forbidden, "Обход $forbidden", "Перепрыгнуть этап")
+                }
+
+                assertEquals(before, agent.taskState.value, "Отказ не должен менять $stage")
+            }
+        }
+    }
+
+    @Test
+    fun `на паузе любое действие кроме resume отклоняется и после resume маршрут продолжается`() =
+        runTest {
+            val agent = agentAt(TaskStage.EXECUTION)
+            agent.pauseTask()
+            val paused = agent.taskState.value!!
+            val forbiddenWhilePaused = listOf(
+                TaskEventType.PROGRESS_UPDATED,
+                TaskEventType.PLAN_APPROVED,
+                TaskEventType.EXECUTION_FINISHED,
+                TaskEventType.VALIDATION_PASSED,
+                TaskEventType.VALIDATION_FAILED,
+                TaskEventType.PAUSED,
+            )
+
+            forbiddenWhilePaused.forEachIndexed { index, type ->
+                assertFailsWith<IllegalArgumentException> {
+                    agent.dispatchTaskEvent(
+                        TaskEvent(
+                            id = "paused-$index-$type",
+                            type = type,
+                            currentStep = "Нельзя изменить",
+                            expectedAction = "Нельзя продолжить",
+                            expectedRevision = paused.revision,
+                        )
+                    )
+                }
+                assertEquals(paused, agent.taskState.value)
+            }
+
+            agent.resumeTask()
+            assertEquals(TaskStage.EXECUTION, agent.taskState.value!!.stage)
+            agent.dispatch(
+                TaskEventType.EXECUTION_FINISHED,
+                "Проверить результат",
+                "Запустить валидацию",
+            )
+            assertEquals(TaskStage.VALIDATION, agent.taskState.value!!.stage)
+        }
+
+    @Test
+    fun `событие без ревизии отклоняется без изменения состояния`() = runTest {
+        val agent = taskAgent()
+        agent.beginTask("Задача")
+        val before = agent.taskState.value!!
+
+        val error = assertFailsWith<IllegalArgumentException> {
+            agent.dispatchTaskEvent(
+                TaskEvent(
+                    id = "missing-revision",
+                    type = TaskEventType.PLAN_APPROVED,
+                    currentStep = "Реализация",
+                    expectedAction = "Написать код",
+                )
+            )
+        }
+
+        assertTrue(error.message.orEmpty().contains("обязательна ожидаемая ревизия"))
+        assertEquals(before, agent.taskState.value)
+    }
+
+    @Test
+    fun `активную задачу нельзя тихо заменить но после done можно начать следующую`() = runTest {
+        val agent = taskAgent()
+        agent.beginTask("Первая задача")
+        val before = agent.taskState.value!!
+
+        assertFailsWith<IllegalArgumentException> { agent.beginTask("Обходная задача") }
+        assertEquals(before, agent.taskState.value)
+
+        agent.dispatch(TaskEventType.PLAN_APPROVED, "Реализация", "Выполнить")
+        agent.dispatch(TaskEventType.EXECUTION_FINISHED, "Проверка", "Проверить")
+        agent.dispatch(TaskEventType.VALIDATION_PASSED, "Готово", "Закрыть")
+        agent.beginTask("Следующая задача")
+
+        assertEquals(TaskStage.PLANNING, agent.taskState.value!!.stage)
+        assertEquals("Следующая задача", agent.taskState.value!!.taskName)
+    }
+
+    @Test
+    fun `явный запрос перепрыгнуть этап получает отказ без вызова модели`() = runTest {
+        val client = FakeLlmClient(ArrayDeque<Any>(listOf("Этот ответ не должен использоваться")))
+        val agent = TalkLoopAgent(client, taskConfig())
+        agent.beginTask("Авторизация")
+        val before = agent.taskState.value!!
+
+        val implementationRefusal = agent.respond("План не утверждён, но сразу напиши код")
+        val completionRefusal = agent.respond("Тогда просто заверши задачу")
+
+        assertTrue(implementationRefusal.contains("PLAN_APPROVED"))
+        assertTrue(completionRefusal.contains("VALIDATION_PASSED"))
+        assertEquals(before, agent.taskState.value)
+        assertEquals(emptyList(), client.specs)
+        assertEquals(4, agent.history.value.size)
+    }
+
+    @Test
+    fun `запрос плана реализации разрешён а реализация доступна после утверждения`() = runTest {
+        val client = FakeLlmClient(ArrayDeque<Any>(listOf("План", "Код")))
+        val agent = TalkLoopAgent(client, taskConfig())
+        agent.beginTask("Авторизация")
+
+        assertEquals("План", agent.respond("Составь план реализации"))
+        agent.dispatch(TaskEventType.PLAN_APPROVED, "Реализация", "Написать код")
+        assertEquals("Код", agent.respond("Теперь напиши код"))
+        assertEquals(2, client.specs.size)
+    }
+
+    @Test
+    fun `несогласованный журнал состояния отклоняется`() {
+        val valid = newTaskState(
+            name = "Задача",
+            currentStep = "План",
+            expectedAction = "Утвердить",
+            expectedActor = TaskActor.USER,
+            completionCriteria = emptyList(),
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            valid.copy(stage = TaskStage.DONE)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            valid.copy(revision = 42)
+        }
+    }
+
+    @Test
     fun `события ведут по основному пути и пишут неизменяемый журнал`() = runTest {
         val agent = taskAgent()
         agent.beginTask(
@@ -201,6 +350,21 @@ class TaskStateMachineTest {
     }
 
     private fun taskAgent() = TalkLoopAgent(FakeLlmClient(), taskConfig())
+
+    private suspend fun agentAt(stage: TaskStage): TalkLoopAgent {
+        val agent = taskAgent()
+        agent.beginTask("Задача $stage", "План", "Утвердить")
+        if (stage != TaskStage.PLANNING) {
+            agent.dispatch(TaskEventType.PLAN_APPROVED, "Реализация", "Выполнить")
+        }
+        if (stage == TaskStage.VALIDATION || stage == TaskStage.DONE) {
+            agent.dispatch(TaskEventType.EXECUTION_FINISHED, "Проверка", "Проверить")
+        }
+        if (stage == TaskStage.DONE) {
+            agent.dispatch(TaskEventType.VALIDATION_PASSED, "Готово", "Закрыть")
+        }
+        return agent
+    }
 
     private fun taskConfig() = AgentConfig(
         systemPrompt = "test",

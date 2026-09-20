@@ -59,6 +59,7 @@ class JsonChatHistoryStore(
             userProfile = stored.userProfile,
             userProfiles = stored.userProfiles,
             activeUserProfileId = stored.activeUserProfileId,
+            taskState = stored.taskState,
         )
     }
 
@@ -85,6 +86,7 @@ class JsonChatHistoryStore(
                     userProfile = memory.userProfile,
                     userProfiles = memory.userProfiles,
                     activeUserProfileId = memory.activeUserProfileId,
+                    taskState = memory.taskState,
                 )
             ),
         )
@@ -104,7 +106,7 @@ class JsonChatHistoryStore(
 
     private companion object {
         const val DEFAULT_HISTORY_KEY = "talkloop.agent.history"
-        const val CURRENT_VERSION = 6
+        const val CURRENT_VERSION = 8
     }
 }
 
@@ -163,7 +165,7 @@ class InMemoryChatHistoryStore(
 
 @Serializable
 private data class StoredChatHistory(
-    val version: Int = 6,
+    val version: Int = 8,
     val summary: String? = null,
     val messages: List<ChatMessage>,
     val facts: Map<String, String> = emptyMap(),
@@ -174,6 +176,7 @@ private data class StoredChatHistory(
     val userProfile: UserProfile? = null,
     val userProfiles: List<UserProfile> = emptyList(),
     val activeUserProfileId: String? = null,
+    val taskState: TaskState? = null,
 )
 
 private fun MemoryLayersSnapshot.deepCopy(): MemoryLayersSnapshot = copy(

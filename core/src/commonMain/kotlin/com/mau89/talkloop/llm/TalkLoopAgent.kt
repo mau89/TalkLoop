@@ -111,6 +111,7 @@ class TalkLoopAgent(
     private val mutableUserProfile = MutableStateFlow(
         restoredUserProfiles.firstOrNull { it.id == initialActiveUserProfileId }
     )
+    private val mutableTaskState = MutableStateFlow(restoredMemory.taskState)
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
@@ -124,7 +125,146 @@ class TalkLoopAgent(
     val userProfiles: StateFlow<List<UserProfile>> = mutableUserProfiles.asStateFlow()
     val activeUserProfileId: StateFlow<String?> = mutableActiveUserProfileId.asStateFlow()
     val userProfile: StateFlow<UserProfile?> = mutableUserProfile.asStateFlow()
+    val taskState: StateFlow<TaskState?> = mutableTaskState.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+
+    /** Начинает новую state machine, не затрагивая диалог или слои памяти. */
+    suspend fun beginTask(
+        name: String,
+        currentStep: String = "Сформировать план",
+        expectedAction: String = "Определить шаги и критерии готовности",
+        expectedActor: TaskActor = TaskActor.AGENT,
+        completionCriteria: List<String> = emptyList(),
+    ) = mutex.withLock {
+        mutableTaskState.value = newTaskState(
+            name = name,
+            currentStep = currentStep,
+            expectedAction = expectedAction,
+            expectedActor = expectedActor,
+            completionCriteria = completionCriteria,
+        )
+        persistWithCurrentLayers()
+    }
+
+    /** Применяет событие атомарно, с проверкой ревизии и защитой от повторов. */
+    suspend fun dispatchTaskEvent(event: TaskEvent) = mutex.withLock {
+        mutableTaskState.value = requireTaskState().applyEvent(event)
+        persistWithCurrentLayers()
+    }
+
+    /** Обновляет точку работы, не меняя этап конечного автомата. */
+    suspend fun updateTaskProgress(currentStep: String, expectedAction: String) = mutex.withLock {
+        val current = requireTaskState()
+        mutableTaskState.value = current.applyEvent(
+            TaskEvent(
+                id = "manual-${current.revision + 1}",
+                type = TaskEventType.PROGRESS_UPDATED,
+                currentStep = currentStep,
+                expectedAction = expectedAction,
+                expectedRevision = current.revision,
+            )
+        )
+        persistWithCurrentLayers()
+    }
+
+    /** Выполняет только разрешённый переход конечного автомата. */
+    suspend fun transitionTask(
+        nextStage: TaskStage,
+        currentStep: String,
+        expectedAction: String,
+    ) = mutex.withLock {
+        val current = requireTaskState()
+        val eventType = when (current.stage to nextStage) {
+            TaskStage.PLANNING to TaskStage.EXECUTION -> TaskEventType.PLAN_APPROVED
+            TaskStage.EXECUTION to TaskStage.VALIDATION -> TaskEventType.EXECUTION_FINISHED
+            TaskStage.VALIDATION to TaskStage.DONE -> TaskEventType.VALIDATION_PASSED
+            TaskStage.VALIDATION to TaskStage.EXECUTION -> TaskEventType.VALIDATION_FAILED
+            else -> throw IllegalArgumentException(
+                "Недопустимый переход: ${current.stage.name.lowercase()} → " +
+                    nextStage.name.lowercase()
+            )
+        }
+        mutableTaskState.value = current.applyEvent(
+            TaskEvent(
+                id = "manual-${current.revision + 1}",
+                type = eventType,
+                currentStep = currentStep,
+                expectedAction = expectedAction,
+                expectedRevision = current.revision,
+            )
+        )
+        persistWithCurrentLayers()
+    }
+
+    /** Пауза сохраняет этап, шаг и следующее действие без изменений. */
+    suspend fun pauseTask() = mutex.withLock {
+        val current = requireTaskState()
+        mutableTaskState.value = current.applyEvent(
+            TaskEvent(
+                id = "pause-${current.revision + 1}",
+                type = TaskEventType.PAUSED,
+                expectedRevision = current.revision,
+            )
+        )
+        persistWithCurrentLayers()
+    }
+
+    /** Продолжение снимает только паузу: повторно объяснять контекст не требуется. */
+    suspend fun resumeTask() = mutex.withLock {
+        val current = requireTaskState()
+        mutableTaskState.value = current.applyEvent(
+            TaskEvent(
+                id = "resume-${current.revision + 1}",
+                type = TaskEventType.RESUMED,
+                expectedRevision = current.revision,
+            )
+        )
+        persistWithCurrentLayers()
+    }
+
+    /** Просит модель оценить критерии; состояние этапа меняется только после подтверждения. */
+    suspend fun requestTaskTransitionProposal(): TaskTransitionProposal = mutex.withLock {
+        val state = requireTaskState()
+        check(!state.paused) { "Сначала продолжите задачу после паузы" }
+        check(state.stage != TaskStage.DONE) { "Задача уже завершена" }
+        check(state.pendingProposal == null) {
+            "Сначала подтвердите или отклоните текущее предложение"
+        }
+        val answer = llmClient.answer(
+            history = mutableHistory.value + ChatMessage(
+                fromUser = true,
+                text = "Оцени готовность перейти на следующий этап по критериям задачи.",
+            ),
+            spec = ResponseSpec(
+                system = systemPromptWithTaskState(taskTransitionReviewPrompt(state), state),
+                maxTokens = 600,
+                jsonSchema = TASK_TRANSITION_PROPOSAL_SCHEMA,
+                temperature = 0.0,
+                model = config.model,
+            ),
+        )
+        val proposal = parseTaskTransitionProposal(answer.text, state)
+        mutableTaskState.value = state.copy(pendingProposal = proposal)
+        persistWithCurrentLayers()
+        proposal
+    }
+
+    suspend fun confirmTaskTransitionProposal() = mutex.withLock {
+        val current = requireTaskState()
+        val proposal = current.pendingProposal
+            ?: throw IllegalStateException("Нет предложения для подтверждения")
+        val event = proposal.event
+            ?: throw IllegalStateException("Агент рекомендует остаться на текущем этапе")
+        mutableTaskState.value = current.applyEvent(event)
+        persistWithCurrentLayers()
+    }
+
+    suspend fun dismissTaskTransitionProposal() = mutex.withLock {
+        val current = requireTaskState()
+        check(current.pendingProposal != null) { "Нет предложения для отклонения" }
+        mutableTaskState.value = current.copy(pendingProposal = null)
+        persistWithCurrentLayers()
+    }
 
     /** Создаёт или обновляет профиль по ID и сразу делает его активным. */
     suspend fun setUserProfile(profile: UserProfile) = mutex.withLock {
@@ -236,6 +376,15 @@ class TalkLoopAgent(
         val normalizedName = name?.trim()?.takeIf(String::isNotEmpty)
         mutableHistory.value = emptyList()
         mutableWorkingMemory.value = WorkingMemory(taskName = normalizedName)
+        mutableTaskState.value = normalizedName?.let {
+            newTaskState(
+                name = it,
+                currentStep = "Сформировать план",
+                expectedAction = "Определить шаги и критерии готовности",
+                expectedActor = TaskActor.AGENT,
+                completionCriteria = emptyList(),
+            )
+        }
         persistLayeredMemory()
     }
 
@@ -279,6 +428,11 @@ class TalkLoopAgent(
 
     suspend fun respond(userRequest: String): String {
         return mutex.withLock {
+            mutableTaskState.value?.takeIf(TaskState::paused)?.let { paused ->
+                throw TaskPausedException(
+                    "Задача «${paused.taskName}» на паузе. Продолжите её перед отправкой сообщения."
+                )
+            }
             val historySnapshot = mutableHistory.value
             val request = config.inputPolicies.foldSuspend(userRequest) { input, policy ->
                 policy.apply(input, InputPolicyContext(historySnapshot))
@@ -308,9 +462,13 @@ class TalkLoopAgent(
                 )
                 else -> config.systemPrompt
             }
-            val conversationSystemPrompt = systemPromptWithUserProfile(
+            val personalizedSystemPrompt = systemPromptWithUserProfile(
                 systemPrompt = memoryAwareSystemPrompt,
                 profile = mutableUserProfile.value,
+            )
+            val conversationSystemPrompt = systemPromptWithTaskState(
+                systemPrompt = personalizedSystemPrompt,
+                taskState = mutableTaskState.value,
             )
             val spec = ResponseSpec(
                 system = conversationSystemPrompt,
@@ -540,6 +698,9 @@ class TalkLoopAgent(
         value.trim().takeIf(String::isNotEmpty)
             ?: throw AgentPolicyException("$label памяти не должен быть пустым")
 
+    private fun requireTaskState(): TaskState = mutableTaskState.value
+        ?: throw IllegalStateException("Сначала начните задачу")
+
     private fun currentLayers(
         shortTermMessages: List<ChatMessage> = mutableHistory.value,
     ) = MemoryLayersSnapshot(
@@ -575,6 +736,7 @@ class TalkLoopAgent(
         userProfile: UserProfile? = mutableUserProfile.value,
         userProfiles: List<UserProfile> = mutableUserProfiles.value,
         activeUserProfileId: String? = mutableActiveUserProfileId.value,
+        taskState: TaskState? = mutableTaskState.value,
     ) {
         historyStore.saveMemory(
             AgentMemorySnapshot(
@@ -588,6 +750,7 @@ class TalkLoopAgent(
                 userProfile = userProfile,
                 userProfiles = userProfiles,
                 activeUserProfileId = activeUserProfileId,
+                taskState = taskState,
             )
         )
     }

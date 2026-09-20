@@ -83,3 +83,12 @@ tasks.register<JavaExec>("day12") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+// День 13: конечный автомат задачи, пауза и продолжение после перезапуска.
+tasks.register<JavaExec>("day13") {
+    group = "application"
+    description = "День 13: состояние задачи, пауза и точное продолжение"
+    mainClass = "com.mau89.talkloop.cli.Day13Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

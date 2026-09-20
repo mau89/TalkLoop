@@ -184,6 +184,8 @@ data class AgentMemorySnapshot(
     /** День 12+: каталог профилей и выбранный профиль. */
     val userProfiles: List<UserProfile> = emptyList(),
     val activeUserProfileId: String? = null,
+    /** День 13: точка продолжения активной задачи, включая состояние паузы. */
+    val taskState: TaskState? = null,
 )
 
 internal fun recentMessages(

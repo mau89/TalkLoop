@@ -23,7 +23,7 @@ import com.mau89.talkloop.llm.GENERAL_AGENT_SYSTEM_PROMPT
 import com.mau89.talkloop.llm.InMemoryChatHistoryStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
 
-private val TABS = listOf("Разговор", "Формат", "Мышление", "Температура", "Модели", "Агент")
+private val TABS = listOf("Агент", "Разговор", "Формат", "Мышление", "Температура", "Модели")
 
 @Composable
 fun App(
@@ -67,12 +67,7 @@ fun App(
                 }
             }
             when (tab) {
-                0 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
-                1 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
-                2 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
-                3 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
-                4 -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
-                else -> AgentLabScreen(
+                0 -> AgentLabScreen(
                     apiKey = apiKey,
                     agentRuntime = agentRuntime,
                     agent = generalAgent,
@@ -86,6 +81,11 @@ fun App(
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
+                1 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
+                2 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                3 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
+                4 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }
     }

@@ -20,7 +20,7 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":6"))
+        assertTrue(storage.values.values.single().contains("\"version\":8"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
     }
 
@@ -132,6 +132,23 @@ class ChatHistoryStoreTest {
     }
 
     @Test
+    fun `состояние задачи сохраняется вместе с паузой и точкой продолжения`() {
+        val storage = MapStringStore()
+        val expected = TaskState(
+            taskName = "Подготовить релиз",
+            stage = TaskStage.EXECUTION,
+            currentStep = "Собрать приложение",
+            expectedAction = "Запустить smoke-тесты",
+            paused = true,
+        )
+
+        JsonChatHistoryStore(storage).saveMemory(AgentMemorySnapshot(taskState = expected))
+
+        assertEquals(expected, JsonChatHistoryStore(storage).loadMemory().taskState)
+        assertTrue(storage.values.values.single().contains("\"taskState\""))
+    }
+
+    @Test
     fun `формат первого дня сохранения остаётся читаемым`() {
         val storage = MapStringStore(
             mutableMapOf(
@@ -144,6 +161,34 @@ class ChatHistoryStoreTest {
 
         assertEquals(listOf(ChatMessage(true, "Привет")), store.load())
         assertEquals(null, store.loadSummary())
+    }
+
+    @Test
+    fun `состояние задачи версии 7 получает новые поля по умолчанию`() {
+        val storage = MapStringStore(
+            mutableMapOf(
+                "talkloop.agent.history" to """
+                    {
+                      "version":7,
+                      "messages":[],
+                      "taskState":{
+                        "taskName":"Старое сохранение",
+                        "stage":"EXECUTION",
+                        "currentStep":"Продолжить работу",
+                        "expectedAction":"Запустить тесты",
+                        "paused":true
+                      }
+                    }
+                """.trimIndent()
+            )
+        )
+
+        val restored = JsonChatHistoryStore(storage).loadMemory().taskState!!
+
+        assertEquals(TaskActor.AGENT, restored.expectedActor)
+        assertEquals(emptyList(), restored.completionCriteria)
+        assertEquals(0, restored.revision)
+        assertTrue(restored.paused)
     }
 
     @Test

@@ -651,8 +651,8 @@ class TalkLoopAgentTest {
     }
 }
 
-private class FakeLlmClient(
-    private val responses: ArrayDeque<Any>,
+internal class FakeLlmClient(
+    private val responses: ArrayDeque<Any> = ArrayDeque(),
     private val tokenCounter: (List<ChatMessage>, ResponseSpec) -> Int = { history, spec ->
         history.sumOf { it.text.length } + if (spec.system == null) 0 else 5
     },

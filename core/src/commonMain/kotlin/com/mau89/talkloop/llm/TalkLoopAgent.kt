@@ -99,6 +99,18 @@ class TalkLoopAgent(
             config.contextStrategy is ContextStrategy.MemoryLayers
         } ?: LongTermMemory()
     )
+    private val restoredUserProfiles = restoredMemory.userProfiles.ifEmpty {
+        listOfNotNull(restoredMemory.userProfile)
+    }.distinctBy(UserProfile::id)
+    private val initialActiveUserProfileId = restoredMemory.activeUserProfileId
+        ?.takeIf { id -> restoredUserProfiles.any { it.id == id } }
+        ?: restoredMemory.userProfile?.id
+            ?.takeIf { id -> restoredUserProfiles.any { it.id == id } }
+    private val mutableUserProfiles = MutableStateFlow(restoredUserProfiles)
+    private val mutableActiveUserProfileId = MutableStateFlow(initialActiveUserProfileId)
+    private val mutableUserProfile = MutableStateFlow(
+        restoredUserProfiles.firstOrNull { it.id == initialActiveUserProfileId }
+    )
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
@@ -109,7 +121,56 @@ class TalkLoopAgent(
     val activeBranchId: StateFlow<String?> = mutableActiveBranchId.asStateFlow()
     val workingMemory: StateFlow<WorkingMemory> = mutableWorkingMemory.asStateFlow()
     val longTermMemory: StateFlow<LongTermMemory> = mutableLongTermMemory.asStateFlow()
+    val userProfiles: StateFlow<List<UserProfile>> = mutableUserProfiles.asStateFlow()
+    val activeUserProfileId: StateFlow<String?> = mutableActiveUserProfileId.asStateFlow()
+    val userProfile: StateFlow<UserProfile?> = mutableUserProfile.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+
+    /** Создаёт или обновляет профиль по ID и сразу делает его активным. */
+    suspend fun setUserProfile(profile: UserProfile) = mutex.withLock {
+        val normalized = normalizeUserProfile(profile)
+        mutableUserProfiles.value = mutableUserProfiles.value.upsert(normalized) {
+            it.id == normalized.id
+        }
+        mutableActiveUserProfileId.value = normalized.id
+        mutableUserProfile.value = normalized
+        persistWithCurrentLayers()
+    }
+
+    /** Переключает профиль; null включает режим без персонализации. */
+    suspend fun selectUserProfile(profileId: String?) = mutex.withLock {
+        val normalizedId = profileId?.trim()?.takeIf(String::isNotEmpty)
+        val selected = normalizedId?.let { id ->
+            mutableUserProfiles.value.firstOrNull { it.id == id }
+                ?: throw IllegalArgumentException("Профиль не найден: $id")
+        }
+        mutableActiveUserProfileId.value = selected?.id
+        mutableUserProfile.value = selected
+        persistWithCurrentLayers()
+    }
+
+    /** Отключает персонализацию, сохраняя профили для последующего выбора. */
+    suspend fun clearUserProfile() = mutex.withLock {
+        mutableActiveUserProfileId.value = null
+        mutableUserProfile.value = null
+        persistWithCurrentLayers()
+    }
+
+    /** Удаляет один сохранённый профиль, не затрагивая диалог и память задачи. */
+    suspend fun deleteUserProfile(profileId: String) = mutex.withLock {
+        val normalizedId = profileId.trim().takeIf(String::isNotEmpty)
+            ?: throw IllegalArgumentException("ID профиля не должен быть пустым")
+        val updated = mutableUserProfiles.value.filterNot { it.id == normalizedId }
+        require(updated.size != mutableUserProfiles.value.size) {
+            "Профиль не найден: $normalizedId"
+        }
+        mutableUserProfiles.value = updated
+        if (mutableActiveUserProfileId.value == normalizedId) {
+            mutableActiveUserProfileId.value = null
+            mutableUserProfile.value = null
+        }
+        persistWithCurrentLayers()
+    }
 
     /**
      * Явная запись в выбранный вызывающим кодом слой. Одинаковый ключ заменяет
@@ -235,7 +296,7 @@ class TalkLoopAgent(
                 )
                 else -> factsSnapshot
             }
-            val conversationSystemPrompt = when (config.contextStrategy) {
+            val memoryAwareSystemPrompt = when (config.contextStrategy) {
                 ContextStrategy.FullHistory ->
                     systemPromptWithSummary(config.systemPrompt, summarySnapshot)
                 is ContextStrategy.StickyFacts ->
@@ -247,6 +308,10 @@ class TalkLoopAgent(
                 )
                 else -> config.systemPrompt
             }
+            val conversationSystemPrompt = systemPromptWithUserProfile(
+                systemPrompt = memoryAwareSystemPrompt,
+                profile = mutableUserProfile.value,
+            )
             val spec = ResponseSpec(
                 system = conversationSystemPrompt,
                 maxTokens = config.maxTokens,
@@ -491,6 +556,14 @@ class TalkLoopAgent(
         )
     }
 
+    private fun persistWithCurrentLayers() {
+        if (config.contextStrategy is ContextStrategy.MemoryLayers) {
+            persistLayeredMemory()
+        } else {
+            persistMemory()
+        }
+    }
+
     private fun persistMemory(
         messages: List<ChatMessage> = mutableHistory.value,
         summary: String? = mutableSummary.value,
@@ -499,6 +572,9 @@ class TalkLoopAgent(
         branches: List<DialogueBranch> = mutableBranches.value,
         checkpoints: List<DialogueCheckpoint> = mutableCheckpoints.value,
         layers: MemoryLayersSnapshot = restoredMemory.layers,
+        userProfile: UserProfile? = mutableUserProfile.value,
+        userProfiles: List<UserProfile> = mutableUserProfiles.value,
+        activeUserProfileId: String? = mutableActiveUserProfileId.value,
     ) {
         historyStore.saveMemory(
             AgentMemorySnapshot(
@@ -509,6 +585,9 @@ class TalkLoopAgent(
                 branches = branches,
                 checkpoints = checkpoints,
                 layers = layers,
+                userProfile = userProfile,
+                userProfiles = userProfiles,
+                activeUserProfileId = activeUserProfileId,
             )
         )
     }

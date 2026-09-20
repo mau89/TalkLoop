@@ -179,6 +179,11 @@ data class AgentMemorySnapshot(
     val branches: List<DialogueBranch> = emptyList(),
     val checkpoints: List<DialogueCheckpoint> = emptyList(),
     val layers: MemoryLayersSnapshot = MemoryLayersSnapshot(),
+    /** Зеркало активного профиля и поле миграции для сохранений формата v5. */
+    val userProfile: UserProfile? = null,
+    /** День 12+: каталог профилей и выбранный профиль. */
+    val userProfiles: List<UserProfile> = emptyList(),
+    val activeUserProfileId: String? = null,
 )
 
 internal fun recentMessages(

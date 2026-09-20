@@ -74,3 +74,12 @@ tasks.register<JavaExec>("day11") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+// День 12: один запрос для двух профилей и автоматическое повторное применение настроек.
+tasks.register<JavaExec>("day12") {
+    group = "application"
+    description = "День 12: персонализация ответов для разных профилей"
+    mainClass = "com.mau89.talkloop.cli.Day12Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

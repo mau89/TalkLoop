@@ -31,17 +31,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
+import com.mau89.talkloop.llm.AssistantPreferences
 import com.mau89.talkloop.llm.ContextCompressionConfig
 import com.mau89.talkloop.llm.ContextStrategy
 import com.mau89.talkloop.llm.LongTermMemoryKind
 import com.mau89.talkloop.llm.MemoryLayer
 import com.mau89.talkloop.llm.MemoryWrite
 import com.mau89.talkloop.llm.TalkLoopAgent
+import com.mau89.talkloop.llm.UserProfile
 import com.mau89.talkloop.llm.contextWindowForModel
 import com.mau89.talkloop.llm.displayName
 import kotlinx.coroutines.launch
 
-/** День 11: управление тремя независимыми слоями памяти агента. */
+/** День 12: профиль пользователя поверх трёх независимых слоёв памяти агента. */
 @Composable
 fun AgentLabScreen(
     apiKey: String,
@@ -86,7 +88,7 @@ fun AgentLabScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("День 11 · Модель памяти", style = MaterialTheme.typography.titleMedium)
+                Text("День 12 · Персонализация", style = MaterialTheme.typography.titleMedium)
                 Text(
                     strategy?.displayName() ?: "Включите режим Memory Layers",
                     style = MaterialTheme.typography.bodySmall,
@@ -109,11 +111,11 @@ fun AgentLabScreen(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text("Три слоя включены всегда", style = MaterialTheme.typography.titleSmall)
+                        Text("Память и профиль включены всегда", style = MaterialTheme.typography.titleSmall)
                         Text(
-                            "Краткосрочная: успешные реплики автоматически. Рабочая: только " +
-                                "данные текущей задачи. Долговременная: только выбранные профиль, " +
-                                "решения и знания.",
+                            "Краткосрочная: успешные реплики автоматически. Рабочая: данные " +
+                                "задачи. Долговременная: решения и знания. Структурированный " +
+                                "профиль автоматически применяется к каждому ответу.",
                             style = MaterialTheme.typography.bodySmall,
                         )
                         OutlinedTextField(
@@ -235,6 +237,8 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
     val shortTerm by agent.history.collectAsState()
     val working by agent.workingMemory.collectAsState()
     val longTerm by agent.longTermMemory.collectAsState()
+    val profiles by agent.userProfiles.collectAsState()
+    val profile by agent.userProfile.collectAsState()
     var expanded by remember { mutableStateOf(true) }
     var selectedLayer by remember { mutableStateOf(MemoryLayer.WORKING) }
     var selectedKind by remember { mutableStateOf(LongTermMemoryKind.PROFILE) }
@@ -244,7 +248,7 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
     var status by remember { mutableStateOf<String?>(null) }
 
     Card(
-        Modifier.fillMaxWidth().heightIn(max = 380.dp)
+        Modifier.fillMaxWidth().heightIn(max = 520.dp)
             .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Column(
@@ -256,12 +260,18 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
                     Text("Слои памяти", style = MaterialTheme.typography.titleSmall)
                     Text(
                         "Краткая ${shortTerm.size} · рабочая ${working.items.size} · " +
-                            "долгая ${longTerm.items.size}",
+                            "долгая ${longTerm.items.size} · профили ${profiles.size}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     working.taskName?.let {
                         Text("Текущая задача: $it", style = MaterialTheme.typography.labelSmall)
+                    }
+                    profile?.let {
+                        Text(
+                            "Профиль: ${it.displayName ?: it.id}",
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                 }
                 TextButton(onClick = { expanded = !expanded }) {
@@ -270,6 +280,12 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
             }
 
             if (expanded) {
+                UserProfileEditor(
+                    agent = agent,
+                    profiles = profiles,
+                    currentProfile = profile,
+                )
+
                 Text(
                     "Краткосрочная память — лента ниже; сохраняется автоматически после " +
                         "успешного ответа и ограничена последними сообщениями.",
@@ -380,6 +396,174 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UserProfileEditor(
+    agent: TalkLoopAgent,
+    profiles: List<UserProfile>,
+    currentProfile: UserProfile?,
+) {
+    val scope = rememberCoroutineScope()
+    var profileId by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.id ?: "default")
+    }
+    var displayName by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.displayName.orEmpty())
+    }
+    var language by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.preferences?.language.orEmpty())
+    }
+    var style by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.preferences?.style.orEmpty())
+    }
+    var responseFormat by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.preferences?.format.orEmpty())
+    }
+    var constraints by remember(agent, currentProfile?.id) {
+        mutableStateOf(currentProfile?.preferences?.constraints?.joinToString("\n").orEmpty())
+    }
+    var status by remember(agent) { mutableStateOf<String?>(null) }
+
+    Card(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text("Профиль пользователя", style = MaterialTheme.typography.titleSmall)
+            Text(
+                "Сохраните несколько вариантов и выбирайте активный перед диалогом.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterChip(
+                    selected = currentProfile == null,
+                    onClick = {
+                        scope.launch {
+                            agent.selectUserProfile(null)
+                            status = "Персонализация отключена; профили сохранены"
+                        }
+                    },
+                    label = { Text("Без профиля") },
+                )
+                profiles.forEach { savedProfile ->
+                    FilterChip(
+                        selected = currentProfile?.id == savedProfile.id,
+                        onClick = {
+                            scope.launch {
+                                agent.selectUserProfile(savedProfile.id)
+                                status = "Активен профиль: " +
+                                    (savedProfile.displayName ?: savedProfile.id)
+                            }
+                        },
+                        label = { Text(savedProfile.displayName ?: savedProfile.id) },
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = profileId,
+                    onValueChange = { profileId = it },
+                    label = { Text("ID профиля") },
+                    supportingText = {
+                        if (currentProfile != null) Text("Чтобы создать новый, выберите «Без профиля»")
+                    },
+                    enabled = currentProfile == null,
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = displayName,
+                    onValueChange = { displayName = it },
+                    label = { Text("Имя") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedTextField(
+                value = language,
+                onValueChange = { language = it },
+                label = { Text("Язык ответа") },
+                placeholder = { Text("например, русский") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = style,
+                onValueChange = { style = it },
+                label = { Text("Стиль") },
+                placeholder = { Text("например, кратко и по делу") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = responseFormat,
+                onValueChange = { responseFormat = it },
+                label = { Text("Формат") },
+                placeholder = { Text("например, маркированный список") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = constraints,
+                onValueChange = { constraints = it },
+                label = { Text("Ограничения · по одному на строку") },
+                minLines = 2,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(
+                onClick = {
+                    scope.launch {
+                        runCatching {
+                            agent.setUserProfile(
+                                UserProfile(
+                                    id = profileId,
+                                    displayName = displayName,
+                                    preferences = AssistantPreferences(
+                                        language = language,
+                                        style = style,
+                                        format = responseFormat,
+                                        constraints = constraints.lines(),
+                                    ),
+                                )
+                            )
+                        }.onSuccess {
+                            status = "Профиль сохранён и будет применён к следующему ответу"
+                        }.onFailure { status = it.message }
+                    }
+                },
+                enabled = profileId.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    if (currentProfile == null) "Сохранить новый профиль"
+                    else "Обновить активный профиль"
+                )
+            }
+            if (currentProfile != null) {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            val deletedName = currentProfile.displayName ?: currentProfile.id
+                            runCatching { agent.deleteUserProfile(currentProfile.id) }
+                                .onSuccess { status = "Профиль удалён: $deletedName" }
+                                .onFailure { status = it.message }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Удалить активный профиль")
+                }
+            }
+            status?.let {
+                Text(it, style = MaterialTheme.typography.labelSmall)
             }
         }
     }

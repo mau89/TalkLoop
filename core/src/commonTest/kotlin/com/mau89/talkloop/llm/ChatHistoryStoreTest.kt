@@ -20,7 +20,7 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":4"))
+        assertTrue(storage.values.values.single().contains("\"version\":6"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
     }
 
@@ -94,6 +94,41 @@ class ChatHistoryStoreTest {
         assertTrue(raw.contains("\"working\""))
         assertTrue(raw.contains("\"longTerm\""))
         assertEquals(expected, JsonChatHistoryStore(storage).loadMemory().layers)
+    }
+
+    @Test
+    fun `каталог профилей и активный профиль сохраняются вместе с памятью`() {
+        val storage = MapStringStore()
+        val store = JsonChatHistoryStore(storage)
+        val profile = UserProfile(
+            id = "maria",
+            displayName = "Мария",
+            preferences = AssistantPreferences(
+                language = "русский",
+                style = "кратко и по делу",
+                format = "маркированный список",
+                constraints = listOf("не использовать эмодзи"),
+            ),
+        )
+
+        val second = UserProfile(
+            id = "ivan",
+            displayName = "Иван",
+            preferences = AssistantPreferences(style = "подробно"),
+        )
+        store.saveMemory(
+            AgentMemorySnapshot(
+                userProfile = profile,
+                userProfiles = listOf(profile, second),
+                activeUserProfileId = profile.id,
+            )
+        )
+
+        val restored = JsonChatHistoryStore(storage).loadMemory()
+        assertEquals(profile, restored.userProfile)
+        assertEquals(listOf(profile, second), restored.userProfiles)
+        assertEquals("maria", restored.activeUserProfileId)
+        assertTrue(storage.values.values.single().contains("\"userProfiles\""))
     }
 
     @Test

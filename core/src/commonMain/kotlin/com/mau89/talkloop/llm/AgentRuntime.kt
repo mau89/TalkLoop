@@ -23,12 +23,16 @@ class AgentRuntime(
         config: AgentConfig,
         initialHistory: List<ChatMessage> = emptyList(),
         historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
+        invariantStore: InvariantStore = EmptyInvariantStore,
+        invariantGuard: InvariantGuard = MarkerInvariantGuard,
     ): TalkLoopAgent {
         val agent = TalkLoopAgent(
             llmClient = sharedLlmClient,
             config = config,
             initialHistory = initialHistory,
             historyStore = historyStore,
+            invariantStore = invariantStore,
+            invariantGuard = invariantGuard,
         )
         mutableAgentCount.update { it + 1 }
         return agent

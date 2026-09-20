@@ -92,3 +92,12 @@ tasks.register<JavaExec>("day13") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+// День 14: отдельные инварианты, явная проверка и объяснимый отказ.
+tasks.register<JavaExec>("day14") {
+    group = "application"
+    description = "День 14: инварианты и конфликтный запрос без вызова LLM"
+    mainClass = "com.mau89.talkloop.cli.Day14Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

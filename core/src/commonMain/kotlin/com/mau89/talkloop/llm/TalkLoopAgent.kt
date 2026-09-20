@@ -48,6 +48,8 @@ class TalkLoopAgent(
     private val config: AgentConfig = AgentConfig(systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT),
     initialHistory: List<ChatMessage> = emptyList(),
     private val historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
+    private val invariantStore: InvariantStore = EmptyInvariantStore,
+    private val invariantGuard: InvariantGuard = MarkerInvariantGuard,
 ) {
     private val mutex = Mutex()
     private val restoredMemory = historyStore.loadMemory()
@@ -112,6 +114,7 @@ class TalkLoopAgent(
         restoredUserProfiles.firstOrNull { it.id == initialActiveUserProfileId }
     )
     private val mutableTaskState = MutableStateFlow(restoredMemory.taskState)
+    private val mutableLastInvariantCheck = MutableStateFlow(InvariantCheckResult())
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
@@ -126,7 +129,31 @@ class TalkLoopAgent(
     val activeUserProfileId: StateFlow<String?> = mutableActiveUserProfileId.asStateFlow()
     val userProfile: StateFlow<UserProfile?> = mutableUserProfile.asStateFlow()
     val taskState: StateFlow<TaskState?> = mutableTaskState.asStateFlow()
+    val lastInvariantCheck: StateFlow<InvariantCheckResult> =
+        mutableLastInvariantCheck.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+    val invariantRules: StateFlow<List<AgentInvariant>> = invariantStore.state
+
+    /** Правила читаются из отдельного хранилища и никогда не смешиваются с репликами. */
+    val invariants: List<AgentInvariant> get() = invariantStore.load()
+
+    suspend fun saveInvariant(
+        invariant: AgentInvariant,
+        previousId: String? = invariant.id,
+    ) = mutex.withLock {
+        requireMutableInvariantStore().replace(previousId, invariant)
+        mutableLastInvariantCheck.value = InvariantCheckResult()
+    }
+
+    suspend fun deleteInvariant(id: String) = mutex.withLock {
+        requireMutableInvariantStore().remove(id)
+        mutableLastInvariantCheck.value = InvariantCheckResult()
+    }
+
+    suspend fun resetInvariants() = mutex.withLock {
+        requireMutableInvariantStore().reset()
+        mutableLastInvariantCheck.value = InvariantCheckResult()
+    }
 
     /** Начинает новую state machine, не затрагивая диалог или слои памяти. */
     suspend fun beginTask(
@@ -236,7 +263,13 @@ class TalkLoopAgent(
                 text = "Оцени готовность перейти на следующий этап по критериям задачи.",
             ),
             spec = ResponseSpec(
-                system = systemPromptWithTaskState(taskTransitionReviewPrompt(state), state),
+                system = systemPromptWithTaskState(
+                    systemPrompt = systemPromptWithInvariants(
+                        systemPrompt = taskTransitionReviewPrompt(state),
+                        invariants = invariantStore.load(),
+                    ),
+                    taskState = state,
+                ),
                 maxTokens = 600,
                 jsonSchema = TASK_TRANSITION_PROPOSAL_SCHEMA,
                 temperature = 0.0,
@@ -438,6 +471,18 @@ class TalkLoopAgent(
                 policy.apply(input, InputPolicyContext(historySnapshot))
             }
             val userMessage = ChatMessage(fromUser = true, text = request)
+            val invariantSnapshot = invariantStore.load()
+            val requestInvariantCheck = invariantGuard.evaluate(
+                text = request,
+                invariants = invariantSnapshot,
+                stage = InvariantCheckStage.REQUEST,
+            )
+            mutableLastInvariantCheck.value = requestInvariantCheck
+            if (!requestInvariantCheck.allowed) {
+                val refusal = invariantRefusal(requestInvariantCheck)
+                persistLocalTurn(historySnapshot, userMessage, refusal)
+                return@withLock refusal
+            }
             val turn = mutableStatistics.value.requestCount + 1
             val summarySnapshot = mutableSummary.value
             mutableStatistics.value = mutableStatistics.value.copy(requestCount = turn)
@@ -466,8 +511,12 @@ class TalkLoopAgent(
                 systemPrompt = memoryAwareSystemPrompt,
                 profile = mutableUserProfile.value,
             )
-            val conversationSystemPrompt = systemPromptWithTaskState(
+            val invariantAwareSystemPrompt = systemPromptWithInvariants(
                 systemPrompt = personalizedSystemPrompt,
+                invariants = invariantSnapshot,
+            )
+            val conversationSystemPrompt = systemPromptWithTaskState(
+                systemPrompt = invariantAwareSystemPrompt,
                 taskState = mutableTaskState.value,
             )
             val spec = ResponseSpec(
@@ -555,19 +604,34 @@ class TalkLoopAgent(
                         "${answer.outputTokens} токенов. Неполный ответ не сохранён в истории.",
                 )
             }
-            val response = config.outputPolicies.foldSuspend(answer.text) { output, policy ->
+            val candidateResponse = config.outputPolicies.foldSuspend(answer.text) { output, policy ->
                 policy.apply(
                     output,
                     OutputPolicyContext(request = request, history = historySnapshot),
                 )
             }
-            val verdict = config.judge?.evaluate(
-                JudgeContext(
-                    request = request,
-                    response = response,
-                    history = historySnapshot,
-                )
+            val responseInvariantCheck = invariantGuard.evaluate(
+                text = candidateResponse,
+                invariants = invariantSnapshot,
+                stage = InvariantCheckStage.RESPONSE,
             )
+            mutableLastInvariantCheck.value = responseInvariantCheck
+            val response = if (responseInvariantCheck.allowed) {
+                candidateResponse
+            } else {
+                invariantRefusal(responseInvariantCheck)
+            }
+            val verdict = if (responseInvariantCheck.allowed) {
+                config.judge?.evaluate(
+                    JudgeContext(
+                        request = request,
+                        response = response,
+                        history = historySnapshot,
+                    )
+                )
+            } else {
+                null
+            }
             if (verdict != null && !verdict.accepted) {
                 throw AgentRejectedException(verdict.reason ?: "Judge отклонил ответ модели")
             }
@@ -694,6 +758,10 @@ class TalkLoopAgent(
         }
     }
 
+    private fun requireMutableInvariantStore(): MutableInvariantStore =
+        invariantStore as? MutableInvariantStore
+            ?: throw IllegalStateException("Хранилище инвариантов доступно только для чтения")
+
     private fun requireMemoryText(value: String, label: String): String =
         value.trim().takeIf(String::isNotEmpty)
             ?: throw AgentPolicyException("$label памяти не должен быть пустым")
@@ -723,6 +791,47 @@ class TalkLoopAgent(
         } else {
             persistMemory()
         }
+    }
+
+    /** Сохраняет локальный отказ как обычную пару реплик, не вызывая LLM. */
+    private fun persistLocalTurn(
+        historySnapshot: List<ChatMessage>,
+        userMessage: ChatMessage,
+        response: String,
+    ) {
+        val completeHistory = historySnapshot + userMessage +
+            ChatMessage(fromUser = false, text = response)
+        val nextMessages = when (val strategy = config.contextStrategy) {
+            ContextStrategy.FullHistory, ContextStrategy.Branching -> completeHistory
+            is ContextStrategy.SlidingWindow ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+            is ContextStrategy.StickyFacts ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+            is ContextStrategy.MemoryLayers ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+        }
+        val nextBranches = if (config.contextStrategy == ContextStrategy.Branching) {
+            mutableBranches.value.map { branch ->
+                if (branch.id == mutableActiveBranchId.value) {
+                    branch.copy(messages = nextMessages)
+                } else {
+                    branch
+                }
+            }
+        } else {
+            mutableBranches.value
+        }
+        persistMemory(
+            messages = nextMessages,
+            branches = nextBranches,
+            layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
+                currentLayers(shortTermMessages = nextMessages)
+            } else {
+                restoredMemory.layers
+            },
+        )
+        mutableHistory.value = nextMessages
+        mutableBranches.value = nextBranches
     }
 
     private fun persistMemory(

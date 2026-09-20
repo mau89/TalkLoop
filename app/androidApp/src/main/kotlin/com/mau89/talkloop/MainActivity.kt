@@ -12,11 +12,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val agentHistoryStore = createPersistentChatHistoryStore(applicationContext)
+        val agentInvariantStore = createPersistentInvariantStore(applicationContext)
 
         setContent {
             App(
                 apiKey = BuildConfig.ANTHROPIC_API_KEY,
                 agentHistoryStore = agentHistoryStore,
+                agentInvariantStore = agentInvariantStore,
             )
         }
     }

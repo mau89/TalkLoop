@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,12 +26,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.AgentConfig
-import com.mau89.talkloop.llm.AgentRuntime
 import com.mau89.talkloop.llm.AssistantPreferences
-import com.mau89.talkloop.llm.ContextCompressionConfig
 import com.mau89.talkloop.llm.ContextStrategy
 import com.mau89.talkloop.llm.LongTermMemoryKind
 import com.mau89.talkloop.llm.MemoryLayer
@@ -44,47 +40,22 @@ import com.mau89.talkloop.llm.TaskEventType
 import com.mau89.talkloop.llm.TaskStage
 import com.mau89.talkloop.llm.UserProfile
 import com.mau89.talkloop.llm.allowedEvents
-import com.mau89.talkloop.llm.contextWindowForModel
-import com.mau89.talkloop.llm.displayName
 import kotlinx.coroutines.launch
 
-/** День 13: конечный автомат задачи поверх профиля и трёх слоёв памяти агента. */
+/** Основной экран агента: задача, память, профиль и диалог. */
 @Composable
 fun AgentLabScreen(
     apiKey: String,
-    agentRuntime: AgentRuntime,
     agent: TalkLoopAgent,
     config: AgentConfig,
     onCreateAgent: (AgentConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val agentCount by agentRuntime.agentCount.collectAsState()
+    val scope = rememberCoroutineScope()
     val strategy = config.contextStrategy as? ContextStrategy.MemoryLayers
     var settingsExpanded by remember { mutableStateOf(strategy == null) }
     var systemPrompt by remember(config) { mutableStateOf(config.systemPrompt) }
-    var model by remember(config) { mutableStateOf(config.model) }
-    var temperature by remember(config) { mutableStateOf(config.temperature?.toString().orEmpty()) }
-    var maxTokens by remember(config) { mutableStateOf(config.maxTokens.toString()) }
-    var contextWindowTokens by remember(config) {
-        mutableStateOf(config.contextWindowTokens.toString())
-    }
-    var keepLastMessages by remember(config) {
-        mutableStateOf((strategy?.keepLastMessages ?: 10).toString())
-    }
-
-    val parsedTemperature = temperature.trim().replace(',', '.')
-        .takeIf(String::isNotEmpty)?.toDoubleOrNull()
-    val parsedMaxTokens = maxTokens.trim().toIntOrNull()
-    val parsedContextWindowTokens = contextWindowTokens.trim().toIntOrNull()
-    val parsedKeepLastMessages = keepLastMessages.trim().toIntOrNull()
-    val temperatureValid = temperature.isBlank() ||
-        (parsedTemperature != null && parsedTemperature in 0.0..1.0)
-    val recentMessagesValid = parsedKeepLastMessages != null &&
-        parsedKeepLastMessages > 0 && parsedKeepLastMessages % 2 == 0
-    val canApply = systemPrompt.isNotBlank() && model.isNotBlank() && temperatureValid &&
-        parsedMaxTokens != null && parsedMaxTokens > 0 &&
-        parsedContextWindowTokens != null && parsedContextWindowTokens > 0 &&
-        recentMessagesValid
+    var resetStatus by remember(agent) { mutableStateOf<String?>(null) }
 
     Column(modifier) {
         Row(
@@ -93,9 +64,9 @@ fun AgentLabScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("День 13 · Состояние задачи", style = MaterialTheme.typography.titleMedium)
+                Text("Агент", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    strategy?.displayName() ?: "Включите режим Memory Layers",
+                    "Задача, профиль и диалог",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -116,30 +87,6 @@ fun AgentLabScreen(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text("Память и профиль включены всегда", style = MaterialTheme.typography.titleSmall)
-                        Text(
-                            "Краткосрочная: успешные реплики автоматически. Рабочая: данные " +
-                                "задачи. Долговременная: решения и знания. Структурированный " +
-                                "профиль автоматически применяется к каждому ответу.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        OutlinedTextField(
-                            value = keepLastMessages,
-                            onValueChange = { keepLastMessages = it },
-                            label = { Text("Краткосрочная память, сообщений") },
-                            supportingText = { Text("Положительное чётное число") },
-                            isError = !recentMessagesValid,
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-                }
-                Card(Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
                         OutlinedTextField(
                             value = systemPrompt,
                             onValueChange = { systemPrompt = it },
@@ -147,49 +94,9 @@ fun AgentLabScreen(
                             minLines = 3,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        OutlinedTextField(
-                            value = model,
-                            onValueChange = { model = it },
-                            label = { Text("Модель") },
-                            isError = model.isBlank(),
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
-                                value = temperature,
-                                onValueChange = { temperature = it },
-                                label = { Text("Temperature") },
-                                supportingText = { Text("Пусто или 0–1") },
-                                isError = !temperatureValid,
-                                singleLine = true,
-                                modifier = Modifier.weight(1f),
-                            )
-                            OutlinedTextField(
-                                value = maxTokens,
-                                onValueChange = { maxTokens = it },
-                                label = { Text("Max tokens") },
-                                isError = parsedMaxTokens == null || parsedMaxTokens <= 0,
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                        OutlinedTextField(
-                            value = contextWindowTokens,
-                            onValueChange = { contextWindowTokens = it },
-                            label = { Text("Лимит окна контекста") },
-                            supportingText = {
-                                Text("Для ${model.ifBlank { "модели" }}: ${contextWindowForModel(model)}")
-                            },
-                            isError = parsedContextWindowTokens == null ||
-                                parsedContextWindowTokens <= 0,
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth(),
-                        )
                         Text(
-                            "Применение настроек не удаляет сохранённые слои памяти.",
+                            "Модель, лимиты и стоимость используют безопасные настройки " +
+                                "приложения и здесь не показываются.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -198,22 +105,49 @@ fun AgentLabScreen(
                                 onCreateAgent(
                                     config.copy(
                                         systemPrompt = systemPrompt.trim(),
-                                        model = model.trim(),
-                                        temperature = parsedTemperature,
-                                        maxTokens = parsedMaxTokens!!,
-                                        contextWindowTokens = parsedContextWindowTokens!!,
-                                        contextStrategy = ContextStrategy.MemoryLayers(
-                                            keepLastMessages = parsedKeepLastMessages!!,
-                                        ),
-                                        contextCompression = ContextCompressionConfig(enabled = false),
                                     )
                                 )
                                 settingsExpanded = false
                             },
-                            enabled = canApply,
+                            enabled = systemPrompt.isNotBlank(),
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text("Применить Memory Layers")
+                            Text("Сохранить настройки")
+                        }
+                    }
+                }
+                Card(Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text("Новый диалог", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "Очистит текущую переписку и состояние задачи, затем пересоздаст " +
+                                "агента. Инварианты, профили и долговременные знания сохранятся.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    runCatching { agent.startNewTask() }
+                                        .onSuccess {
+                                            onCreateAgent(config)
+                                            settingsExpanded = false
+                                        }
+                                        .onFailure { resetStatus = it.message }
+                                }
+                            },
+                            enabled = strategy != null,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text("Очистить диалог и пересоздать агента") }
+                        resetStatus?.let {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
                         }
                     }
                 }
@@ -229,19 +163,18 @@ fun AgentLabScreen(
                 showRecap = false,
                 inputPlaceholder = "Сообщение в краткосрочную память…",
                 sendButtonText = "Отправить",
-                showStatistics = true,
-                agentCount = agentCount,
-                strategyLabel = strategy.displayName(),
+                showStatistics = false,
             )
         }
     }
 }
 
+
 @Composable
 private fun TaskStateCard(agent: TalkLoopAgent) {
     val scope = rememberCoroutineScope()
     val taskState by agent.taskState.collectAsState()
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
     var taskName by remember(agent, taskState?.taskName) {
         mutableStateOf(taskState?.taskName.orEmpty())
     }
@@ -269,7 +202,7 @@ private fun TaskStateCard(agent: TalkLoopAgent) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Task State Machine", style = MaterialTheme.typography.titleSmall)
+                    Text("Состояние задачи", style = MaterialTheme.typography.titleSmall)
                     Text(
                         taskState?.let {
                             "${it.stage.title()} · ${if (it.paused) "пауза" else "активна"} · rev ${it.revision}"
@@ -283,21 +216,20 @@ private fun TaskStateCard(agent: TalkLoopAgent) {
                 }
             }
 
-            taskState?.let { state ->
-                TaskStageProgress(state.stage)
-                if (state.stage == TaskStage.DONE) {
-                    Card(Modifier.fillMaxWidth()) {
-                        Text(
-                            "Задача завершена · done",
-                            modifier = Modifier.padding(10.dp),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+            if (expanded) {
+                taskState?.let { state ->
+                    TaskStageProgress(state.stage)
+                    if (state.stage == TaskStage.DONE) {
+                        Card(Modifier.fillMaxWidth()) {
+                            Text(
+                                "Задача завершена · done",
+                                modifier = Modifier.padding(10.dp),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
-            }
-
-            if (expanded) {
                 OutlinedTextField(
                     value = taskName,
                     onValueChange = { taskName = it },
@@ -626,10 +558,13 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Слои памяти", style = MaterialTheme.typography.titleSmall)
                     Text(
-                        "Краткая ${shortTerm.size} · рабочая ${working.items.size} · " +
-                            "долгая ${longTerm.items.size} · профили ${profiles.size}",
+                        "Память · ${shortTerm.size} / ${working.items.size} / " +
+                            longTerm.items.size,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        "краткая / рабочая / долговременная",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

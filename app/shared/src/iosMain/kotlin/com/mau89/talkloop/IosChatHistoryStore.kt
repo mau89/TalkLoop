@@ -1,7 +1,10 @@
 package com.mau89.talkloop
 
 import com.mau89.talkloop.llm.ChatHistoryStore
+import com.mau89.talkloop.llm.FOOD_ASSISTANT_INVARIANTS
+import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.JsonChatHistoryStore
+import com.mau89.talkloop.llm.JsonInvariantStore
 import com.mau89.talkloop.llm.StringStore
 import platform.Foundation.NSUserDefaults
 
@@ -19,5 +22,23 @@ fun createPersistentChatHistoryStore(): ChatHistoryStore {
                 defaults.removeObjectForKey(key)
             }
         }
+    )
+}
+
+fun createPersistentInvariantStore(): InvariantStore {
+    val defaults = NSUserDefaults.standardUserDefaults
+    return JsonInvariantStore(
+        storage = object : StringStore {
+            override fun read(key: String): String? = defaults.stringForKey(key)
+
+            override fun write(key: String, value: String) {
+                defaults.setObject(value, forKey = key)
+            }
+
+            override fun remove(key: String) {
+                defaults.removeObjectForKey(key)
+            }
+        },
+        defaults = FOOD_ASSISTANT_INVARIANTS,
     )
 }

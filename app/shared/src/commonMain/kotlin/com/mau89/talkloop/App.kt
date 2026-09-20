@@ -20,15 +20,28 @@ import com.mau89.talkloop.llm.ChatHistoryStore
 import com.mau89.talkloop.llm.ContextCompressionConfig
 import com.mau89.talkloop.llm.ContextStrategy
 import com.mau89.talkloop.llm.GENERAL_AGENT_SYSTEM_PROMPT
+import com.mau89.talkloop.llm.FOOD_ASSISTANT_INVARIANTS
 import com.mau89.talkloop.llm.InMemoryChatHistoryStore
+import com.mau89.talkloop.llm.InMemoryInvariantStore
+import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
 
-private val TABS = listOf("Агент", "Разговор", "Формат", "Мышление", "Температура", "Модели")
+private val TABS = listOf(
+    "Инварианты",
+    "Агент",
+    "Разговор",
+    "Формат",
+    "Мышление",
+    "Температура",
+    "Модели",
+)
 
 @Composable
 fun App(
     apiKey: String,
     agentHistoryStore: ChatHistoryStore = InMemoryChatHistoryStore(),
+    agentInvariantStore: InvariantStore =
+        InMemoryInvariantStore(FOOD_ASSISTANT_INVARIANTS),
 ) {
     MaterialTheme {
         val agentRuntime = remember(apiKey) {
@@ -46,11 +59,12 @@ fun App(
                 )
             )
         }
-        var generalAgent by remember(agentRuntime, agentHistoryStore) {
+        var generalAgent by remember(agentRuntime, agentHistoryStore, agentInvariantStore) {
             mutableStateOf(
                 agentRuntime.spawn(
                     config = generalAgentConfig,
                     historyStore = agentHistoryStore,
+                    invariantStore = agentInvariantStore,
                 )
             )
         }
@@ -67,9 +81,12 @@ fun App(
                 }
             }
             when (tab) {
-                0 -> AgentLabScreen(
+                0 -> InvariantLabScreen(
+                    agent = generalAgent,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                1 -> AgentLabScreen(
                     apiKey = apiKey,
-                    agentRuntime = agentRuntime,
                     agent = generalAgent,
                     config = generalAgentConfig,
                     onCreateAgent = { config ->
@@ -77,14 +94,15 @@ fun App(
                         generalAgent = agentRuntime.spawn(
                             config = config,
                             historyStore = agentHistoryStore,
+                            invariantStore = agentInvariantStore,
                         )
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
-                1 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
-                2 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
-                3 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
-                4 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                2 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
+                3 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                4 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
+                5 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
                 else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }

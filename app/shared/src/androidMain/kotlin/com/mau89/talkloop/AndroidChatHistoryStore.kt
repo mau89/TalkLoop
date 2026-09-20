@@ -2,7 +2,10 @@ package com.mau89.talkloop
 
 import android.content.Context
 import com.mau89.talkloop.llm.ChatHistoryStore
+import com.mau89.talkloop.llm.FOOD_ASSISTANT_INVARIANTS
+import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.JsonChatHistoryStore
+import com.mau89.talkloop.llm.JsonInvariantStore
 import com.mau89.talkloop.llm.StringStore
 
 fun createPersistentChatHistoryStore(context: Context): ChatHistoryStore {
@@ -23,5 +26,27 @@ fun createPersistentChatHistoryStore(context: Context): ChatHistoryStore {
                 }
             }
         }
+    )
+}
+
+fun createPersistentInvariantStore(context: Context): InvariantStore {
+    val preferences = context.getSharedPreferences("talkloop_invariants", Context.MODE_PRIVATE)
+    return JsonInvariantStore(
+        storage = object : StringStore {
+            override fun read(key: String): String? = preferences.getString(key, null)
+
+            override fun write(key: String, value: String) {
+                check(preferences.edit().putString(key, value).commit()) {
+                    "Не удалось сохранить инварианты"
+                }
+            }
+
+            override fun remove(key: String) {
+                check(preferences.edit().remove(key).commit()) {
+                    "Не удалось очистить инварианты"
+                }
+            }
+        },
+        defaults = FOOD_ASSISTANT_INVARIANTS,
     )
 }

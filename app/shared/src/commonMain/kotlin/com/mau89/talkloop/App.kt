@@ -34,6 +34,7 @@ private val TABS = listOf(
     "Мышление",
     "Температура",
     "Модели",
+    "MCP",
 )
 
 @Composable
@@ -103,7 +104,8 @@ fun App(
                 3 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
                 4 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
                 5 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
-                else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
+                6 -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
+                else -> McpLabScreen(Modifier.fillMaxSize())
             }
         }
     }

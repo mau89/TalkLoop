@@ -14,6 +14,8 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.anthropic.java)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.ktor.clientCio)
+    implementation(libs.mcp.kotlin.client)
 }
 
 tasks.named<JavaExec>("run") {
@@ -98,6 +100,15 @@ tasks.register<JavaExec>("day14") {
     group = "application"
     description = "День 14: инварианты и конфликтный запрос без вызова LLM"
     mainClass = "com.mau89.talkloop.cli.Day14Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}
+
+// День 16: подключение к публичному MCP-серверу и запрос tools/list.
+tasks.register<JavaExec>("day16") {
+    group = "application"
+    description = "День 16: подключиться к MCP и вывести доступные инструменты"
+    mainClass = "com.mau89.talkloop.cli.Day16Kt"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }

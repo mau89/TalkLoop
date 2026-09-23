@@ -67,6 +67,12 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   `./gradlew :cli:day14 -q --console=plain`.
   Демо использует понятный кулинарный набор: структура рецепта, граммы/°C,
   доступная техника и абсолютный запрет арахиса из-за аллергии.
+- День 16 (MCP): вкладка «MCP» подключается по Streamable HTTP к публичному
+  DeepWiki MCP без ключа, выполняет `tools/list` и показывает имена и описания
+  инструментов. URL можно заменить прямо на экране на адрес другого публичного
+  Streamable HTTP MCP. Тот же сценарий доступен через CLI:
+  `./gradlew :cli:day16 -q --console=plain`. URL другого MCP можно передать так:
+  `./gradlew :cli:day16 -q --console=plain --args=https://example.com/mcp`.
 - Android app: `./gradlew :app:androidApp:assembleDebug` — ключ берётся из того же `secrets.properties`
   и вкомпилируется в APK, поэтому собранное приложение никому не раздавать; для этого понадобится
   прокси через `:server`

@@ -15,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,8 +48,6 @@ fun AgentLabScreen(
     apiKey: String,
     agent: TalkLoopAgent,
     config: AgentConfig,
-    mcpEnabled: Boolean,
-    onMcpEnabledChange: (Boolean) -> Unit,
     onCreateAgent: (AgentConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -69,7 +66,7 @@ fun AgentLabScreen(
             Column(Modifier.weight(1f)) {
                 Text("Агент", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Задача, профиль, MCP-инструменты и диалог",
+                    "Задача, профиль и диалог",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -85,39 +82,6 @@ fun AgentLabScreen(
                     .imePadding().padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Card(Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                Text("MCP-погода", style = MaterialTheme.typography.titleSmall)
-                                Text(
-                                    if (mcpEnabled) {
-                                        "Агент может вызвать get_current_weather"
-                                    } else {
-                                        "MCP отключён: агент не подключается к серверу"
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Switch(
-                                checked = mcpEnabled,
-                                onCheckedChange = onMcpEnabledChange,
-                            )
-                        }
-                        Text(
-                            "Проверка: /weather Екатеринбург или «Какая погода в городе Екатеринбург?»",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
                 Card(Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.padding(12.dp),
@@ -200,7 +164,6 @@ fun AgentLabScreen(
                 inputPlaceholder = "Сообщение в краткосрочную память…",
                 sendButtonText = "Отправить",
                 showStatistics = false,
-                showToolActivity = true,
             )
         }
     }

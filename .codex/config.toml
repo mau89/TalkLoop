@@ -1,6 +1,0 @@
-# Проектное подключение локального MCP-сервера Дня 17.
-# После запуска ./gradlew :server:run сервер виден в Codex через /mcp.
-[mcp_servers.talkloop_weather]
-url = "http://127.0.0.1:8080/mcp"
-enabled = true
-required = false

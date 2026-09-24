@@ -649,54 +649,6 @@ class TalkLoopAgentTest {
         assertEquals(0, agent.statistics.value.compression.compressionCount)
         assertEquals("summary offline", agent.statistics.value.compression.lastError)
     }
-
-    @Test
-    fun `агент сам вызывает подключённый инструмент и использует результат`() = runTest {
-        val client = FakeLlmClient(ArrayDeque<Any>(listOf("Возьмите куртку")))
-        var receivedRequest: String? = null
-        val toolCall = AgentToolCall(
-            toolName = "get_current_weather",
-            toolDescription = "Текущая погода",
-            inputSchema = "{city: string}",
-            arguments = "{\"city\":\"Екатеринбург\"}",
-            result = "{\"temperature_c\":8.5,\"wind_speed_kmh\":14}",
-        )
-        val agent = TalkLoopAgent(
-            llmClient = client,
-            toolProvider = AgentToolProvider { request ->
-                receivedRequest = request
-                toolCall
-            },
-        )
-
-        val answer = agent.respond("Какая погода в городе Екатеринбург?")
-
-        assertEquals("Возьмите куртку", answer)
-        assertEquals("Какая погода в городе Екатеринбург?", receivedRequest)
-        assertEquals(toolCall, agent.lastToolCall.value)
-        assertEquals(
-            "Какая погода в городе Екатеринбург?",
-            agent.history.value.first().text,
-        )
-        assertTrue(client.specs.single().system.orEmpty().contains("get_current_weather"))
-        assertTrue(client.specs.single().system.orEmpty().contains("temperature_c"))
-        assertTrue(
-            client.requests.single().none { message -> "temperature_c" in message.text }
-        )
-    }
-
-    @Test
-    fun `без подходящего инструмента агент отвечает как обычно`() = runTest {
-        val client = FakeLlmClient(ArrayDeque<Any>(listOf("Обычный ответ")))
-        val agent = TalkLoopAgent(
-            llmClient = client,
-            toolProvider = AgentToolProvider { null },
-        )
-
-        assertEquals("Обычный ответ", agent.respond("Привет"))
-        assertEquals(null, agent.lastToolCall.value)
-        assertTrue("<tool_call>" !in client.specs.single().system.orEmpty())
-    }
 }
 
 internal class FakeLlmClient(

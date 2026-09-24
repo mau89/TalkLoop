@@ -60,6 +60,7 @@ fun ChatScreen(
     compressionEnabled: Boolean = false,
     strategyLabel: String? = null,
     factsEnabled: Boolean = false,
+    showToolActivity: Boolean = false,
 ) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
@@ -71,6 +72,7 @@ fun ChatScreen(
     val history by agent.history.collectAsState()
     val summary by agent.summary.collectAsState()
     val statistics by agent.statistics.collectAsState()
+    val lastToolCall by agent.lastToolCall.collectAsState()
     var input by remember { mutableStateOf("") }
     var waiting by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -160,6 +162,32 @@ fun ChatScreen(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
+        }
+
+        if (showToolActivity) {
+            lastToolCall?.let { call ->
+                Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            "MCP вызван: ${call.toolName}",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            "Аргументы: ${call.arguments}",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Text(
+                            "Результат: ${call.result}",
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 5,
+                        )
+                    }
+                }
+            }
         }
 
         Row(

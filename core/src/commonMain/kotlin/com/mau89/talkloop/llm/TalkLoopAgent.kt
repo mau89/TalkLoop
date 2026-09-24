@@ -50,6 +50,7 @@ class TalkLoopAgent(
     private val historyStore: ChatHistoryStore = InMemoryChatHistoryStore(initialHistory),
     private val invariantStore: InvariantStore = EmptyInvariantStore,
     private val invariantGuard: InvariantGuard = MarkerInvariantGuard,
+    private val toolProvider: AgentToolProvider? = null,
 ) {
     private val mutex = Mutex()
     private val restoredMemory = historyStore.loadMemory()
@@ -116,6 +117,7 @@ class TalkLoopAgent(
     private val mutableTaskState = MutableStateFlow(restoredMemory.taskState)
     private val mutableLastInvariantCheck = MutableStateFlow(InvariantCheckResult())
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
+    private val mutableLastToolCall = MutableStateFlow<AgentToolCall?>(null)
 
     val history: StateFlow<List<ChatMessage>> = mutableHistory.asStateFlow()
     val summary: StateFlow<String?> = mutableSummary.asStateFlow()
@@ -132,6 +134,7 @@ class TalkLoopAgent(
     val lastInvariantCheck: StateFlow<InvariantCheckResult> =
         mutableLastInvariantCheck.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
+    val lastToolCall: StateFlow<AgentToolCall?> = mutableLastToolCall.asStateFlow()
     val invariantRules: StateFlow<List<AgentInvariant>> = invariantStore.state
 
     /** Правила читаются из отдельного хранилища и никогда не смешиваются с репликами. */
@@ -467,6 +470,7 @@ class TalkLoopAgent(
 
     suspend fun respond(userRequest: String): String {
         return mutex.withLock {
+            mutableLastToolCall.value = null
             mutableTaskState.value?.takeIf(TaskState::paused)?.let { paused ->
                 throw TaskPausedException(
                     "Задача «${paused.taskName}» на паузе. Продолжите её перед отправкой сообщения."
@@ -493,6 +497,8 @@ class TalkLoopAgent(
                 persistLocalTurn(historySnapshot, userMessage, refusal)
                 return@withLock refusal
             }
+            val toolCall = toolProvider?.callFor(request)
+            mutableLastToolCall.value = toolCall
             val turn = mutableStatistics.value.requestCount + 1
             val summarySnapshot = mutableSummary.value
             mutableStatistics.value = mutableStatistics.value.copy(requestCount = turn)
@@ -529,8 +535,12 @@ class TalkLoopAgent(
                 systemPrompt = invariantAwareSystemPrompt,
                 taskState = mutableTaskState.value,
             )
+            val toolAwareSystemPrompt = systemPromptWithToolCall(
+                systemPrompt = conversationSystemPrompt,
+                toolCall = toolCall,
+            )
             val spec = ResponseSpec(
-                system = conversationSystemPrompt,
+                system = toolAwareSystemPrompt,
                 maxTokens = config.maxTokens,
                 stopSequences = config.stopSequences,
                 temperature = config.temperature,

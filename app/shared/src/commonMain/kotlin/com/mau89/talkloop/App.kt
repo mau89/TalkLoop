@@ -34,7 +34,6 @@ private val TABS = listOf(
     "Мышление",
     "Температура",
     "Модели",
-    "MCP",
 )
 
 @Composable
@@ -51,6 +50,8 @@ fun App(
         val conversationAgent = remember(agentRuntime) {
             agentRuntime.spawn(AgentConfig(systemPrompt = TUTOR_SYSTEM_PROMPT))
         }
+        val weatherToolProvider = remember { McpWeatherToolProvider() }
+        var mcpEnabled by remember { mutableStateOf(true) }
         var generalAgentConfig by remember(agentRuntime) {
             mutableStateOf(
                 AgentConfig(
@@ -60,12 +61,18 @@ fun App(
                 )
             )
         }
-        var generalAgent by remember(agentRuntime, agentHistoryStore, agentInvariantStore) {
+        var generalAgent by remember(
+            agentRuntime,
+            agentHistoryStore,
+            agentInvariantStore,
+            weatherToolProvider,
+        ) {
             mutableStateOf(
                 agentRuntime.spawn(
                     config = generalAgentConfig,
                     historyStore = agentHistoryStore,
                     invariantStore = agentInvariantStore,
+                    toolProvider = weatherToolProvider,
                 )
             )
         }
@@ -90,12 +97,23 @@ fun App(
                     apiKey = apiKey,
                     agent = generalAgent,
                     config = generalAgentConfig,
+                    mcpEnabled = mcpEnabled,
+                    onMcpEnabledChange = { enabled ->
+                        mcpEnabled = enabled
+                        generalAgent = agentRuntime.spawn(
+                            config = generalAgentConfig,
+                            historyStore = agentHistoryStore,
+                            invariantStore = agentInvariantStore,
+                            toolProvider = weatherToolProvider.takeIf { enabled },
+                        )
+                    },
                     onCreateAgent = { config ->
                         generalAgentConfig = config
                         generalAgent = agentRuntime.spawn(
                             config = config,
                             historyStore = agentHistoryStore,
                             invariantStore = agentInvariantStore,
+                            toolProvider = weatherToolProvider.takeIf { mcpEnabled },
                         )
                     },
                     modifier = Modifier.fillMaxSize(),
@@ -104,8 +122,7 @@ fun App(
                 3 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
                 4 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
                 5 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
-                6 -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
-                else -> McpLabScreen(Modifier.fillMaxSize())
+                else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }
     }

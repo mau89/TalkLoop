@@ -499,6 +499,10 @@ class TalkLoopAgent(
             }
             val toolCall = toolProvider?.callFor(request)
             mutableLastToolCall.value = toolCall
+            toolCall?.directResponse?.let { response ->
+                persistLocalTurn(historySnapshot, userMessage, response)
+                return@withLock response
+            }
             val turn = mutableStatistics.value.requestCount + 1
             val summarySnapshot = mutableSummary.value
             mutableStatistics.value = mutableStatistics.value.copy(requestCount = turn)
@@ -710,6 +714,46 @@ class TalkLoopAgent(
             mutableBranches.value = nextBranches
             response
         }
+    }
+
+    /** Добавляет серверную сводку в диалог без искусственной реплики пользователя. */
+    suspend fun appendBackgroundToolResult(
+        toolCall: AgentToolCall,
+        response: String = toolCall.directResponse ?: toolCall.result,
+    ) = mutex.withLock {
+        mutableLastToolCall.value = toolCall
+        val completeHistory = mutableHistory.value + ChatMessage(fromUser = false, text = response)
+        val nextMessages = when (val strategy = config.contextStrategy) {
+            ContextStrategy.FullHistory, ContextStrategy.Branching -> completeHistory
+            is ContextStrategy.SlidingWindow ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+            is ContextStrategy.StickyFacts ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+            is ContextStrategy.MemoryLayers ->
+                recentMessages(completeHistory, strategy.keepLastMessages)
+        }
+        val nextBranches = if (config.contextStrategy == ContextStrategy.Branching) {
+            mutableBranches.value.map { branch ->
+                if (branch.id == mutableActiveBranchId.value) {
+                    branch.copy(messages = nextMessages)
+                } else {
+                    branch
+                }
+            }
+        } else {
+            mutableBranches.value
+        }
+        persistMemory(
+            messages = nextMessages,
+            branches = nextBranches,
+            layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
+                currentLayers(shortTermMessages = nextMessages)
+            } else {
+                restoredMemory.layers
+            },
+        )
+        mutableHistory.value = nextMessages
+        mutableBranches.value = nextBranches
     }
 
     private suspend fun updateFacts(

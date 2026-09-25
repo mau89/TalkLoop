@@ -8,6 +8,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,7 @@ import com.mau89.talkloop.llm.InMemoryChatHistoryStore
 import com.mau89.talkloop.llm.InMemoryInvariantStore
 import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
+import kotlinx.coroutines.delay
 
 private val TABS = listOf(
     "Инварианты",
@@ -76,7 +79,36 @@ fun App(
                 )
             )
         }
+        val weatherMonitoring by weatherToolProvider.monitoring.collectAsState()
         var tab by remember { mutableStateOf(0) }
+
+        LaunchedEffect(weatherToolProvider, mcpEnabled) {
+            if (!mcpEnabled) return@LaunchedEffect
+            while (weatherToolProvider.monitoring.value == null) {
+                val restored = runCatching {
+                    weatherToolProvider.restoreMonitoring()
+                }
+                if (restored.isSuccess) return@LaunchedEffect
+                // Сервер мог запускаться одновременно с приложением.
+                delay(5_000L)
+            }
+        }
+
+        LaunchedEffect(generalAgent, weatherMonitoring, mcpEnabled) {
+            val monitoring = weatherMonitoring
+            if (!mcpEnabled || monitoring == null) return@LaunchedEffect
+
+            while (true) {
+                delay(monitoring.intervalMinutes * 60_000L)
+                runCatching {
+                    weatherToolProvider.requestAutomaticSummary(monitoring.city)
+                }.onSuccess { toolCall ->
+                    generalAgent.appendBackgroundToolResult(toolCall)
+                }
+                // При временной недоступности сервера не засоряем диалог ошибками:
+                // следующий запуск автоматически повторит попытку.
+            }
+        }
 
         Column(Modifier.fillMaxSize().safeContentPadding()) {
             PrimaryScrollableTabRow(selectedTabIndex = tab) {

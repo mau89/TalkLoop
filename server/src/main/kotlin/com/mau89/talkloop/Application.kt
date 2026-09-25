@@ -6,6 +6,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
+import java.nio.file.Paths
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -15,12 +16,25 @@ fun main() {
 fun Application.module(
     enableDnsRebindingProtection: Boolean = true,
     weatherApi: WeatherApi = WttrWeatherApi(),
+    weatherScheduler: WeatherSummaryScheduler = WeatherSummaryScheduler(
+        weatherApi = weatherApi,
+        store = JsonWeatherSchedulerStore(
+            Paths.get(
+                System.getProperty(
+                    "talkloop.scheduler.file",
+                    "server-data/weather-scheduler.json",
+                )
+            )
+        ),
+    ),
 ) {
-    val weatherMcpServer = createWeatherMcpServer(weatherApi)
+    val weatherMcpServer = createWeatherMcpServer(weatherApi, weatherScheduler)
+    weatherScheduler.start()
 
     if (weatherApi is AutoCloseable) {
         monitor.subscribe(ApplicationStopped) { weatherApi.close() }
     }
+    monitor.subscribe(ApplicationStopped) { weatherScheduler.close() }
 
     mcpStreamableHttp(
         path = "/mcp",

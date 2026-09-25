@@ -697,6 +697,47 @@ class TalkLoopAgentTest {
         assertEquals(null, agent.lastToolCall.value)
         assertTrue("<tool_call>" !in client.specs.single().system.orEmpty())
     }
+
+    @Test
+    fun `точный ответ инструмента не пересказывается моделью`() = runTest {
+        val client = FakeLlmClient()
+        val toolCall = AgentToolCall(
+            toolName = "get_weather_summary",
+            toolDescription = "Сводка",
+            inputSchema = "{}",
+            arguments = "{}",
+            result = "{}",
+            directResponse = "Частота сбора: каждые 2 мин.",
+        )
+        val agent = TalkLoopAgent(
+            llmClient = client,
+            toolProvider = AgentToolProvider { toolCall },
+        )
+
+        val answer = agent.respond("Покажи сводку")
+
+        assertEquals("Частота сбора: каждые 2 мин.", answer)
+        assertTrue(client.requests.isEmpty())
+        assertEquals(2, agent.history.value.size)
+    }
+
+    @Test
+    fun `фоновая сводка добавляется без сообщения пользователя`() = runTest {
+        val agent = TalkLoopAgent(llmClient = FakeLlmClient())
+        val toolCall = AgentToolCall(
+            toolName = "get_weather_summary",
+            toolDescription = "Сводка",
+            inputSchema = "{}",
+            arguments = "{}",
+            result = "{}",
+            directResponse = "Автоматическая сводка",
+        )
+
+        agent.appendBackgroundToolResult(toolCall)
+
+        assertEquals(listOf("Автоматическая сводка"), agent.history.value.map { it.text })
+        assertEquals(toolCall, agent.lastToolCall.value)
+    }
 }
 
 internal class FakeLlmClient(

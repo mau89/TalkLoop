@@ -95,10 +95,10 @@ fun AgentLabScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text("MCP-погода", style = MaterialTheme.typography.titleSmall)
+                                Text("MCP-погода и планировщик", style = MaterialTheme.typography.titleSmall)
                                 Text(
                                     if (mcpEnabled) {
-                                        "Агент может вызвать get_current_weather"
+                                        "Фоновый сбор и автоматические сводки, пока приложение открыто"
                                     } else {
                                         "MCP отключён: агент не подключается к серверу"
                                     },
@@ -112,7 +112,7 @@ fun AgentLabScreen(
                             )
                         }
                         Text(
-                            "Проверка: /weather Екатеринбург или «Какая погода в городе Екатеринбург?»",
+                            "Проверка: /weather-watch Екатеринбург 1, затем /weather-summary Екатеринбург",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

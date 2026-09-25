@@ -17,6 +17,7 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+server-data/
 
 # Личные заметки и секреты — не в гит
 Strategy.md

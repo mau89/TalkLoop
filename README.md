@@ -94,6 +94,12 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   само восстановит автоматический вывод. Новый запуск после остановки начинает
   отдельный период со счётчиком от одного. Подробности:
   [docs/day18-scheduler.md](docs/day18-scheduler.md).
+- День 19 (композиция MCP): команда `/weather-report Тюмень` вызывает один
+  оркестрирующий инструмент `run_weather_report_pipeline`. Сервер автоматически
+  выполняет цепочку `search_weather_data → summarize_weather_data →
+  save_weather_report`, передаёт результат каждого этапа следующему и сохраняет
+  Markdown в `server/server-data/reports`. Ответ агента показывает все три этапа и
+  путь к файлу. Подробности: [docs/day19-mcp-composition.md](docs/day19-mcp-composition.md).
 - Android app: `./gradlew :app:androidApp:assembleDebug` — ключ берётся из того же `secrets.properties`
   и вкомпилируется в APK, поэтому собранное приложение никому не раздавать; для этого понадобится
   прокси через `:server`

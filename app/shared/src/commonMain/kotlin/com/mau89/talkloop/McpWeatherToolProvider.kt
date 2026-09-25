@@ -102,6 +102,7 @@ class McpWeatherToolProvider(
             val structured = result.structuredContent
             val directResponse = structured?.let { content ->
                 when (intent.toolName) {
+                    "run_weather_report_pipeline" -> formatPipelineResponse(content)
                     "schedule_weather_collection" -> formatScheduleResponse(content)
                     "get_weather_summary" -> formatSummaryResponse(content, automaticSummary)
                     "cancel_weather_collection" -> formatCancelResponse(content)
@@ -222,6 +223,32 @@ internal fun formatCancelResponse(result: JsonObject): String =
     "Сбор погоды для города ${result.string("city")} остановлен. " +
         "Новый запуск создаст новый период и начнёт счётчик заново."
 
+internal fun formatPipelineResponse(result: JsonObject): String = buildString {
+    appendLine("Погодный отчёт для города ${result.string("city")} готов.")
+    val report = result.string("report_markdown")
+        .lineSequence()
+        .map { line ->
+            when {
+                line.startsWith("# ") -> line.removePrefix("# ")
+                line.startsWith("- ") -> "• ${line.removePrefix("- ")}"
+                else -> line
+            }
+        }
+        .joinToString("\n")
+        .trim()
+    if (report.isNotEmpty()) {
+        appendLine()
+        appendLine("Результат:")
+        appendLine(report)
+        appendLine()
+    }
+    appendLine("Выполнена цепочка:")
+    appendLine("1. search_weather_data — данные получены")
+    appendLine("2. summarize_weather_data — Markdown сформирован")
+    appendLine("3. save_weather_report — файл сохранён")
+    append("Файл: ${result.string("file_path")}")
+}
+
 private fun JsonObject.string(name: String): String =
     get(name)?.jsonPrimitive?.content.orEmpty()
 
@@ -250,6 +277,21 @@ internal fun weatherToolIntent(request: String): WeatherToolIntent? {
     val trimmed = request.trim()
     val normalized = trimmed.lowercase()
     if (!isWeatherRequest(trimmed)) return null
+
+    if (
+        normalized.startsWith("/weather-report") ||
+        (("отчёт" in normalized || "отчет" in normalized) &&
+            listOf("создай", "сделай", "сформируй", "сохрани").any(normalized::contains))
+    ) {
+        val city = extractWeatherReportCity(trimmed)
+        require(city.length >= 2) {
+            "Укажите город, например: /weather-report Екатеринбург"
+        }
+        return WeatherToolIntent(
+            toolName = "run_weather_report_pipeline",
+            arguments = mapOf("city" to city),
+        )
+    }
 
     if (
         normalized.startsWith("/weather-stop") ||
@@ -300,6 +342,23 @@ internal fun weatherToolIntent(request: String): WeatherToolIntent? {
         toolName = "get_current_weather",
         arguments = mapOf("city" to city),
     )
+}
+
+private fun extractWeatherReportCity(request: String): String {
+    val trimmed = request.trim()
+    if (trimmed.lowercase().startsWith("/weather-report")) {
+        return cleanCity(trimmed.drop("/weather-report".length))
+    }
+    val fromWeatherRequest = extractWeatherCity(trimmed)
+    if (fromWeatherRequest.length >= 2) return fromWeatherRequest
+    val normalized = trimmed.lowercase()
+    val marker = " для "
+    val markerIndex = normalized.lastIndexOf(marker)
+    return if (markerIndex >= 0) {
+        cleanCity(trimmed.substring(markerIndex + marker.length))
+    } else {
+        ""
+    }
 }
 
 private fun Exception.isMcpConnectionFailure(): Boolean {

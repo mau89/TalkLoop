@@ -27,8 +27,20 @@ fun Application.module(
             )
         ),
     ),
+    weatherReportStore: WeatherReportStore = FileWeatherReportStore(
+        Paths.get(
+            System.getProperty(
+                "talkloop.reports.directory",
+                "server-data/reports",
+            )
+        )
+    ),
 ) {
-    val weatherMcpServer = createWeatherMcpServer(weatherApi, weatherScheduler)
+    val weatherMcpServer = createWeatherMcpServer(
+        weatherApi,
+        weatherScheduler,
+        WeatherReportPipeline(weatherApi, weatherReportStore),
+    )
     weatherScheduler.start()
 
     if (weatherApi is AutoCloseable) {

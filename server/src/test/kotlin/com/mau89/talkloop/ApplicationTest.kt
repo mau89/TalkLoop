@@ -9,6 +9,7 @@ import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.*
@@ -88,6 +89,10 @@ class ApplicationTest {
                     "get_weather_summary",
                     "get_active_weather_collection",
                     "cancel_weather_collection",
+                    "search_weather_data",
+                    "summarize_weather_data",
+                    "save_weather_report",
+                    "run_weather_report_pipeline",
                 ),
                 tools.map { it.name }.toSet(),
             )
@@ -142,6 +147,80 @@ class ApplicationTest {
                 mapOf("city" to "Несуществующий город"),
             )
             assertTrue(result.isError == true)
+        } finally {
+            mcpClient.close()
+            httpClient.close()
+        }
+    }
+
+    @Test
+    fun mcpRunsReportPipelineAndPassesResultsBetweenTools() = testApplication {
+        val savedReports = mutableListOf<Pair<String, String>>()
+        val reportStore = WeatherReportStore { city, markdown ->
+            savedReports += city to markdown
+            SavedWeatherReport(
+                filePath = "server-data/reports/weather-test.md",
+                bytesWritten = markdown.encodeToByteArray().size,
+            )
+        }
+        application {
+            module(
+                enableDnsRebindingProtection = false,
+                weatherApi = weatherApi,
+                weatherScheduler = testScheduler(weatherApi),
+                weatherReportStore = reportStore,
+            )
+        }
+        val httpClient = createClient { install(SSE) }
+        val mcpClient = Client(
+            clientInfo = Implementation("talkloop-test", "1.0.0"),
+        )
+
+        try {
+            mcpClient.connect(
+                StreamableHttpClientTransport(
+                    client = httpClient,
+                    url = "http://localhost/mcp",
+                )
+            )
+
+            val result = mcpClient.callTool(
+                "run_weather_report_pipeline",
+                mapOf("city" to "Екатеринбург"),
+            )
+
+            assertFalse(result.isError == true)
+            val content = requireNotNull(result.structuredContent)
+            assertEquals("Екатеринбург", content["city"]?.jsonPrimitive?.content)
+            assertEquals(
+                "search_weather_data -> summarize_weather_data -> save_weather_report",
+                content["pipeline"]?.jsonPrimitive?.content,
+            )
+            assertEquals("server-data/reports/weather-test.md", content["file_path"]?.jsonPrimitive?.content)
+
+            val steps = requireNotNull(content["steps"]).jsonArray
+            assertEquals(3, steps.size)
+            assertEquals("search_weather_data", steps[0].jsonObject["tool"]?.jsonPrimitive?.content)
+            assertEquals("summarize_weather_data", steps[1].jsonObject["tool"]?.jsonPrimitive?.content)
+            assertEquals("save_weather_report", steps[2].jsonObject["tool"]?.jsonPrimitive?.content)
+
+            val searchOutput = steps[0].jsonObject.getValue("output").jsonObject
+            val summarizeInput = steps[1].jsonObject.getValue("input").jsonObject
+            assertEquals(searchOutput, summarizeInput)
+
+            val summarizeOutput = steps[1].jsonObject.getValue("output").jsonObject
+            val saveInput = steps[2].jsonObject.getValue("input").jsonObject
+            assertEquals(
+                summarizeOutput.getValue("report_markdown"),
+                saveInput.getValue("report_markdown"),
+            )
+            assertEquals(1, savedReports.size)
+            assertEquals("Екатеринбург", savedReports.single().first)
+            assertEquals(
+                content["report_markdown"]?.jsonPrimitive?.content,
+                savedReports.single().second,
+            )
+            assertTrue("8.5 °C" in savedReports.single().second)
         } finally {
             mcpClient.close()
             httpClient.close()

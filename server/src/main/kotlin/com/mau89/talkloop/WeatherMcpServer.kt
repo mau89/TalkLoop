@@ -21,7 +21,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -100,6 +103,7 @@ fun WeatherSnapshot.toJson(): JsonObject = buildJsonObject {
 fun createWeatherMcpServer(
     api: WeatherApi,
     scheduler: WeatherSummaryScheduler,
+    reportPipeline: WeatherReportPipeline,
 ): Server = Server(
     serverInfo = Implementation(
         name = "talkloop-weather",
@@ -111,6 +115,145 @@ fun createWeatherMcpServer(
         ),
     ),
 ).apply {
+    addTool(
+        name = "search_weather_data",
+        description = "Первый этап погодного пайплайна: получить исходные данные из внешнего API.",
+        inputSchema = requiredCityInputSchema(),
+        outputSchema = weatherOutputSchema(),
+        toolAnnotations = ToolAnnotations(
+            title = "Найти данные о погоде",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = true,
+        ),
+    ) { request ->
+        val city = request.arguments?.get("city")?.jsonPrimitive?.content.orEmpty()
+        try {
+            val weather = reportPipeline.search(city)
+            CallToolResult(
+                content = listOf(TextContent("Данные о погоде для ${weather.city} получены.")),
+                structuredContent = weather.toJson(),
+                isError = false,
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            toolError(e.message ?: "Не удалось получить исходные данные")
+        }
+    }
+
+    addTool(
+        name = "summarize_weather_data",
+        description = "Второй этап погодного пайплайна: преобразовать исходный JSON погоды в Markdown-отчёт.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("weather_data", weatherObjectSchema("Данные из search_weather_data"))
+            },
+            required = listOf("weather_data"),
+        ),
+        outputSchema = reportSummaryOutputSchema(),
+        toolAnnotations = ToolAnnotations(
+            title = "Сформировать погодный отчёт",
+            readOnlyHint = true,
+            destructiveHint = false,
+            idempotentHint = true,
+            openWorldHint = false,
+        ),
+    ) { request ->
+        try {
+            val source = request.arguments?.get("weather_data") as? JsonObject
+                ?: error("Передайте объект weather_data из search_weather_data")
+            val weather = source.toWeatherSnapshot()
+            val markdown = reportPipeline.summarize(weather)
+            CallToolResult(
+                content = listOf(TextContent(markdown)),
+                structuredContent = buildJsonObject {
+                    put("city", weather.city)
+                    put("report_markdown", markdown)
+                    put("source_weather", source)
+                },
+                isError = false,
+            )
+        } catch (e: Exception) {
+            toolError(e.message ?: "Не удалось сформировать отчёт")
+        }
+    }
+
+    addTool(
+        name = "save_weather_report",
+        description = "Третий этап погодного пайплайна: сохранить готовый Markdown-отчёт в файл.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("city", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Город из результата summarize_weather_data")
+                })
+                put("report_markdown", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Markdown из результата summarize_weather_data")
+                })
+            },
+            required = listOf("city", "report_markdown"),
+        ),
+        outputSchema = savedReportOutputSchema(),
+        toolAnnotations = ToolAnnotations(
+            title = "Сохранить погодный отчёт",
+            readOnlyHint = false,
+            destructiveHint = false,
+            idempotentHint = false,
+            openWorldHint = false,
+        ),
+    ) { request ->
+        try {
+            val city = request.arguments?.get("city")?.jsonPrimitive?.content.orEmpty()
+            val markdown = request.arguments?.get("report_markdown")?.jsonPrimitive?.content.orEmpty()
+            val saved = reportPipeline.save(city, markdown)
+            CallToolResult(
+                content = listOf(TextContent("Отчёт сохранён: ${saved.filePath}")),
+                structuredContent = saved.toJson(),
+                isError = false,
+            )
+        } catch (e: Exception) {
+            toolError(e.message ?: "Не удалось сохранить отчёт")
+        }
+    }
+
+    addTool(
+        name = "run_weather_report_pipeline",
+        description = "За один вызов автоматически выполнить цепочку search_weather_data → " +
+            "summarize_weather_data → save_weather_report и вернуть сохранённый отчёт.",
+        inputSchema = requiredCityInputSchema(),
+        outputSchema = weatherPipelineOutputSchema(),
+        toolAnnotations = ToolAnnotations(
+            title = "Создать погодный отчёт",
+            readOnlyHint = false,
+            destructiveHint = false,
+            idempotentHint = false,
+            openWorldHint = true,
+        ),
+    ) { request ->
+        val city = request.arguments?.get("city")?.jsonPrimitive?.content.orEmpty()
+        try {
+            val pipelineResult = reportPipeline.run(city)
+            val result = pipelineResult.toJson()
+            CallToolResult(
+                content = listOf(
+                    TextContent(
+                        "Пайплайн завершён: данные для ${pipelineResult.weather.city} получены, " +
+                            "обработаны и сохранены в ${pipelineResult.saved.filePath}."
+                    )
+                ),
+                structuredContent = result,
+                isError = false,
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            toolError(e.message ?: "Не удалось выполнить погодный пайплайн")
+        }
+    }
+
     addTool(
         name = "get_current_weather",
         description = "Получить текущую погоду в указанном городе. " +
@@ -322,6 +465,69 @@ fun createWeatherMcpServer(
     }
 }
 
+private fun WeatherReportPipelineResult.toJson(): JsonObject = buildJsonObject {
+    put("city", weather.city)
+    put("pipeline", "search_weather_data -> summarize_weather_data -> save_weather_report")
+    put("report_markdown", markdown)
+    put("file_path", saved.filePath)
+    put("bytes_written", saved.bytesWritten)
+    put("steps", buildJsonArray {
+        add(buildJsonObject {
+            put("tool", "search_weather_data")
+            put("status", "completed")
+            put("input", buildJsonObject { put("city", weather.city) })
+            put("output", weather.toJson())
+        })
+        add(buildJsonObject {
+            put("tool", "summarize_weather_data")
+            put("status", "completed")
+            put("input", weather.toJson())
+            put("output", buildJsonObject {
+                put("city", weather.city)
+                put("report_markdown", markdown)
+            })
+        })
+        add(buildJsonObject {
+            put("tool", "save_weather_report")
+            put("status", "completed")
+            put("input", buildJsonObject {
+                put("city", weather.city)
+                put("report_markdown", markdown)
+            })
+            put("output", saved.toJson())
+        })
+    })
+}
+
+private fun SavedWeatherReport.toJson(): JsonObject = buildJsonObject {
+    put("file_path", filePath)
+    put("bytes_written", bytesWritten)
+}
+
+private fun JsonObject.toWeatherSnapshot(): WeatherSnapshot = WeatherSnapshot(
+    city = requiredString("city"),
+    country = requiredString("country"),
+    observedAt = requiredString("observed_at"),
+    temperatureC = requiredDouble("temperature_c"),
+    feelsLikeC = requiredDouble("feels_like_c"),
+    humidityPercent = requiredInt("humidity_percent"),
+    precipitationMm = requiredDouble("precipitation_mm"),
+    windSpeedKmh = requiredDouble("wind_speed_kmh"),
+    condition = requiredString("condition"),
+)
+
+private fun JsonObject.requiredString(name: String): String =
+    get(name)?.jsonPrimitive?.content?.takeIf(String::isNotBlank)
+        ?: error("В weather_data отсутствует поле $name")
+
+private fun JsonObject.requiredDouble(name: String): Double =
+    get(name)?.jsonPrimitive?.doubleOrNull
+        ?: error("В weather_data отсутствует числовое поле $name")
+
+private fun JsonObject.requiredInt(name: String): Int =
+    get(name)?.jsonPrimitive?.intOrNull
+        ?: error("В weather_data отсутствует целое поле $name")
+
 private fun ScheduledWeatherJob.toJson(
     samples: Int? = null,
     latestWeather: WeatherSnapshot? = null,
@@ -363,6 +569,66 @@ private fun optionalCityInputSchema(): ToolSchema = ToolSchema(
             put("description", "Город. Можно не указывать, если сохранено одно задание")
         })
     },
+)
+
+private fun requiredCityInputSchema(): ToolSchema = ToolSchema(
+    properties = buildJsonObject {
+        put("city", buildJsonObject {
+            put("type", "string")
+            put("description", "Название города, например Екатеринбург")
+            put("minLength", 2)
+        })
+    },
+    required = listOf("city"),
+)
+
+private fun weatherObjectSchema(description: String): JsonObject = buildJsonObject {
+    put("type", "object")
+    put("description", description)
+    put("properties", weatherOutputSchema().properties ?: buildJsonObject {})
+    put("required", buildJsonArray {
+        weatherOutputSchema().required.orEmpty().forEach { field -> add(JsonPrimitive(field)) }
+    })
+}
+
+private fun reportSummaryOutputSchema(): ToolSchema = ToolSchema(
+    properties = buildJsonObject {
+        put("city", buildJsonObject { put("type", "string") })
+        put("report_markdown", buildJsonObject { put("type", "string") })
+        put("source_weather", weatherObjectSchema("Исходные данные, использованные в отчёте"))
+    },
+    required = listOf("city", "report_markdown", "source_weather"),
+)
+
+private fun savedReportOutputSchema(): ToolSchema = ToolSchema(
+    properties = buildJsonObject {
+        put("file_path", buildJsonObject { put("type", "string") })
+        put("bytes_written", buildJsonObject { put("type", "integer") })
+    },
+    required = listOf("file_path", "bytes_written"),
+)
+
+private fun weatherPipelineOutputSchema(): ToolSchema = ToolSchema(
+    properties = buildJsonObject {
+        put("city", buildJsonObject { put("type", "string") })
+        put("pipeline", buildJsonObject { put("type", "string") })
+        put("report_markdown", buildJsonObject { put("type", "string") })
+        put("file_path", buildJsonObject { put("type", "string") })
+        put("bytes_written", buildJsonObject { put("type", "integer") })
+        put("steps", buildJsonObject {
+            put("type", "array")
+            put("description", "Выполненные этапы с их входами и выходами")
+            put("items", buildJsonObject { put("type", "object") })
+        })
+    },
+    required = listOf(
+        "city",
+        "pipeline",
+        "report_markdown",
+        "file_path",
+        "bytes_written",
+        "steps",
+    ),
 )
 
 private fun scheduledJobOutputSchema(): ToolSchema = ToolSchema(

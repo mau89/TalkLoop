@@ -38,6 +38,22 @@ class McpWeatherToolProviderTest {
     }
 
     @Test
+    fun `команда отчёта выбирает автоматический пайплайн`() {
+        val intent = weatherToolIntent("/weather-report Екатеринбург")
+
+        assertEquals("run_weather_report_pipeline", intent?.toolName)
+        assertEquals("Екатеринбург", intent?.arguments?.get("city"))
+    }
+
+    @Test
+    fun `обычная просьба создать отчёт выбирает автоматический пайплайн`() {
+        val intent = weatherToolIntent("Создай отчёт о погоде для Тюмени")
+
+        assertEquals("run_weather_report_pipeline", intent?.toolName)
+        assertEquals("Тюмени", intent?.arguments?.get("city"))
+    }
+
+    @Test
     fun `команда сводки выбирает агрегирующий инструмент`() {
         val intent = weatherToolIntent("Покажи сводку погоды по Тюмени")
 
@@ -119,5 +135,28 @@ class McpWeatherToolProviderTest {
         assertTrue("ощущается как 10 °C" in text)
         assertTrue("дождь" in text)
         assertTrue("каждые 2 мин" in text)
+    }
+
+    @Test
+    fun `ответ пайплайна показывает все этапы и сохранённый файл`() {
+        val result = buildJsonObject {
+            put("city", "Тюмень")
+            put("file_path", "server-data/reports/weather-тюмень.md")
+            put(
+                "report_markdown",
+                "# Отчёт о погоде: Тюмень\n\n- Температура: 9.0 °C\n- Условия: солнечно",
+            )
+        }
+
+        val text = formatPipelineResponse(result)
+
+        assertTrue("search_weather_data" in text)
+        assertTrue("summarize_weather_data" in text)
+        assertTrue("save_weather_report" in text)
+        assertTrue("server-data/reports/weather-тюмень.md" in text)
+        assertTrue("Температура: 9.0 °C" in text)
+        assertTrue("Условия: солнечно" in text)
+        assertFalse("# Отчёт" in text)
+        assertTrue("• Температура" in text)
     }
 }

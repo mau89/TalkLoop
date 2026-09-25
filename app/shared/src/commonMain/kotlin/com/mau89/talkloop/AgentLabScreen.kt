@@ -112,7 +112,7 @@ fun AgentLabScreen(
                             )
                         }
                         Text(
-                            "Проверка: /weather-watch Екатеринбург 1, затем /weather-summary Екатеринбург",
+                            "Проверка: /weather-report Екатеринбург или /weather-watch Екатеринбург 1",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

@@ -2,6 +2,7 @@ package com.mau89.talkloop
 
 import com.mau89.talkloop.llm.AgentToolCall
 import com.mau89.talkloop.llm.AgentToolProvider
+import com.mau89.talkloop.llm.AgentToolStep
 import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
@@ -14,22 +15,117 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+
+internal data class McpEndpoint(
+    val name: String,
+    val url: String,
+)
+
+internal fun interface McpToolExecutor {
+    suspend fun invoke(
+        endpoint: McpEndpoint,
+        toolName: String,
+        arguments: JsonObject,
+    ): AgentToolCall
+}
+
+private class NetworkMcpToolExecutor : McpToolExecutor {
+    override suspend fun invoke(
+        endpoint: McpEndpoint,
+        toolName: String,
+        arguments: JsonObject,
+    ): AgentToolCall {
+        require(endpoint.url.isNotBlank()) { "Не задан URL MCP-сервера ${endpoint.name}" }
+        val httpClient = createMcpHttpClient()
+        val client = Client(
+            clientInfo = Implementation(
+                name = "talkloop-agent",
+                version = "1.0.0",
+            ),
+        )
+        try {
+            client.connect(
+                StreamableHttpClientTransport(
+                    client = httpClient,
+                    url = endpoint.url.trim(),
+                    requestBuilder = {
+                        if (method == HttpMethod.Post) {
+                            headers.remove(HttpHeaders.Accept)
+                            headers.append(
+                                HttpHeaders.Accept,
+                                "application/json, text/event-stream;q=0.1",
+                            )
+                        }
+                    },
+                )
+            )
+            val tool = client.listTools().tools.firstOrNull { it.name == toolName }
+                ?: error("MCP-сервер ${endpoint.name} не зарегистрировал инструмент $toolName")
+            val result = client.callTool(tool.name, arguments)
+            val resultText = result.structuredContent?.let(JSON::encodeToString)
+                ?: result.content.filterIsInstance<TextContent>()
+                    .joinToString("\n", transform = TextContent::text)
+                    .ifBlank { "MCP-инструмент вернул пустой результат" }
+            if (result.isError == true) error(resultText)
+            return AgentToolCall(
+                toolName = tool.name,
+                toolDescription = tool.description.orEmpty(),
+                inputSchema = JSON.encodeToString(tool.inputSchema),
+                arguments = JSON.encodeToString(arguments),
+                result = resultText,
+                serverName = endpoint.name,
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (e.isMcpConnectionFailure()) {
+                throw IllegalStateException(
+                    "Не удалось подключиться к MCP-серверу ${endpoint.name} " +
+                        "(${endpoint.url}). В корне проекта запустите ./gradlew :server:run " +
+                        "и оставьте этот терминал открытым.",
+                    e,
+                )
+            }
+            throw e
+        } finally {
+            client.close()
+            httpClient.close()
+        }
+    }
+
+    private companion object {
+        val JSON = Json { prettyPrint = true }
+    }
+}
 
 /** MCP-инструмент обычного TalkLoopAgent, а не отдельный экран или отдельный агент. */
-class McpWeatherToolProvider(
+internal class McpWeatherToolProvider(
     private val serverUrl: String = defaultMcpServerUrl(),
+    private val bookServerUrl: String = defaultBookMcpServerUrl(),
+    private val toolExecutor: McpToolExecutor = NetworkMcpToolExecutor(),
 ) : AgentToolProvider {
     private val mutableMonitoring = MutableStateFlow<WeatherMonitoring?>(null)
     val monitoring: StateFlow<WeatherMonitoring?> = mutableMonitoring.asStateFlow()
 
     override suspend fun callFor(request: String): AgentToolCall? {
+        extractWeatherRecommendationCity(request)?.let { city ->
+            return executeWeatherBookFlow(city)
+        }
+        extractBookSearchQuery(request)?.let { query ->
+            return executeBookSearch(query)
+        }
         val intent = weatherToolIntent(request) ?: return null
         return execute(intent, automaticSummary = false)
     }
@@ -57,109 +153,113 @@ class McpWeatherToolProvider(
         intent: WeatherToolIntent,
         automaticSummary: Boolean,
     ): AgentToolCall {
-        require(serverUrl.isNotBlank()) { "Не задан URL MCP-сервера" }
-
-        val httpClient = createMcpHttpClient()
-        val client = Client(
-            clientInfo = Implementation(
-                name = "talkloop-agent",
-                version = "1.0.0",
-            ),
+        val call = toolExecutor.invoke(
+            endpoint = McpEndpoint("talkloop-weather", serverUrl),
+            toolName = intent.toolName,
+            arguments = intent.arguments.toJsonObject(),
         )
-
-        try {
-            client.connect(
-                StreamableHttpClientTransport(
-                    client = httpClient,
-                    url = serverUrl.trim(),
-                    requestBuilder = {
-                        // Сервер обязан видеть поддержку обоих форматов, но для POST
-                        // предпочитаем конечный JSON-ответ. Иначе Android OkHttp ждёт
-                        // закрытия inline SSE-потока и падает по socket timeout.
-                        if (method == HttpMethod.Post) {
-                            headers.remove(HttpHeaders.Accept)
-                            headers.append(
-                                HttpHeaders.Accept,
-                                "application/json, text/event-stream;q=0.1",
-                            )
-                        }
-                    },
-                )
-            )
-
-            // Агент получает каталог инструментов и выбирает погодный инструмент.
-            val tool = client.listTools().tools.firstOrNull { it.name == intent.toolName }
-                ?: error("MCP-сервер не зарегистрировал инструмент ${intent.toolName}")
-            val arguments = intent.arguments
-            val result = client.callTool(tool.name, arguments)
-            val resultText = result.structuredContent?.let(JSON::encodeToString)
-                ?: result.content.filterIsInstance<TextContent>()
-                    .joinToString("\n", transform = TextContent::text)
-                    .ifBlank { "MCP-инструмент вернул пустой результат" }
-
-            if (result.isError == true) error(resultText)
-
-            val structured = result.structuredContent
-            val directResponse = structured?.let { content ->
-                when (intent.toolName) {
-                    "run_weather_report_pipeline" -> formatPipelineResponse(content)
-                    "schedule_weather_collection" -> formatScheduleResponse(content)
-                    "get_weather_summary" -> formatSummaryResponse(content, automaticSummary)
-                    "cancel_weather_collection" -> formatCancelResponse(content)
-                    else -> null
-                }
-            }
-
+        val structured = call.resultObject()
+        val directResponse = structured?.let { content ->
             when (intent.toolName) {
-                "schedule_weather_collection" -> structured?.let { content ->
-                    val city = content.string("city")
-                    val interval = content.integer("interval_minutes")
-                    if (city.isNotBlank() && interval != null) {
-                        mutableMonitoring.value = WeatherMonitoring(city, interval)
-                    }
-                }
-                "cancel_weather_collection" -> {
-                    val cancelledCity = structured?.string("city").orEmpty()
-                    if (mutableMonitoring.value?.city.equals(cancelledCity, ignoreCase = true)) {
-                        mutableMonitoring.value = null
-                    }
-                }
-                "get_active_weather_collection" -> {
-                    val active = structured?.get("active")?.jsonPrimitive?.booleanOrNull == true
-                    val city = structured?.string("city").orEmpty()
-                    val interval = structured?.integer("interval_minutes")
-                    mutableMonitoring.value = if (active && city.isNotBlank() && interval != null) {
-                        WeatherMonitoring(city, interval)
-                    } else {
-                        null
-                    }
-                }
+                "get_current_weather" -> formatCurrentWeatherResponse(content)
+                "run_weather_report_pipeline" -> formatPipelineResponse(content)
+                "schedule_weather_collection" -> formatScheduleResponse(content)
+                "get_weather_summary" -> formatSummaryResponse(content, automaticSummary)
+                "cancel_weather_collection" -> formatCancelResponse(content)
+                else -> null
             }
-
-            return AgentToolCall(
-                toolName = tool.name,
-                toolDescription = tool.description.orEmpty(),
-                inputSchema = JSON.encodeToString(tool.inputSchema),
-                arguments = JSON.encodeToString(arguments.toJsonObject()),
-                result = resultText,
-                directResponse = directResponse,
-            )
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            if (e.isMcpConnectionFailure()) {
-                throw IllegalStateException(
-                    "Не удалось подключиться к MCP-серверу $serverUrl. " +
-                        "В корне проекта запустите ./gradlew :server:run и оставьте " +
-                        "этот терминал открытым. Адрес 10.0.2.2 работает только в Android Emulator.",
-                    e,
-                )
-            }
-            throw e
-        } finally {
-            client.close()
-            httpClient.close()
         }
+
+        when (intent.toolName) {
+            "schedule_weather_collection" -> structured?.let { content ->
+                val city = content.string("city")
+                val interval = content.integer("interval_minutes")
+                if (city.isNotBlank() && interval != null) {
+                    mutableMonitoring.value = WeatherMonitoring(city, interval)
+                }
+            }
+            "cancel_weather_collection" -> {
+                val cancelledCity = structured?.string("city").orEmpty()
+                if (mutableMonitoring.value?.city.equals(cancelledCity, ignoreCase = true)) {
+                    mutableMonitoring.value = null
+                }
+            }
+            "get_active_weather_collection" -> {
+                val active = structured?.get("active")?.jsonPrimitive?.booleanOrNull == true
+                val city = structured?.string("city").orEmpty()
+                val interval = structured?.integer("interval_minutes")
+                mutableMonitoring.value = if (active && city.isNotBlank() && interval != null) {
+                    WeatherMonitoring(city, interval)
+                } else {
+                    null
+                }
+            }
+        }
+        return call.copy(directResponse = directResponse)
+    }
+
+    private suspend fun executeBookSearch(query: String): AgentToolCall {
+        val call = toolExecutor.invoke(
+            endpoint = McpEndpoint("talkloop-books", bookServerUrl),
+            toolName = "search_books",
+            arguments = buildJsonObject {
+                put("query", query)
+                put("language", "ru")
+                put("limit", 3)
+            },
+        )
+        val result = call.resultObject() ?: error("Books MCP вернул ответ без JSON")
+        return call.copy(directResponse = formatBookSearchResponse(result))
+    }
+
+    private suspend fun executeWeatherBookFlow(city: String): AgentToolCall {
+        val weatherCall = execute(
+            WeatherToolIntent("get_current_weather", mapOf("city" to city)),
+            automaticSummary = false,
+        )
+        val weather = weatherCall.resultObject() ?: error("Weather MCP вернул ответ без JSON")
+        val moodCall = toolExecutor.invoke(
+            endpoint = McpEndpoint("talkloop-books", bookServerUrl),
+            toolName = "choose_book_mood",
+            arguments = buildJsonObject { put("weather_data", weather) },
+        )
+        val mood = moodCall.resultObject() ?: error("Books MCP не вернул выбранный жанр")
+        val searchCall = toolExecutor.invoke(
+            endpoint = McpEndpoint("talkloop-books", bookServerUrl),
+            toolName = "search_books",
+            arguments = buildJsonObject {
+                put("query", mood.string("query"))
+                put("language", "ru")
+                put("limit", 3)
+            },
+        )
+        val search = searchCall.resultObject() ?: error("Books MCP не вернул список книг")
+        val books = search["books"] as? JsonArray ?: error("Books MCP вернул неверный список книг")
+        val firstBook = books.firstOrNull() as? JsonObject ?: error("Books MCP не нашёл книг")
+        val detailsCall = toolExecutor.invoke(
+            endpoint = McpEndpoint("talkloop-books", bookServerUrl),
+            toolName = "get_book_details",
+            arguments = buildJsonObject { put("work_key", firstBook.string("work_key")) },
+        )
+        val details = detailsCall.resultObject() ?: error("Books MCP не вернул сведения о книге")
+        val combined = buildJsonObject {
+            put("city", weather.string("city"))
+            put("weather", weather)
+            put("mood", mood)
+            put("books", books)
+            put("selected_book_details", details)
+        }
+        val calls = listOf(weatherCall, moodCall, searchCall, detailsCall)
+        return AgentToolCall(
+            toolName = "weather_book_recommendation_flow",
+            toolDescription = "Маршрутизация погодного запроса через Weather MCP и Books MCP",
+            inputSchema = "{\"city\":\"string\"}",
+            arguments = JSON.encodeToString(buildJsonObject { put("city", city) }),
+            result = JSON.encodeToString(combined),
+            directResponse = formatWeatherBookRecommendation(weather, mood, books, details),
+            serverName = "talkloop-agent",
+            steps = calls.map(AgentToolCall::toStep),
+        )
     }
 
     private companion object {
@@ -167,10 +267,37 @@ class McpWeatherToolProvider(
     }
 }
 
+private fun AgentToolCall.toStep(): AgentToolStep = AgentToolStep(
+    serverName = serverName.orEmpty(),
+    toolName = toolName,
+    arguments = arguments,
+    result = result,
+)
+
+private fun AgentToolCall.resultObject(): JsonObject? = runCatching {
+    Json.parseToJsonElement(result) as? JsonObject
+}.getOrNull()
+
 data class WeatherMonitoring(
     val city: String,
     val intervalMinutes: Int,
 )
+
+internal fun formatCurrentWeatherResponse(result: JsonObject): String = buildString {
+    append("Погода в ${result.string("city")}")
+    result.string("country").takeIf(String::isNotBlank)?.let { append(", $it") }
+    appendLine()
+    appendLine(
+        "Сейчас: ${result.string("temperature_c")} °C, " +
+            "ощущается как ${result.string("feels_like_c")} °C, " +
+            result.string("condition") + "."
+    )
+    append(
+        "Влажность ${result.string("humidity_percent")}% · " +
+            "ветер ${result.string("wind_speed_kmh")} км/ч · " +
+            "осадки ${result.string("precipitation_mm")} мм."
+    )
+}
 
 internal fun formatScheduleResponse(result: JsonObject): String = buildString {
     appendLine("Сбор погоды для города ${result.string("city")} запущен.")
@@ -249,11 +376,65 @@ internal fun formatPipelineResponse(result: JsonObject): String = buildString {
     append("Файл: ${result.string("file_path")}")
 }
 
+internal fun formatBookSearchResponse(result: JsonObject): String = buildString {
+    val books = result["books"] as? JsonArray ?: JsonArray(emptyList())
+    appendLine("Книги по запросу «${result.string("query")}»:")
+    books.forEachIndexed { index, element ->
+        val book = element as? JsonObject ?: return@forEachIndexed
+        appendLine()
+        append("${index + 1}. «${book.string("title")}»")
+        val authors = book.stringArray("authors")
+        if (authors.isNotEmpty()) append(" — ${authors.joinToString()}")
+        book.integer("first_publish_year")?.let { append(" · $it") }
+        appendLine()
+        append(book.string("open_library_url"))
+        if (index < books.lastIndex) appendLine()
+    }
+}
+
+internal fun formatWeatherBookRecommendation(
+    weather: JsonObject,
+    mood: JsonObject,
+    books: JsonArray,
+    details: JsonObject,
+): String = buildString {
+    appendLine("Книжная подборка для погоды в ${weather.string("city")}")
+    appendLine()
+    appendLine(
+        "Сейчас: ${weather.string("temperature_c")} °C, " +
+            "ощущается как ${weather.string("feels_like_c")} °C, " +
+            weather.string("condition") + "."
+    )
+    appendLine("Подходящий жанр: ${mood.string("genre")}.")
+    appendLine(mood.string("reason"))
+    books.forEachIndexed { index, element ->
+        val book = element as? JsonObject ?: return@forEachIndexed
+        appendLine()
+        append("${index + 1}. «${book.string("title")}»")
+        val authors = book.stringArray("authors")
+        if (authors.isNotEmpty()) append(" — ${authors.joinToString()}")
+        book.integer("first_publish_year")?.let { append(" · $it") }
+        appendLine()
+        append(book.string("open_library_url"))
+    }
+    details.string("description").takeIf(String::isNotBlank)?.let { description ->
+        appendLine()
+        appendLine()
+        appendLine("Подробнее о первой книге:")
+        append(description.replace(Regex("\\s+"), " ").take(450))
+    }
+}
+
 private fun JsonObject.string(name: String): String =
     get(name)?.jsonPrimitive?.content.orEmpty()
 
 private fun JsonObject.integer(name: String): Int? =
     get(name)?.jsonPrimitive?.intOrNull
+
+private fun JsonObject.stringArray(name: String): List<String> =
+    (get(name) as? JsonArray)?.mapNotNull { element ->
+        (element as? JsonPrimitive)?.content?.takeIf(String::isNotBlank)
+    }.orEmpty()
 
 /** Не просим kotlinx.serialization искать сериализатор для Any на Android/iOS. */
 internal fun Map<String, Any?>.toJsonObject(): JsonObject = JsonObject(
@@ -272,6 +453,33 @@ internal data class WeatherToolIntent(
     val toolName: String,
     val arguments: Map<String, Any?>,
 )
+
+internal fun extractWeatherRecommendationCity(request: String): String? {
+    val trimmed = request.trim()
+    val normalized = trimmed.lowercase()
+    if (normalized.startsWith("/weather-recommend")) {
+        return cleanCity(trimmed.drop("/weather-recommend".length)).also { city ->
+            require(city.length >= 2) {
+                "Укажите город, например: /weather-recommend Тюмень"
+            }
+        }
+    }
+    val recommendation = listOf("порекомендуй", "подбери", "посоветуй").any(normalized::contains)
+    val book = "книг" in normalized || "почитать" in normalized
+    val weather = "погод" in normalized
+    if (!recommendation || !book || !weather) return null
+    return extractWeatherCity(trimmed).also { city ->
+        require(city.length >= 2) { "Не удалось определить город для книжной подборки" }
+    }
+}
+
+internal fun extractBookSearchQuery(request: String): String? {
+    val trimmed = request.trim()
+    if (!trimmed.lowercase().startsWith("/books")) return null
+    return trimmed.drop("/books".length).trim().also { query ->
+        require(query.length >= 2) { "Укажите запрос, например: /books детектив" }
+    }
+}
 
 internal fun weatherToolIntent(request: String): WeatherToolIntent? {
     val trimmed = request.trim()
@@ -473,4 +681,11 @@ internal fun defaultMcpServerUrl(): String =
         "http://10.0.2.2:8080/mcp"
     } else {
         "http://127.0.0.1:8080/mcp"
+    }
+
+internal fun defaultBookMcpServerUrl(): String =
+    if (getPlatform().name.startsWith("Android")) {
+        "http://10.0.2.2:8081/mcp"
+    } else {
+        "http://127.0.0.1:8081/mcp"
     }

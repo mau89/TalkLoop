@@ -30,8 +30,8 @@ import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
 import kotlinx.coroutines.delay
 
 private val TABS = listOf(
-    "Инварианты",
     "Агент",
+    "Инварианты",
     "Разговор",
     "Формат",
     "Мышление",
@@ -121,11 +121,7 @@ fun App(
                 }
             }
             when (tab) {
-                0 -> InvariantLabScreen(
-                    agent = generalAgent,
-                    modifier = Modifier.fillMaxSize(),
-                )
-                1 -> AgentLabScreen(
+                0 -> AgentLabScreen(
                     apiKey = apiKey,
                     agent = generalAgent,
                     config = generalAgentConfig,
@@ -148,6 +144,10 @@ fun App(
                             toolProvider = weatherToolProvider.takeIf { mcpEnabled },
                         )
                     },
+                    modifier = Modifier.fillMaxSize(),
+                )
+                1 -> InvariantLabScreen(
+                    agent = generalAgent,
                     modifier = Modifier.fillMaxSize(),
                 )
                 2 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())

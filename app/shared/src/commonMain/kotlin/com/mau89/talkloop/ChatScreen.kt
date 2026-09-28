@@ -1,6 +1,7 @@
 package com.mau89.talkloop
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -79,6 +82,8 @@ fun ChatScreen(
     var pendingMessage by remember { mutableStateOf<ChatMessage?>(null) }
     var summaryExpanded by remember { mutableStateOf(false) }
     var statisticsExpanded by remember { mutableStateOf(false) }
+    var toolActivityExpanded by remember { mutableStateOf(false) }
+    var mcpCommandsExpanded by remember { mutableStateOf(false) }
 
     // Запрос разбора не показываем в ленте — это служебная реплика, а не часть разговора.
     val visible = history.filter { it.text != RECAP_REQUEST } + listOfNotNull(pendingMessage)
@@ -107,6 +112,10 @@ fun ChatScreen(
         if (visible.isNotEmpty()) listState.animateScrollToItem(visible.lastIndex)
     }
 
+    LaunchedEffect(lastToolCall) {
+        toolActivityExpanded = false
+    }
+
     Column(modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -120,6 +129,40 @@ fun ChatScreen(
                     enabled = !waiting && history.isNotEmpty(),
                 ) {
                     Text("Разбор")
+                }
+            }
+            if (showToolActivity) {
+                Box {
+                    TextButton(onClick = { mcpCommandsExpanded = true }) {
+                        Text("MCP")
+                    }
+                    DropdownMenu(
+                        expanded = mcpCommandsExpanded,
+                        onDismissRequest = { mcpCommandsExpanded = false },
+                        modifier = Modifier.widthIn(min = 280.dp, max = 360.dp),
+                    ) {
+                        MCP_QUICK_COMMANDS.forEach { command ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(
+                                            command.template,
+                                            style = MaterialTheme.typography.labelLarge,
+                                        )
+                                        Text(
+                                            command.description,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    input = command.template
+                                    mcpCommandsExpanded = false
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -166,25 +209,64 @@ fun ChatScreen(
 
         if (showToolActivity) {
             lastToolCall?.let { call ->
-                Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                Card(Modifier.fillMaxWidth().padding(top = 4.dp)) {
                     Column(
-                        Modifier.fillMaxWidth().padding(10.dp),
+                        Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Text(
-                            "MCP вызван: ${call.toolName}",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            "Аргументы: ${call.arguments}",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Text(
-                            "Результат: ${call.result}",
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 5,
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                if (call.steps.isEmpty()) {
+                                    "MCP · " + listOfNotNull(call.serverName, call.toolName)
+                                        .joinToString(" → ")
+                                } else {
+                                    "MCP · ${call.steps.size} шага · погода → книги"
+                                },
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            TextButton(onClick = { toolActivityExpanded = !toolActivityExpanded }) {
+                                Text(
+                                    if (toolActivityExpanded) "Скрыть" else "Подробнее",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        }
+                        if (toolActivityExpanded) {
+                            if (call.steps.isEmpty()) {
+                                Text(
+                                    "Аргументы: ${call.arguments}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 2,
+                                )
+                                Text(
+                                    "Результат: ${call.result}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 5,
+                                )
+                            } else {
+                                call.steps.forEachIndexed { index, step ->
+                                    Text(
+                                        "${index + 1}. ${step.serverName} → ${step.toolName}",
+                                        style = MaterialTheme.typography.labelLarge,
+                                    )
+                                    Text(
+                                        "Аргументы: ${step.arguments}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 2,
+                                    )
+                                    Text(
+                                        "Результат: ${step.result}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 3,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -196,7 +278,12 @@ fun ChatScreen(
         ) {
             OutlinedTextField(
                 value = input,
-                onValueChange = { input = it },
+                onValueChange = { value ->
+                    input = value
+                    if (showToolActivity && value.trim() == "/") {
+                        mcpCommandsExpanded = true
+                    }
+                },
                 modifier = Modifier.weight(1f),
                 enabled = !waiting,
                 placeholder = { Text(inputPlaceholder) },
@@ -355,6 +442,21 @@ fun ChatScreen(
         }
     }
 }
+
+private data class McpQuickCommand(
+    val template: String,
+    val description: String,
+)
+
+private val MCP_QUICK_COMMANDS = listOf(
+    McpQuickCommand("/weather Тюмень", "Текущая погода"),
+    McpQuickCommand("/weather-watch Тюмень 1", "Начать периодический сбор"),
+    McpQuickCommand("/weather-summary Тюмень", "Показать накопленную сводку"),
+    McpQuickCommand("/weather-stop Тюмень", "Остановить сбор"),
+    McpQuickCommand("/weather-report Тюмень", "Создать и сохранить погодный отчёт"),
+    McpQuickCommand("/books детектив", "Найти книги по запросу"),
+    McpQuickCommand("/weather-recommend Тюмень", "Подобрать книги по погоде"),
+)
 
 private fun formatPercent(value: Double): String {
     val tenths = (value * 1_000.0).toInt().coerceAtLeast(0)

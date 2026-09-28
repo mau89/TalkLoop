@@ -9,8 +9,18 @@ import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import java.nio.file.Paths
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    val bookServer = embeddedServer(
+        Netty,
+        port = 8081,
+        host = "0.0.0.0",
+        module = Application::bookModule,
+    ).start(wait = false)
+    try {
+        embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+            .start(wait = true)
+    } finally {
+        bookServer.stop(gracePeriodMillis = 1_000L, timeoutMillis = 2_000L)
+    }
 }
 
 fun Application.module(
@@ -75,6 +85,30 @@ fun Application.module(
                     io.ktor.http.ContentType.Application.Json,
                 )
             }
+        }
+    }
+}
+
+fun Application.bookModule(
+    enableDnsRebindingProtection: Boolean = true,
+    bookApi: BookApi = OpenLibraryBookApi(),
+) {
+    val bookMcpServer = createBookMcpServer(bookApi)
+    if (bookApi is AutoCloseable) {
+        monitor.subscribe(ApplicationStopped) { bookApi.close() }
+    }
+
+    mcpStreamableHttp(
+        path = "/mcp",
+        enableDnsRebindingProtection = enableDnsRebindingProtection,
+        allowedHosts = listOf("localhost", "127.0.0.1", "[::1]", "10.0.2.2"),
+    ) {
+        bookMcpServer
+    }
+
+    routing {
+        get("/") {
+            call.respondText("TalkLoop Books MCP")
         }
     }
 }

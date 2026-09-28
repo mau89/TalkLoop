@@ -95,10 +95,10 @@ fun AgentLabScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(Modifier.weight(1f)) {
-                                Text("MCP-погода и планировщик", style = MaterialTheme.typography.titleSmall)
+                                Text("MCP: погода и книги", style = MaterialTheme.typography.titleSmall)
                                 Text(
                                     if (mcpEnabled) {
-                                        "Фоновый сбор и автоматические сводки, пока приложение открыто"
+                                        "Два сервера, маршрутизация и погодные книжные подборки"
                                     } else {
                                         "MCP отключён: агент не подключается к серверу"
                                     },
@@ -112,11 +112,15 @@ fun AgentLabScreen(
                             )
                         }
                         Text(
-                            "Проверка: /weather-report Екатеринбург или /weather-watch Екатеринбург 1",
+                            "Проверка: /weather-recommend Тюмень или /books детектив",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
+                }
+                if (strategy != null) {
+                    TaskStateCard(agent)
+                    MemoryLayersCard(agent)
                 }
                 Card(Modifier.fillMaxWidth()) {
                     Column(
@@ -189,8 +193,6 @@ fun AgentLabScreen(
                 }
             }
         } else if (strategy != null) {
-            TaskStateCard(agent)
-            MemoryLayersCard(agent)
             ChatScreen(
                 apiKey = apiKey,
                 agent = agent,
@@ -231,7 +233,6 @@ private fun TaskStateCard(agent: TalkLoopAgent) {
 
     Card(
         Modifier.fillMaxWidth().heightIn(max = 420.dp)
-            .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Column(
             Modifier.padding(10.dp).verticalScroll(rememberScrollState()),
@@ -587,7 +588,6 @@ private fun MemoryLayersCard(agent: TalkLoopAgent) {
 
     Card(
         Modifier.fillMaxWidth().heightIn(max = 520.dp)
-            .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Column(
             Modifier.padding(10.dp).verticalScroll(rememberScrollState()),

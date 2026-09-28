@@ -100,6 +100,15 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   save_weather_report`, передаёт результат каждого этапа следующему и сохраняет
   Markdown в `server/server-data/reports`. Ответ агента показывает все три этапа и
   путь к файлу. Подробности: [docs/day19-mcp-composition.md](docs/day19-mcp-composition.md).
+- День 20 (оркестрация нескольких MCP): вкладка «Агент» теперь открывается первой.
+  Команда `/weather-recommend Тюмень` получает погоду через `talkloop-weather` на
+  порту 8080, передаёт структурированный результат серверу `talkloop-books` на
+  порту 8081, выбирает жанр, находит реальные книги в Open Library и загружает
+  сведения о первой книге. `/books детектив` обращается к книжному MCP отдельно.
+  Кнопка `MCP` в заголовке диалога открывает меню всех доступных команд и
+  подставляет выбранный пример в поле сообщения; меню также открывается при вводе `/`.
+  Оба сервера запускаются одной командой `./gradlew :server:run`. Подробности:
+  [docs/day20-mcp-orchestration.md](docs/day20-mcp-orchestration.md).
 - Android app: `./gradlew :app:androidApp:assembleDebug` — ключ берётся из того же `secrets.properties`
   и вкомпилируется в APK, поэтому собранное приложение никому не раздавать; для этого понадобится
   прокси через `:server`

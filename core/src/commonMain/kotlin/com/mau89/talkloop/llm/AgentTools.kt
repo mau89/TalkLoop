@@ -9,6 +9,17 @@ data class AgentToolCall(
     val result: String,
     /** Точный ответ для служебных команд, которые не должны пересказываться моделью. */
     val directResponse: String? = null,
+    /** MCP-сервер, на котором найден и вызван инструмент. */
+    val serverName: String? = null,
+    /** Упорядоченная трасса для длинного флоу через несколько MCP-серверов. */
+    val steps: List<AgentToolStep> = emptyList(),
+)
+
+data class AgentToolStep(
+    val serverName: String,
+    val toolName: String,
+    val arguments: String,
+    val result: String,
 )
 
 /**

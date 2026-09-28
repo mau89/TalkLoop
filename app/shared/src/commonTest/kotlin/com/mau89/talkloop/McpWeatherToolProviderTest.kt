@@ -1,9 +1,15 @@
 package com.mau89.talkloop
 
+import com.mau89.talkloop.llm.AgentToolCall
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -26,6 +32,136 @@ class McpWeatherToolProviderTest {
     @Test
     fun `непогодный вопрос не запускает MCP`() {
         assertFalse(isWeatherRequest("Помоги составить список покупок"))
+    }
+
+    @Test
+    fun `команды книг и погодной рекомендации распознаются отдельно`() {
+        assertEquals("детектив", extractBookSearchQuery("/books детектив"))
+        assertEquals("Тюмень", extractWeatherRecommendationCity("/weather-recommend Тюмень"))
+        assertEquals(
+            "Тюмени",
+            extractWeatherRecommendationCity("Порекомендуй книгу по погоде в Тюмени"),
+        )
+    }
+
+    @Test
+    fun `агент маршрутизирует длинный флоу между двумя MCP серверами`() = runTest {
+        data class Invocation(val server: String, val tool: String, val arguments: JsonObject)
+        val invocations = mutableListOf<Invocation>()
+        val weatherResult = weatherJson()
+        val moodResult = buildJsonObject {
+            put("mood_key", "detective")
+            put("genre", "детектив")
+            put("query", "detective fiction cozy mystery")
+            put("reason", "Дождливая погода подходит для детектива.")
+        }
+        val booksResult = booksJson()
+        val detailsResult = buildJsonObject {
+            put("work_key", "/works/OL1W")
+            put("title", "Тестовый детектив")
+            put("description", "Атмосферное расследование.")
+            put("subjects", buildJsonArray {})
+            put("open_library_url", "https://openlibrary.org/works/OL1W")
+        }
+        val executor = McpToolExecutor { endpoint, toolName, arguments ->
+            invocations += Invocation(endpoint.name, toolName, arguments)
+            val result = when (toolName) {
+                "get_current_weather" -> weatherResult
+                "choose_book_mood" -> moodResult
+                "search_books" -> booksResult
+                "get_book_details" -> detailsResult
+                else -> error("Unexpected tool $toolName")
+            }
+            AgentToolCall(
+                toolName = toolName,
+                toolDescription = toolName,
+                inputSchema = "{}",
+                arguments = arguments.toString(),
+                result = result.toString(),
+                serverName = endpoint.name,
+            )
+        }
+        val provider = McpWeatherToolProvider(
+            serverUrl = "weather-url",
+            bookServerUrl = "books-url",
+            toolExecutor = executor,
+        )
+
+        val call = assertNotNull(provider.callFor("/weather-recommend Тюмень"))
+
+        assertEquals(
+            listOf(
+                "talkloop-weather" to "get_current_weather",
+                "talkloop-books" to "choose_book_mood",
+                "talkloop-books" to "search_books",
+                "talkloop-books" to "get_book_details",
+            ),
+            invocations.map { it.server to it.tool },
+        )
+        assertEquals(weatherResult, invocations[1].arguments["weather_data"])
+        assertEquals(
+            moodResult["query"],
+            invocations[2].arguments["query"],
+        )
+        assertEquals(
+            "/works/OL1W",
+            invocations[3].arguments["work_key"]?.jsonPrimitive?.content,
+        )
+        assertEquals(4, call.steps.size)
+        assertTrue("Тестовый детектив" in call.directResponse.orEmpty())
+        assertTrue("дождь" in call.directResponse.orEmpty())
+    }
+
+    @Test
+    fun `команда books обращается только к книжному MCP серверу`() = runTest {
+        val invocations = mutableListOf<Pair<String, String>>()
+        val executor = McpToolExecutor { endpoint, toolName, arguments ->
+            invocations += endpoint.name to toolName
+            AgentToolCall(
+                toolName = toolName,
+                toolDescription = toolName,
+                inputSchema = "{}",
+                arguments = arguments.toString(),
+                result = booksJson().toString(),
+                serverName = endpoint.name,
+            )
+        }
+        val provider = McpWeatherToolProvider(
+            serverUrl = "weather-url",
+            bookServerUrl = "books-url",
+            toolExecutor = executor,
+        )
+
+        val call = assertNotNull(provider.callFor("/books детектив"))
+
+        assertEquals(listOf("talkloop-books" to "search_books"), invocations)
+        assertTrue("Тестовый детектив" in call.directResponse.orEmpty())
+    }
+
+    @Test
+    fun `команда weather возвращает готовый ответ без обращения к модели`() = runTest {
+        val executor = McpToolExecutor { endpoint, toolName, arguments ->
+            AgentToolCall(
+                toolName = toolName,
+                toolDescription = toolName,
+                inputSchema = "{}",
+                arguments = arguments.toString(),
+                result = weatherJson().toString(),
+                serverName = endpoint.name,
+            )
+        }
+        val provider = McpWeatherToolProvider(
+            serverUrl = "weather-url",
+            bookServerUrl = "books-url",
+            toolExecutor = executor,
+        )
+
+        val call = assertNotNull(provider.callFor("/weather Тюмень"))
+
+        assertEquals("get_current_weather", call.toolName)
+        assertTrue("Погода в Тюмень, Россия" in call.directResponse.orEmpty())
+        assertTrue("Сейчас: 8.0 °C" in call.directResponse.orEmpty())
+        assertTrue("ветер 10.0 км/ч" in call.directResponse.orEmpty())
     }
 
     @Test
@@ -159,4 +295,31 @@ class McpWeatherToolProviderTest {
         assertFalse("# Отчёт" in text)
         assertTrue("• Температура" in text)
     }
+}
+
+private fun weatherJson(): JsonObject = buildJsonObject {
+    put("city", "Тюмень")
+    put("country", "Россия")
+    put("observed_at", "2026-09-25T12:00")
+    put("temperature_c", 8.0)
+    put("feels_like_c", 5.0)
+    put("humidity_percent", 80)
+    put("precipitation_mm", 1.0)
+    put("wind_speed_kmh", 10.0)
+    put("condition", "дождь")
+}
+
+private fun booksJson(): JsonObject = buildJsonObject {
+    put("query", "detective fiction")
+    put("language", "ru")
+    put("count", 1)
+    put("books", buildJsonArray {
+        add(buildJsonObject {
+            put("work_key", "/works/OL1W")
+            put("title", "Тестовый детектив")
+            put("authors", buildJsonArray { add(JsonPrimitive("Тестовый автор")) })
+            put("first_publish_year", 1934)
+            put("open_library_url", "https://openlibrary.org/works/OL1W")
+        })
+    })
 }

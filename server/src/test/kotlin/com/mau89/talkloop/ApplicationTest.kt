@@ -46,6 +46,36 @@ class ApplicationTest {
         }
     }
 
+    private val bookApi = object : BookApi {
+        override suspend fun searchBooks(
+            query: String,
+            language: String,
+            limit: Int,
+        ): List<BookSearchItem> = listOf(
+            BookSearchItem(
+                workKey = "/works/OL1W",
+                title = "Тестовый детектив",
+                authors = listOf("Тестовый автор"),
+                firstPublishYear = 1934,
+                coverId = 123,
+            ),
+            BookSearchItem(
+                workKey = "/works/OL2W",
+                title = "Вторая книга",
+                authors = listOf("Второй автор"),
+                firstPublishYear = 1950,
+                coverId = null,
+            ),
+        ).take(limit)
+
+        override suspend fun getBookDetails(workKey: String): BookDetails? = BookDetails(
+            workKey = workKey,
+            title = "Тестовый детектив",
+            description = "Атмосферное расследование.",
+            subjects = listOf("Detective fiction"),
+        )
+    }
+
     @Test
     fun testRoot() = testApplication {
         application {
@@ -151,6 +181,92 @@ class ApplicationTest {
             mcpClient.close()
             httpClient.close()
         }
+    }
+
+    @Test
+    fun bookMcpIsSeparateAndRunsMoodSearchAndDetailsTools() = testApplication {
+        application {
+            bookModule(
+                enableDnsRebindingProtection = false,
+                bookApi = bookApi,
+            )
+        }
+        val httpClient = createClient { install(SSE) }
+        val mcpClient = Client(
+            clientInfo = Implementation("talkloop-test", "1.0.0"),
+        )
+
+        try {
+            mcpClient.connect(
+                StreamableHttpClientTransport(
+                    client = httpClient,
+                    url = "http://localhost/mcp",
+                )
+            )
+            val tools = mcpClient.listTools().tools
+            assertEquals(
+                setOf("choose_book_mood", "search_books", "get_book_details"),
+                tools.map { it.name }.toSet(),
+            )
+            assertFalse(tools.any { it.name == "get_current_weather" })
+
+            val mood = mcpClient.callTool(
+                "choose_book_mood",
+                mapOf(
+                    "weather_data" to weather(
+                        city = "Тюмень",
+                        temperatureC = 8.0,
+                    ).copy(
+                        feelsLikeC = 5.0,
+                        precipitationMm = 1.0,
+                        condition = "дождь",
+                    ).toJson()
+                ),
+            )
+            assertFalse(mood.isError == true)
+            assertEquals("детектив", mood.structuredContent?.get("genre")?.jsonPrimitive?.content)
+
+            val search = mcpClient.callTool(
+                "search_books",
+                mapOf("query" to "detective fiction", "language" to "ru", "limit" to 2),
+            )
+            assertFalse(search.isError == true)
+            assertEquals(2, search.structuredContent?.get("count")?.jsonPrimitive?.content?.toInt())
+            val firstKey = search.structuredContent
+                ?.get("books")?.jsonArray?.first()?.jsonObject
+                ?.get("work_key")?.jsonPrimitive?.content
+            assertEquals("/works/OL1W", firstKey)
+
+            val details = mcpClient.callTool(
+                "get_book_details",
+                mapOf("work_key" to requireNotNull(firstKey)),
+            )
+            assertFalse(details.isError == true)
+            assertEquals(
+                "Атмосферное расследование.",
+                details.structuredContent?.get("description")?.jsonPrimitive?.content,
+            )
+        } finally {
+            mcpClient.close()
+            httpClient.close()
+        }
+    }
+
+    @Test
+    fun weatherMoodRulesUseDeterministicPriority() {
+        val rainy = chooseBookMood(
+            BookWeatherInput("Тюмень", "дождь", 5.0, 1.0, 10.0)
+        )
+        val snowy = chooseBookMood(
+            BookWeatherInput("Тюмень", "снег", -5.0, 1.0, 10.0)
+        )
+        val storm = chooseBookMood(
+            BookWeatherInput("Тюмень", "гроза с дождём", 10.0, 2.0, 40.0)
+        )
+
+        assertEquals("detective", rainy.key)
+        assertEquals("fantasy", snowy.key)
+        assertEquals("thriller", storm.key)
     }
 
     @Test

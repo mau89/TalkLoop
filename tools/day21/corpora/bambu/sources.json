@@ -1,0 +1,666 @@
+{
+  "schema_version": 1,
+  "description": "Official Bambu Lab Wiki model pages and manuals; selected setup, FAQ, maintenance, troubleshooting and AMS guides. Coverage is a snapshot, not every article.",
+  "model_catalog": [
+    "A1",
+    "A1 mini",
+    "A2L",
+    "H2C",
+    "H2D",
+    "H2D Pro",
+    "H2S",
+    "P1P",
+    "P1S",
+    "P2S",
+    "X1",
+    "X1C",
+    "X1E",
+    "X2D"
+  ],
+  "catalog_sources": [
+    "https://wiki.bambulab.com/en/a-series",
+    "https://wiki.bambulab.com/en/p-series",
+    "https://wiki.bambulab.com/en/x-series",
+    "https://wiki.bambulab.com/en/h2"
+  ],
+  "sources": [
+    {
+      "source": "https://wiki.bambulab.com/en/a1/manual/intro-a1",
+      "title": "Introduction to A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/manual/faq",
+      "title": "FAQ for the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/manual/first-print-with-external-spool",
+      "title": "First Print with the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/maintenance/basic-maintenance",
+      "title": "Regular cleaning and maintenance recommendations for the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/troubleshooting/print-issues-troubleshooting",
+      "title": "First layer printing issues Troubleshooting Guide for the A1 Series",
+      "models": [
+        "A1",
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/troubleshooting/nozzle-clog",
+      "title": "Hotend Unclogging Procedure Guide for the A1 Series",
+      "models": [
+        "A1",
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/manual/ams-connection-guide",
+      "title": "A1 Series AMS Connection Guide",
+      "models": [
+        "A1",
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/manual/intro-a1-mini",
+      "title": "Introduction to A1 mini",
+      "models": [
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/manual/faq",
+      "title": "FAQ for the A1 mini",
+      "models": [
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/manual/first-print-with-external-spool",
+      "title": "First Print with the A1 mini",
+      "models": [
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/maintenance/period-maintenance",
+      "title": "Regular cleaning and maintenance recommendations for the A1 mini",
+      "models": [
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/manual/a2l-intro",
+      "title": "A2L Introduction",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/manual/a2l-faq",
+      "title": "A2L FAQ",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/manual/first-print",
+      "title": "A2L First Print Guide",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/maintenance/period-maintenance",
+      "title": "Cleaning and Maintenance Recommendations for the A2L",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/maintenance/first-layer-quality-calibration",
+      "title": "First-Layer Printing Optimization Guide for A2L",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/troubleshooting/clogging",
+      "title": "Clogging Troubleshooting for A2L",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a2l/manual/a2l-ams-connection-guide",
+      "title": "AMS Connection Guide for A2L",
+      "models": [
+        "A2L"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/manual/intro-p1p",
+      "title": "Introduction to the P1",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/manual/faq",
+      "title": "FAQ for the P1",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/manual/first-print-with-internal-file",
+      "title": "First Print Guide for the P1",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/maintenance/p1p-maintenance",
+      "title": "Periodic Maintenance Recommendations for the P1",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/manual/connect-AMS-multi-color-printing",
+      "title": "How to connect multiple AMS units with the P1",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/manual/p2s-intro",
+      "title": "P2S Introduction",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/manual/p2s-faq",
+      "title": "P2S FAQ",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/manual/first-print",
+      "title": "P2S First Print Guide",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/maintenance/period-maintenance",
+      "title": "P2S Regular cleaning and maintenance recommendations",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/troubleshooting/first-layer-printing-optimization-guide",
+      "title": "P2S First-Layer Printing Optimization Guide",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p2s/troubleshooting/clogging",
+      "title": "P2S Clogging Troubleshooting",
+      "models": [
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams/manual/multi-model-AMS-compatibility-guide",
+      "title": "Connection Guide for AMS and Different Printer Models",
+      "models": [
+        "H2C",
+        "H2D",
+        "H2S",
+        "P2S",
+        "X1",
+        "X1C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x1/manual/faq",
+      "title": "FAQ X1 Series",
+      "models": [
+        "X1",
+        "X1C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x1/maintenance/basic-maintenance",
+      "title": "Bambu Lab X1 Periodic Maintenance Recommendations",
+      "models": [
+        "X1",
+        "X1C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/manual/x2d-intro",
+      "title": "X2D Introduction",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/manual/x2d-faq",
+      "title": "X2D FAQ",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/manual/first-print",
+      "title": "X2D First Print Guide",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/maintenance/periodic-maintenance",
+      "title": "Cleaning and Maintenance Recommendations for X2D",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/troubleshooting/first-layer-printing-optimization-guide",
+      "title": "First-Layer Printing Optimization Guide for X2D",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/troubleshooting/clogging",
+      "title": "Clogging Troubleshooting for X2D",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x2d/manual/filament-compatibility",
+      "title": "Filament Compatibility Guide for X2D",
+      "models": [
+        "X2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/manual/printable-range-for-dual-nozzles",
+      "title": "Introduction to the printable range of dual nozzles on the H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/manual/h2d-faq",
+      "title": "FAQ for the H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/manual/h2d-first-print",
+      "title": "First Print Guide for H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/maintenance/period-maintenance",
+      "title": "H2D Regular cleaning and maintenance recommendations",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/troubleshooting/first-layer-printing-optimization-guide",
+      "title": "First-Layer Printing Optimization Guide for the H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/troubleshooting/unclogging",
+      "title": "Hotend Unclogging Procedure Guide for the H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/h2d-filament-printing-guide",
+      "title": "Filament printing guide for the H2D",
+      "models": [
+        "H2D"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2s/manual/h2s-intro",
+      "title": "Introduction H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/manual/h2s-faq",
+      "title": "FAQ H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2s/manual/h2s-first-print",
+      "title": "First Print Guide for H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2s/maintenance/period-maintenance",
+      "title": "Regular cleaning and maintenance recommendations for the H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2s/troubleshooting/first-layer-printing-optimization-guide",
+      "title": "First-Layer Printing Optimization Guide for the H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2s/troubleshooting/nozzle-clog",
+      "title": "Hotend Unclogging Procedure Guide for the H2S",
+      "models": [
+        "H2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/manual/h2c-intro",
+      "title": "Introduction to the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/manual/h2c-faq",
+      "title": "FAQ for the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/manual/first-print",
+      "title": "First Print Guide for H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/maintenance/period-maintenance",
+      "title": "Regular Cleaning and Maintenance Recommendations for the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/troubleshooting/first-layer-printing-optimization-guide",
+      "title": "First Layer Print Quality Improvement Guide for the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/troubleshooting/extruder-cleaning-guide",
+      "title": "Extruder Clog Cleaning Guide for the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2c/h2c-filament-printing-guide",
+      "title": "Filament printing Guide for the H2C",
+      "models": [
+        "H2C"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/h2/manual/h2d-pro-faq",
+      "title": "H2D Pro FAQ",
+      "models": [
+        "H2D Pro"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-lite/manual/intro-ams-lite",
+      "title": "Introduction to the AMS Lite",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-lite/manual/faq",
+      "title": "FAQ for the AMS Lite",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-lite/maintenance/basic-maintenance",
+      "title": "Regular Maintenance Recommendations for the AMS Lite",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams/troubleshooting/ptfe-damage-in-AMS",
+      "title": "PTFE Tube Wear in AMS and Maintenance Recommendations",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/p1/manual/connect-ams",
+      "title": "Connect AMS to P1 series",
+      "models": [
+        "P1P",
+        "P1S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-2-pro/manual/setup-and-printting",
+      "title": "Introduction and Connection Methods of the AMS 2 Pro",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams/manual/ams-2-pro-ams-ht-faq",
+      "title": "FAQ for AMS 2 Pro and AMS HT",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-2-pro/maintenance/basic-maintenance",
+      "title": "Bambu Lab AMS 2 Pro Maintenance Recommendation",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/ams-ht/Intr-to-ams-ht-workflow-and-features",
+      "title": "Introduction to AMS HT",
+      "models": [],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/manual/first-print-with-ams-lite",
+      "title": "First Print with AMS Lite on the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/maintenance/manual-bed-tramming",
+      "title": "Bed Tramming Procedure for the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/maintenance/belt_tension",
+      "title": "Belt Tensioning Procedure for the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/maintenance/clean-hotend-assembly",
+      "title": "Hotend Assembly Cleaning Guide for the A1 Series",
+      "models": [
+        "A1",
+        "A1 mini",
+        "H2C",
+        "H2D",
+        "H2S",
+        "P2S"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1/maintenance/lubricate-y-axis",
+      "title": "Y Axis Lubrication and Maintenance Guide for the A1",
+      "models": [
+        "A1"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/a1-mini/maintenance/lubricate-y-axis-with-wd-40-multi-use-product",
+      "title": "Y Axis Lubrication and Maintenance (with \"WD-40 Multi-Use Product\") Guide for the A1 Series",
+      "models": [
+        "A1",
+        "A1 mini"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x1/manual/x1e-faq",
+      "title": "FAQ for the X1E",
+      "models": [
+        "X1E"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x1/manual/X1E-chamber-temp-guide",
+      "title": "Chamber Settings Overview for the X1E",
+      "models": [
+        "X1E"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://wiki.bambulab.com/en/x1/manual/x1e-network-connection-guide",
+      "title": "Network Connection Guide for the X1E",
+      "models": [
+        "X1E"
+      ],
+      "format": "html"
+    },
+    {
+      "source": "https://cdn1.bambulab.com/documentation/quick-start-a75adcb1d5d5e/Quick%20Start%20Guide%20for%20A1.pdf",
+      "title": "A1 Quick Start Guide (PDF)",
+      "models": [
+        "A1"
+      ],
+      "format": "pdf"
+    }
+  ]
+}

@@ -45,6 +45,7 @@ fun Application.module(
             )
         )
     ),
+    documentIndex: DocumentIndexGateway = LocalDocumentIndexGateway(),
 ) {
     val weatherMcpServer = createWeatherMcpServer(
         weatherApi,
@@ -57,6 +58,9 @@ fun Application.module(
         monitor.subscribe(ApplicationStopped) { weatherApi.close() }
     }
     monitor.subscribe(ApplicationStopped) { weatherScheduler.close() }
+    if (documentIndex is AutoCloseable) {
+        monitor.subscribe(ApplicationStopped) { documentIndex.close() }
+    }
 
     mcpStreamableHttp(
         path = "/mcp",
@@ -67,6 +71,7 @@ fun Application.module(
     }
 
     routing {
+        documentIndexRoutes(documentIndex)
         get("/") {
             call.respondText(sayHello("Ktor"))
         }

@@ -1,0 +1,655 @@
+{
+  "title": "Кулинарная книга — Викиучебник",
+  "language": "ru",
+  "model_catalog": [],
+  "book_source": "https://ru.wikibooks.org/wiki/Кулинарная_книга",
+  "attribution": {
+    "author": "Участники Викиучебника",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+  },
+  "example_queries": [
+    "Как приготовить луковый суп с плавленым сыром?",
+    "Как приготовить плов?",
+    "Как приготовить майонез?",
+    "Какие ингредиенты нужны для оливье?"
+  ],
+  "sources": [
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Аджика",
+      "title": "Аджика",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Белый_бульон",
+      "title": "Белый бульон",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Буйабес_по-марсельски",
+      "title": "Буйабес по-марсельски",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Булочка_с_корицей",
+      "title": "Булочка с корицей",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Бутифарра",
+      "title": "Бутифарра",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Вальдорфский_салат",
+      "title": "Вальдорфский салат",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Голландский_соус",
+      "title": "Голландский соус",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Джыз-быз",
+      "title": "Джыз-быз",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Коричневый_бульон",
+      "title": "Коричневый бульон",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Кулич",
+      "title": "Кулич",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Куурдак",
+      "title": "Куурдак",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Кюфта-бозбаш",
+      "title": "Кюфта-бозбаш",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Лабскаус",
+      "title": "Лабскаус",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Лагман",
+      "title": "Лагман",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Луковый_суп",
+      "title": "Луковый суп",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Майонез",
+      "title": "Майонез",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Макароны_по-флотски",
+      "title": "Макароны по-флотски",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Манты",
+      "title": "Манты",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Масло_к_улиткам",
+      "title": "Масло к улиткам",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Мирпуа",
+      "title": "Мирпуа",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Окрошка",
+      "title": "Окрошка",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Оливье",
+      "title": "Оливье",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Олья_подрида",
+      "title": "Олья подрида",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Плов",
+      "title": "Плов",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Раковое_масло",
+      "title": "Раковое масло",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Рыбный_бульон",
+      "title": "Рыбный бульон",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Салат_Нисуаз",
+      "title": "Салат Нисуаз",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Аллеманд",
+      "title": "Соус Аллеманд",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Беарнез",
+      "title": "Соус Беарнез",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Бигарад",
+      "title": "Соус Бигарад",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Борделез",
+      "title": "Соус Борделез",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Велуте",
+      "title": "Соус Велуте",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Демиглас",
+      "title": "Соус Демиглас",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Лионез",
+      "title": "Соус Лионез",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Мадера",
+      "title": "Соус Мадера",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Морне",
+      "title": "Соус Морне",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Муслин",
+      "title": "Соус Муслин",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Нантюа",
+      "title": "Соус Нантюа",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Орор",
+      "title": "Соус Орор",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Перигё",
+      "title": "Соус Перигё",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Пикан",
+      "title": "Соус Пикан",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Пуаврад",
+      "title": "Соус Пуаврад",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Равигот",
+      "title": "Соус Равигот",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Ремулад",
+      "title": "Соус Ремулад",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Руанез",
+      "title": "Соус Руанез",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Субиз",
+      "title": "Соус Субиз",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Супрем",
+      "title": "Соус Супрем",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Шассёр",
+      "title": "Соус Шассёр",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Соус_Эспаньоль",
+      "title": "Соус Эспаньоль",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Ткемали",
+      "title": "Ткемали",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Харисса",
+      "title": "Харисса",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Шведские_фрикадельки",
+      "title": "Шведские фрикадельки",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    },
+    {
+      "source": "https://ru.wikibooks.org/wiki/Рецепт:Эчпочмак",
+      "title": "Эчпочмак",
+      "format": "html",
+      "extractor": "wikibooks",
+      "models": [],
+      "attribution": {
+        "author": "Участники Викиучебника",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.ru"
+      }
+    }
+  ]
+}

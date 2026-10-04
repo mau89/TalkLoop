@@ -1,0 +1,16 @@
+[
+  {"id":"a1-bed-cleaning","query":"Как правильно очищать печатную пластину Bambu Lab A1?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1/maintenance/basic-maintenance","evidence_any":["plate","detergent","soap"]}},
+  {"id":"a1-y-lubrication","query":"Как смазать направляющую оси Y у принтера A1?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1/maintenance/lubricate-y-axis","evidence_any":["lubricat","oil"]}},
+  {"id":"a1-nozzle-clog","query":"Как устранить засор сопла A1 с помощью холодной протяжки?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1-mini/troubleshooting/nozzle-clog","evidence_any":["cold pull","unclog"]}},
+  {"id":"a1-first-layer","query":"На A1 сопло двигается и первый слой получается слишком низким. Что проверить?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1-mini/troubleshooting/print-issues-troubleshooting","evidence_any":["screw","hotend"]}},
+  {"id":"a1-ams","query":"Как подключить AMS к принтеру A1 и какие варианты поддерживаются?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1/manual/ams-connection-guide","evidence_any":["AMS lite","AMS 2 Pro"]}},
+  {"id":"a1-tramming","query":"Как вручную выровнять стол A1 регулировочными винтами?","model":"A1","expected":{"source":"https://wiki.bambulab.com/en/a1/maintenance/manual-bed-tramming","evidence_any":["screw","tramming"]}},
+  {"id":"a1-mini-maintenance","query":"Какие узлы A1 mini нужно регулярно смазывать и обслуживать?","model":"A1 mini","expected":{"source":"https://wiki.bambulab.com/en/a1-mini/maintenance/period-maintenance","evidence_any":["lubricat","maintenance"]}},
+  {"id":"p1-maintenance","query":"Как обслуживать углеродные направляющие и винты оси Z на P1S?","model":"P1S","expected":{"source":"https://wiki.bambulab.com/en/p1/maintenance/p1p-maintenance","evidence_any":["carbon","lead screw"]}},
+  {"id":"p2s-maintenance","query":"Какое регулярное обслуживание требуется принтеру P2S?","model":"P2S","expected":{"source":"https://wiki.bambulab.com/en/p2s/maintenance/period-maintenance","evidence_any":["maintenance","lubricat"]}},
+  {"id":"x1-carbon-rods","query":"Как чистить углеродные стержни на X1 Carbon? Нужно ли их смазывать?","model":"X1C","expected":{"source":"https://wiki.bambulab.com/en/x1/maintenance/basic-maintenance","evidence_any":["carbon"]}},
+  {"id":"h2c-vortek","query":"Как устроена система смены хотэндов Vortek у H2C?","model":"H2C","expected":{"source":"https://wiki.bambulab.com/en/h2c/manual/h2c-intro","evidence_any":["Vortek","hotend"]}},
+  {"id":"x1e-chamber","query":"Как управлять температурой нагреваемой камеры X1E?","model":"X1E","expected":{"source":"https://wiki.bambulab.com/en/x1/manual/X1E-chamber-temp-guide","evidence_any":["chamber","temperature"]}},
+  {"id":"x2d-filaments","query":"Какие ограничения совместимости филаментов есть у X2D?","model":"X2D","expected":{"source":"https://wiki.bambulab.com/en/x2d/manual/filament-compatibility","evidence_any":["filament","TPU"]}},
+  {"id":"a2l-ams","query":"Как подключить систему AMS к принтеру A2L?","model":"A2L","expected":{"source":"https://wiki.bambulab.com/en/a2l/manual/a2l-ams-connection-guide","evidence_any":["AMS"]}}
+]

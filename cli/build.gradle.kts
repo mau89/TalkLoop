@@ -112,3 +112,12 @@ tasks.register<JavaExec>("day16") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+// День 21: локальный Python/ONNX пайплайн с многоязычной E5.
+tasks.register<JavaExec>("day21") {
+    group = "application"
+    description = "День 21: индексация русской кулинарной книги и сравнение chunking"
+    mainClass = "com.mau89.talkloop.cli.Day21Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

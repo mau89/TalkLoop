@@ -24,3 +24,7 @@ dependencies {
     testImplementation(libs.mcp.kotlin.client)
     testImplementation(libs.kotlin.testJunit)
 }
+
+tasks.named<JavaExec>("run") {
+    systemProperty("talkloop.project.root", rootProject.projectDir.absolutePath)
+}

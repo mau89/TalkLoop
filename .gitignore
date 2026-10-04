@@ -18,6 +18,9 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 server-data/
+day21-data/
+.day21-venv/
+__pycache__/
 
 # Личные заметки и секреты — не в гит
 Strategy.md

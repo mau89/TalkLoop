@@ -20,7 +20,7 @@ class ChatHistoryStoreTest {
 
         assertEquals(expected, afterRestart.load())
         assertTrue(storage.values.values.single().startsWith("{"))
-        assertTrue(storage.values.values.single().contains("\"version\":8"))
+        assertTrue(storage.values.values.single().contains("\"version\":9"))
         assertTrue(storage.values.values.single().contains("\"messages\""))
     }
 

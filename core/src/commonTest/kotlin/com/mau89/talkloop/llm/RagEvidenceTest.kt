@@ -224,4 +224,17 @@ class RagEvidenceTest {
         assertTrue(ragEvidenceDiagnostic(RagEvidenceResult("unknown", "invalid_evidence", validationErrors = listOf("claim_2_quote_not_in_chunk"))).contains("утверждения 2"))
         assertTrue(ragEvidenceDiagnostic(RagEvidenceResult("unknown", "verification_unavailable")).contains("Повторите"))
     }
+
+    @Test fun unknownWithRetrievedEvidenceGetsOneCorrectionAndStillNeedsVerification() = runTest {
+        val unknown = """{"status":"unknown","claims":[],"clarification":"Уточните рецепт"}"""
+        val llm = FakeLlmClient(ArrayDeque<Any>(listOf(unknown, draft(), yes)))
+        val agent = TalkLoopAgent(llm, toolProvider = tools())
+        assertTrue(agent.respond("Когда добавляют сыр?").contains("Цитаты:"))
+        assertEquals(3, llm.requests.size)
+        assertEquals("model_unknown", agent.lastToolCall.value?.evidence?.initialReason)
+        assertEquals("verified", agent.lastToolCall.value?.evidence?.reason)
+        val twice = FakeLlmClient(ArrayDeque<Any>(listOf(unknown, unknown)))
+        assertTrue(TalkLoopAgent(twice, toolProvider = tools()).respond("Когда добавляют сыр?").startsWith("Не знаю"))
+        assertEquals(2, twice.requests.size)
+    }
 }

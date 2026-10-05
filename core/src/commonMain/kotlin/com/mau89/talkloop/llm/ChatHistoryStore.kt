@@ -37,6 +37,7 @@ class JsonChatHistoryStore(
         ignoreUnknownKeys = true
         encodeDefaults = true
     },
+    private val strictLoading: Boolean = false,
 ) : ChatHistoryStore {
     override fun load(): List<ChatMessage> {
         return loadStored()?.messages.orEmpty()
@@ -60,6 +61,8 @@ class JsonChatHistoryStore(
             userProfiles = stored.userProfiles,
             activeUserProfileId = stored.activeUserProfileId,
             taskState = stored.taskState,
+            dialogueArchive = stored.dialogueArchive,
+            ragTaskMemory = stored.ragTaskMemory,
         )
     }
 
@@ -87,6 +90,8 @@ class JsonChatHistoryStore(
                     userProfiles = memory.userProfiles,
                     activeUserProfileId = memory.activeUserProfileId,
                     taskState = memory.taskState,
+                    dialogueArchive = memory.dialogueArchive,
+                    ragTaskMemory = memory.ragTaskMemory,
                 )
             ),
         )
@@ -98,15 +103,17 @@ class JsonChatHistoryStore(
 
     private fun loadStored(): StoredChatHistory? {
         val value = storage.read(key) ?: return null
-        return runCatching {
+        val stored = runCatching {
             json.decodeFromString<StoredChatHistory>(value)
                 .takeIf { it.version in 1..CURRENT_VERSION }
         }.getOrNull()
+        check(!strictLoading || stored != null) { "Не удалось прочитать сохранённый диалог. Исходный файл не изменён." }
+        return stored
     }
 
     private companion object {
         const val DEFAULT_HISTORY_KEY = "talkloop.agent.history"
-        const val CURRENT_VERSION = 8
+        const val CURRENT_VERSION = 9
     }
 }
 
@@ -165,7 +172,7 @@ class InMemoryChatHistoryStore(
 
 @Serializable
 private data class StoredChatHistory(
-    val version: Int = 8,
+    val version: Int = 9,
     val summary: String? = null,
     val messages: List<ChatMessage>,
     val facts: Map<String, String> = emptyMap(),
@@ -177,6 +184,8 @@ private data class StoredChatHistory(
     val userProfiles: List<UserProfile> = emptyList(),
     val activeUserProfileId: String? = null,
     val taskState: TaskState? = null,
+    val dialogueArchive: List<ChatMessage> = emptyList(),
+    val ragTaskMemory: RagTaskMemory = RagTaskMemory(),
 )
 
 private fun MemoryLayersSnapshot.deepCopy(): MemoryLayersSnapshot = copy(

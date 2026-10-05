@@ -23,12 +23,14 @@ data class AgentTurnUsage(
     val verificationInputTokens: Int = 0,
     val verificationOutputTokens: Int = 0,
     val repairInputTokens: Int = 0,
+    val memoryInputTokens: Int = 0,
+    val memoryOutputTokens: Int = 0,
 ) {
     val totalTokens: Int get() = inputTokens + outputTokens
     val costUsd: Double get() = inputCostUsd + outputCostUsd
     val contextUsage: Double
         get() = if (contextWindowTokens <= 0) 0.0
-        else (inputTokens - verificationInputTokens - repairInputTokens).toDouble() / contextWindowTokens
+        else (inputTokens - verificationInputTokens - repairInputTokens - memoryInputTokens).toDouble() / contextWindowTokens
 }
 
 enum class TokenTurnOutcome {

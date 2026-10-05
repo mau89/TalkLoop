@@ -33,10 +33,11 @@ fun rewriteRagQuery(question: String): String {
 
 /** E5 cosine scores are not probabilities. The cutoff is configurable and corpus-specific. */
 suspend fun retrieveRagContext(
-    retriever: DocumentRetriever, question: String, settings: RagSettings,
+    retriever: DocumentRetriever, question: String, settings: RagSettings, standaloneQuery: String? = null,
 ): RagRetrievedContext {
     settings.validate()
-    val query = if (settings.rewriteEnabled) rewriteRagQuery(question) else question
+    val search = standaloneQuery ?: question
+    val query = if (settings.rewriteEnabled) rewriteRagQuery(search) else search
     val request = DocumentSearchRequest(query, strategy = settings.strategy,
         limit = if (settings.filterEnabled) settings.candidateLimit else settings.limit)
     request.validate()

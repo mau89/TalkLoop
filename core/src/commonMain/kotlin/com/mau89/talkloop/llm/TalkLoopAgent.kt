@@ -115,6 +115,8 @@ class TalkLoopAgent(
         restoredUserProfiles.firstOrNull { it.id == initialActiveUserProfileId }
     )
     private val mutableTaskState = MutableStateFlow(restoredMemory.taskState)
+    private val mutableDialogueArchive = MutableStateFlow(restoredMemory.dialogueArchive.ifEmpty { initialActiveMessages })
+    private val mutableRagTaskMemory = MutableStateFlow(restoredMemory.ragTaskMemory)
     private val mutableLastInvariantCheck = MutableStateFlow(InvariantCheckResult())
     private val mutableStatistics = MutableStateFlow(AgentStatistics())
     private val mutableLastToolCall = MutableStateFlow<AgentToolCall?>(null)
@@ -131,6 +133,8 @@ class TalkLoopAgent(
     val activeUserProfileId: StateFlow<String?> = mutableActiveUserProfileId.asStateFlow()
     val userProfile: StateFlow<UserProfile?> = mutableUserProfile.asStateFlow()
     val taskState: StateFlow<TaskState?> = mutableTaskState.asStateFlow()
+    val dialogueArchive: StateFlow<List<ChatMessage>> = mutableDialogueArchive.asStateFlow()
+    val ragTaskMemory: StateFlow<RagTaskMemory> = mutableRagTaskMemory.asStateFlow()
     val lastInvariantCheck: StateFlow<InvariantCheckResult> =
         mutableLastInvariantCheck.asStateFlow()
     val statistics: StateFlow<AgentStatistics> = mutableStatistics.asStateFlow()
@@ -416,9 +420,8 @@ class TalkLoopAgent(
     suspend fun startNewTask(name: String? = null) = mutex.withLock {
         requireMemoryLayers()
         val normalizedName = name?.trim()?.takeIf(String::isNotEmpty)
-        mutableHistory.value = emptyList()
-        mutableWorkingMemory.value = WorkingMemory(taskName = normalizedName)
-        mutableTaskState.value = normalizedName?.let {
+        val nextWorking = WorkingMemory(taskName = normalizedName)
+        val nextTask = normalizedName?.let {
             newTaskState(
                 name = it,
                 currentStep = "Сформировать план",
@@ -427,7 +430,12 @@ class TalkLoopAgent(
                 completionCriteria = emptyList(),
             )
         }
-        persistLayeredMemory()
+        persistMemory(messages = emptyList(), summary = null, dialogueArchive = emptyList(), ragTaskMemory = RagTaskMemory(),
+            taskState = nextTask, layers = currentLayers(emptyList()).copy(working = nextWorking))
+        mutableHistory.value = emptyList()
+        mutableWorkingMemory.value = nextWorking
+        mutableTaskState.value = nextTask
+        mutableLastToolCall.value = null
     }
 
     suspend fun createCheckpoint(name: String): DialogueCheckpoint = mutex.withLock {
@@ -463,7 +471,8 @@ class TalkLoopAgent(
         requireBranching()
         val branch = mutableBranches.value.firstOrNull { it.id == branchId }
             ?: throw IllegalArgumentException("Ветка не найдена: $branchId")
-        persistMemory(messages = branch.messages, activeBranchId = branch.id)
+        persistMemory(messages = branch.messages, activeBranchId = branch.id,
+            dialogueArchive = branch.messages, ragTaskMemory = RagTaskMemory())
         mutableActiveBranchId.value = branch.id
         mutableHistory.value = branch.messages
     }
@@ -497,10 +506,20 @@ class TalkLoopAgent(
                 persistLocalTurn(historySnapshot, userMessage, refusal)
                 return@withLock refusal
             }
-            val toolCall = toolProvider?.callFor(request)
+            val toolCall = toolProvider?.callFor(request, AgentToolContext(mutableDialogueArchive.value, mutableRagTaskMemory.value, config.model))
             mutableLastToolCall.value = toolCall
             toolCall?.directResponse?.let { response ->
-                persistLocalTurn(historySnapshot, userMessage, response)
+                toolCall.memoryUsage?.let { usage ->
+                    val (inputCost, outputCost) = estimateTokenCostUsd(tokenPricingForModel(toolCall.memoryModel ?: config.model),
+                        usage.inputTokens, usage.outputTokens, usage.cacheCreationInputTokens, usage.cacheReadInputTokens,
+                        usage.cacheCreation5mInputTokens, usage.cacheCreation1hInputTokens)
+                    val turn = AgentTurnUsage(mutableStatistics.value.requestCount + 1, 0, usage.totalInputTokens, usage.outputTokens,
+                        config.contextWindowTokens, inputCost, outputCost, "local_refusal", TokenTurnOutcome.COMPLETED,
+                        memoryInputTokens = usage.totalInputTokens, memoryOutputTokens = usage.outputTokens)
+                    mutableStatistics.value = mutableStatistics.value.let { it.copy(requestCount = turn.turn,
+                        inputTokens = it.inputTokens + usage.totalInputTokens, outputTokens = it.outputTokens + usage.outputTokens, turns = it.turns + turn) }
+                }
+                persistLocalTurn(historySnapshot, userMessage, response, toolCall.ragConversation?.memory)
                 return@withLock response
             }
             val turn = mutableStatistics.value.requestCount + 1
@@ -598,15 +617,23 @@ class TalkLoopAgent(
                 cacheCreation5mInputTokens = answer.cacheCreation5mInputTokens,
                 cacheCreation1hInputTokens = answer.cacheCreation1hInputTokens,
             )
+            val memoryUsage = toolCall?.memoryUsage
+            val (memoryInputCost, memoryOutputCost) = memoryUsage?.let { usage ->
+                estimateTokenCostUsd(tokenPricingForModel(toolCall.memoryModel ?: config.model), usage.inputTokens,
+                    usage.outputTokens, usage.cacheCreationInputTokens, usage.cacheReadInputTokens,
+                    usage.cacheCreation5mInputTokens, usage.cacheCreation1hInputTokens)
+            } ?: (0.0 to 0.0)
             val reachedContextLimit = answer.stopReason == "model_context_window_exceeded"
             val turnUsage = AgentTurnUsage(
                 turn = turn,
                 requestTokens = requestTokens,
-                inputTokens = answer.totalInputTokens,
-                outputTokens = answer.outputTokens,
+                inputTokens = answer.totalInputTokens + (memoryUsage?.totalInputTokens ?: 0),
+                outputTokens = answer.outputTokens + (memoryUsage?.outputTokens ?: 0),
                 contextWindowTokens = config.contextWindowTokens,
-                inputCostUsd = inputCost,
-                outputCostUsd = outputCost,
+                inputCostUsd = inputCost + memoryInputCost,
+                outputCostUsd = outputCost + memoryOutputCost,
+                memoryInputTokens = memoryUsage?.totalInputTokens ?: 0,
+                memoryOutputTokens = memoryUsage?.outputTokens ?: 0,
                 stopReason = answer.stopReason,
                 outcome = if (reachedContextLimit) {
                     TokenTurnOutcome.RESPONSE_REACHED_CONTEXT_LIMIT
@@ -616,8 +643,8 @@ class TalkLoopAgent(
             )
             mutableStatistics.value = mutableStatistics.value.let { current ->
                 current.copy(
-                    inputTokens = current.inputTokens + answer.totalInputTokens,
-                    outputTokens = current.outputTokens + answer.outputTokens,
+                    inputTokens = current.inputTokens + turnUsage.inputTokens,
+                    outputTokens = current.outputTokens + turnUsage.outputTokens,
                     turns = current.turns + turnUsage,
                 )
             }
@@ -630,7 +657,8 @@ class TalkLoopAgent(
                 )
             }
             val evidenceRun = if (toolCall?.evidenceEnabled == true) {
-                verifyRagEvidence(llmClient, request, answer, toolCall.documentSources.orEmpty(), toolCall.evidenceVerifierModel, repairSpec = spec)
+                verifyRagEvidence(llmClient, toolCall.ragConversation?.resolvedQuestion ?: request, answer,
+                    toolCall.documentSources.orEmpty(), toolCall.evidenceVerifierModel, repairSpec = spec)
             } else null
             if (evidenceRun != null) {
                 mutableLastToolCall.value = toolCall?.copy(evidence = evidenceRun.evidence)
@@ -656,7 +684,8 @@ class TalkLoopAgent(
                     }
                 }
             }
-            val displayAnswer = evidenceRun?.let { renderRagEvidence(it.evidence, toolCall?.documentSources.orEmpty()) } ?: answer.text
+            val groundedAnswer = evidenceRun?.let { renderRagEvidence(it.evidence, toolCall?.documentSources.orEmpty()) } ?: answer.text
+            val displayAnswer = if (toolCall?.ragConversation != null) ragChatResponse(groundedAnswer, toolCall.documentSources.orEmpty()) else groundedAnswer
             val candidateResponse = config.outputPolicies.foldSuspend(displayAnswer) { output, policy ->
                 policy.apply(
                     output,
@@ -731,6 +760,8 @@ class TalkLoopAgent(
                 summary = nextContext.summary,
                 facts = stagedFacts,
                 branches = nextBranches,
+                dialogueArchive = mutableDialogueArchive.value + userMessage + ChatMessage(false, response),
+                ragTaskMemory = toolCall?.ragConversation?.memory ?: mutableRagTaskMemory.value,
                 layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
                     currentLayers(shortTermMessages = nextContext.messages)
                 } else {
@@ -775,6 +806,7 @@ class TalkLoopAgent(
         persistMemory(
             messages = nextMessages,
             branches = nextBranches,
+            dialogueArchive = mutableDialogueArchive.value + ChatMessage(false, response),
             layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
                 currentLayers(shortTermMessages = nextMessages)
             } else {
@@ -891,6 +923,7 @@ class TalkLoopAgent(
         historySnapshot: List<ChatMessage>,
         userMessage: ChatMessage,
         response: String,
+        ragMemory: RagTaskMemory? = null,
     ) {
         val completeHistory = historySnapshot + userMessage +
             ChatMessage(fromUser = false, text = response)
@@ -917,6 +950,8 @@ class TalkLoopAgent(
         persistMemory(
             messages = nextMessages,
             branches = nextBranches,
+            dialogueArchive = mutableDialogueArchive.value + userMessage + ChatMessage(false, response),
+            ragTaskMemory = ragMemory ?: mutableRagTaskMemory.value,
             layers = if (config.contextStrategy is ContextStrategy.MemoryLayers) {
                 currentLayers(shortTermMessages = nextMessages)
             } else {
@@ -939,6 +974,8 @@ class TalkLoopAgent(
         userProfiles: List<UserProfile> = mutableUserProfiles.value,
         activeUserProfileId: String? = mutableActiveUserProfileId.value,
         taskState: TaskState? = mutableTaskState.value,
+        dialogueArchive: List<ChatMessage> = mutableDialogueArchive.value,
+        ragTaskMemory: RagTaskMemory = mutableRagTaskMemory.value,
     ) {
         historyStore.saveMemory(
             AgentMemorySnapshot(
@@ -953,8 +990,12 @@ class TalkLoopAgent(
                 userProfiles = userProfiles,
                 activeUserProfileId = activeUserProfileId,
                 taskState = taskState,
+                dialogueArchive = dialogueArchive,
+                ragTaskMemory = ragTaskMemory,
             )
         )
+        mutableDialogueArchive.value = dialogueArchive
+        mutableRagTaskMemory.value = ragTaskMemory
     }
 
     private fun nextId(prefix: String, existing: List<String>): String {

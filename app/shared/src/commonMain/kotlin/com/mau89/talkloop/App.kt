@@ -22,6 +22,7 @@ import com.mau89.talkloop.llm.AgentKnowledgeSettings
 import com.mau89.talkloop.llm.AgentKnowledgeTools
 import com.mau89.talkloop.llm.DocumentRetriever
 import com.mau89.talkloop.llm.RagSettings
+import com.mau89.talkloop.llm.LlmRagTaskMemoryResolver
 import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.ChatHistoryStore
 import com.mau89.talkloop.llm.ContextCompressionConfig
@@ -69,11 +70,12 @@ fun App(
         val generalLlm = remember(apiKey) { createAgentLlmClient(apiKey, directConnection = true) }
         DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
         val generalRuntime = remember(generalLlm) { AgentRuntime(generalLlm) }
-        val knowledgeTools = remember(weatherToolProvider, documents) {
+        val knowledgeTools = remember(weatherToolProvider, documents, generalLlm) {
             AgentKnowledgeTools(
                 mcp = weatherToolProvider,
                 retriever = DocumentRetriever { documents.search(documentAddress, it) },
-                settings = { AgentKnowledgeSettings(mcpEnabled, ragEnabled, ragSettings) },
+                memoryResolver = LlmRagTaskMemoryResolver(generalLlm),
+                settings = { AgentKnowledgeSettings(mcpEnabled, ragEnabled, ragSettings, taskMemoryEnabled = ragEnabled) },
             )
         }
         var generalAgentConfig by remember(generalRuntime) {

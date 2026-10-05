@@ -145,3 +145,12 @@ tasks.register<JavaExec>("day24") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+tasks.register<JavaExec>("day25") {
+    group = "application"
+    description = "День 25: постоянный RAG-чат с памятью задачи и двумя длинными сценариями"
+    mainClass = "com.mau89.talkloop.cli.Day25Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+    standardInput = System.`in`
+}

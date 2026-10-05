@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
@@ -47,6 +48,7 @@ import com.mau89.talkloop.llm.TaskStage
 import com.mau89.talkloop.llm.UserProfile
 import com.mau89.talkloop.llm.allowedEvents
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
 
 /** Основной экран агента: задача, память, профиль и диалог. */
@@ -71,6 +73,39 @@ fun AgentLabScreen(
     var settingsExpanded by remember { mutableStateOf(strategy == null) }
     var systemPrompt by remember(config) { mutableStateOf(config.systemPrompt) }
     var resetStatus by remember(agent) { mutableStateOf<String?>(null) }
+    var resetConfirmation by remember(agent) { mutableStateOf(false) }
+    var resetInProgress by remember(agent) { mutableStateOf(false) }
+
+    if (resetConfirmation) {
+        AlertDialog(
+            onDismissRequest = { resetConfirmation = false },
+            title = { Text("Новая задача") },
+            text = { Text("Текущая переписка, цель и уточнения задачи будут очищены. Кулинарная книга и профиль сохранятся.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    resetConfirmation = false
+                    resetStatus = null
+                    resetInProgress = true
+                    scope.launch {
+                        try {
+                            agent.startNewTask()
+                            onCreateAgent(config)
+                            settingsExpanded = false
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (error: Exception) {
+                            resetStatus = error.message ?: "Не удалось начать новую задачу."
+                        } finally {
+                            resetInProgress = false
+                        }
+                    }
+                }) { Text("Начать заново") }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetConfirmation = false }) { Text("Отмена") }
+            },
+        )
+    }
 
     Column(modifier) {
         Row(
@@ -135,6 +170,15 @@ fun AgentLabScreen(
                         style = MaterialTheme.typography.bodySmall)
                 }
             }
+        }
+
+        if (ragEnabled) RagTaskMemoryCard(agent,
+            onNewTask = { resetConfirmation = true },
+            resetEnabled = strategy != null && !resetInProgress,
+        )
+        resetStatus?.let {
+            Text(it, modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
         }
 
         if (settingsExpanded) {
@@ -289,26 +333,10 @@ fun AgentLabScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Button(
-                            onClick = {
-                                scope.launch {
-                                    runCatching { agent.startNewTask() }
-                                        .onSuccess {
-                                            onCreateAgent(config)
-                                            settingsExpanded = false
-                                        }
-                                        .onFailure { resetStatus = it.message }
-                                }
-                            },
-                            enabled = strategy != null,
+                            onClick = { resetConfirmation = true },
+                            enabled = strategy != null && !resetInProgress,
                             modifier = Modifier.fillMaxWidth(),
                         ) { Text("Очистить диалог и пересоздать агента") }
-                        resetStatus?.let {
-                            Text(
-                                it,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
                     }
                 }
             }
@@ -319,11 +347,36 @@ fun AgentLabScreen(
                 modifier = Modifier.weight(1f),
                 title = "Диалог текущей задачи",
                 showRecap = false,
-                inputPlaceholder = "Сообщение в краткосрочную память…",
+                inputPlaceholder = if (ragEnabled) "Вопрос по книге или уточнение задачи…" else "Сообщение в краткосрочную память…",
                 sendButtonText = "Отправить",
                 showStatistics = false,
                 showToolActivity = true,
+                showFullDialogue = true,
             )
+        }
+    }
+}
+
+@Composable
+private fun RagTaskMemoryCard(agent: TalkLoopAgent, onNewTask: () -> Unit, resetEnabled: Boolean) {
+    val memory by agent.ragTaskMemory.collectAsState()
+    var expanded by remember(agent) { mutableStateOf(false) }
+    Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Column(Modifier.padding(horizontal = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Память задачи", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                TextButton(onClick = onNewTask, enabled = resetEnabled) { Text("Новая задача") }
+                TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Скрыть" else "Открыть") }
+            }
+            if (expanded) Column(Modifier.heightIn(max = 180.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Цель: ${memory.goal?.text ?: "ещё не задана"}", style = MaterialTheme.typography.bodySmall)
+                Text("Рецепт: ${memory.activeRecipe?.text ?: "ещё не выбран"}", style = MaterialTheme.typography.bodySmall)
+                listOf("Уточнения" to memory.clarifications, "Ограничения" to memory.constraints, "Термины" to memory.terms).forEach { (label, facts) ->
+                    Text("$label: ${facts.joinToString("; ") { it.text }.ifEmpty { "не заданы" }}", style = MaterialTheme.typography.bodySmall)
+                }
+                Text("Сохраняется с перепиской. «Новая задача» очищает эту память.", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

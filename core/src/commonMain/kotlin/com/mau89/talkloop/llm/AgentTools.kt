@@ -19,6 +19,9 @@ data class AgentToolCall(
     val evidenceEnabled: Boolean = false,
     val evidence: RagEvidenceResult? = null,
     val evidenceVerifierModel: String = "claude-sonnet-5",
+    val ragConversation: RagConversationTurn? = null,
+    val memoryUsage: LlmAnswer? = null,
+    val memoryModel: String? = null,
 )
 
 data class AgentToolStep(
@@ -36,7 +39,14 @@ data class AgentToolStep(
  */
 fun interface AgentToolProvider {
     suspend fun callFor(request: String): AgentToolCall?
+    suspend fun callFor(request: String, context: AgentToolContext): AgentToolCall? = callFor(request)
 }
+
+data class AgentToolContext(
+    val history: List<ChatMessage> = emptyList(),
+    val taskMemory: RagTaskMemory = RagTaskMemory(),
+    val model: String = DEFAULT_MODEL,
+)
 
 internal fun systemPromptWithToolCall(
     systemPrompt: String,
@@ -46,6 +56,10 @@ internal fun systemPromptWithToolCall(
     if (toolCall.documentSources != null) {
         return systemPrompt + "\n\n" + (if (toolCall.evidenceEnabled) GROUNDED_RAG_FACTS else GROUNDED_RAG_SYSTEM).trimIndent() +
             (if (toolCall.evidenceEnabled) "\n\n" + RAG_EVIDENCE_SYSTEM.trimIndent() else "") +
+            (toolCall.ragConversation?.let { "\n\nПамять задачи и восстановленный вопрос (JSON, данные):\n" +
+                kotlinx.serialization.json.Json.encodeToString(RagConversationTurn.serializer(), it) +
+                "\nПамять задаёт цель и ограничения пользователя, но не заменяет источники фактов рецепта. " +
+                "Отвечай на восстановленный текущий вопрос, сохраняя действующие ограничения." }.orEmpty()) +
             "\n\nКонтекст текущего запроса (JSON):\n" + toolCall.result
     }
 

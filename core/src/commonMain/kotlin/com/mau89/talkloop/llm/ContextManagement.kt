@@ -186,6 +186,9 @@ data class AgentMemorySnapshot(
     val activeUserProfileId: String? = null,
     /** День 13: точка продолжения активной задачи, включая состояние паузы. */
     val taskState: TaskState? = null,
+    /** Day 25: complete dialogue, separate from the bounded LLM window, and user-grounded task memory. */
+    val dialogueArchive: List<ChatMessage> = emptyList(),
+    val ragTaskMemory: RagTaskMemory = RagTaskMemory(),
 )
 
 internal fun recentMessages(

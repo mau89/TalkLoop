@@ -65,6 +65,7 @@ fun ChatScreen(
     strategyLabel: String? = null,
     factsEnabled: Boolean = false,
     showToolActivity: Boolean = false,
+    showFullDialogue: Boolean = false,
 ) {
     if (apiKey.isBlank()) {
         MissingKeyHint(modifier)
@@ -73,7 +74,7 @@ fun ChatScreen(
 
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val history by agent.history.collectAsState()
+    val history by (if (showFullDialogue) agent.dialogueArchive else agent.history).collectAsState()
     val summary by agent.summary.collectAsState()
     val statistics by agent.statistics.collectAsState()
     val lastToolCall by agent.lastToolCall.collectAsState()
@@ -253,8 +254,12 @@ fun ChatScreen(
                                             else "Подтверждённого ответа нет — требуется уточнение.", style = MaterialTheme.typography.bodySmall)
                                         Text(ragEvidenceDiagnostic(evidence), style = MaterialTheme.typography.bodySmall)
                                         if (evidence.repairAttempts > 0) Text("Исправление черновика: ${evidence.repairAttempts} попытка", style = MaterialTheme.typography.bodySmall)
-                                        Text("Запросов к модели: ${evidence.apiCalls}; проверка: ${evidence.verificationInputTokens}/${evidence.verificationOutputTokens} токенов",
+                                        Text("Запросов к модели: ${evidence.apiCalls + (call.ragConversation?.memoryApiCalls ?: 0)}; проверка: ${evidence.verificationInputTokens}/${evidence.verificationOutputTokens} токенов",
                                             style = MaterialTheme.typography.bodySmall)
+                                    }
+                                    call.ragConversation?.let { turn ->
+                                        Text("Вопрос с учётом памяти: ${turn.resolvedQuestion}", style = MaterialTheme.typography.bodySmall)
+                                        Text("Память задачи: ${turn.memoryInputTokens}/${turn.memoryOutputTokens} токенов", style = MaterialTheme.typography.bodySmall)
                                     }
                                     call.retrieval?.let { trace ->
                                         Text("Вопрос: ${trace.originalQuery}", style = MaterialTheme.typography.bodySmall)

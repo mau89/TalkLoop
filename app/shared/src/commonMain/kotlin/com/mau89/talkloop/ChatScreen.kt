@@ -221,7 +221,8 @@ fun ChatScreen(
                         ) {
                             Text(
                                 if (call.steps.isEmpty()) {
-                                    if (documentSources != null) "Кулинарная книга · ${documentSources.size} источников"
+                                    if (documentSources != null) "Кулинарная книга · " +
+                                        (call.retrieval?.let { "${it.candidates.size} → " } ?: "") + "${documentSources.size} источников"
                                     else "MCP · " + listOfNotNull(call.serverName, call.toolName)
                                         .joinToString(" → ")
                                 } else {
@@ -245,11 +246,33 @@ fun ChatScreen(
                                         .verticalScroll(rememberScrollState()),
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
+                                    call.retrieval?.let { trace ->
+                                        Text("Вопрос: ${trace.originalQuery}", style = MaterialTheme.typography.bodySmall)
+                                        Text("Поисковый запрос: ${trace.searchQuery}", style = MaterialTheme.typography.bodySmall)
+                                        Text("Уточнение: ${if (trace.settings.rewriteEnabled) "вкл." else "выкл."}; " +
+                                            "фильтр: ${if (trace.settings.filterEnabled) "вкл., порог ${trace.settings.minSimilarity}" else "выкл."}",
+                                            style = MaterialTheme.typography.bodySmall)
+
+                                    }
                                     Text("Номера [1], [2] в ответе соответствуют источникам ниже.",
                                         style = MaterialTheme.typography.bodySmall)
-                                    if (documentSources.isEmpty()) Text("Фрагменты не найдены.")
+                                    if (documentSources.isEmpty()) Text("В ответ не переданы источники.")
                                     documentSources.forEachIndexed { index, hit ->
                                         DocumentChunkCard(index + 1, hit)
+                                    }
+                                    call.retrieval?.let { trace ->
+                                        if (trace.rejected.isNotEmpty()) {
+                                            Text("Отсечено: ${trace.rejected.size}", style = MaterialTheme.typography.labelLarge)
+                                            trace.rejected.forEach { rejected ->
+                                                val reason = when (rejected.reason) {
+                                                    "below_similarity" -> "ниже порога"
+                                                    "duplicate" -> "повтор фрагмента"
+                                                    else -> "превышен лимит после фильтра"
+                                                }
+                                                Text("${rejected.hit.title} · ${rejected.hit.score} · $reason",
+                                                    style = MaterialTheme.typography.bodySmall)
+                                            }
+                                        }
                                     }
                                 }
                             } else if (call.steps.isEmpty()) {

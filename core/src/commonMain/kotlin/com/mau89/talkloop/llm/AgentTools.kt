@@ -15,6 +15,7 @@ data class AgentToolCall(
     val steps: List<AgentToolStep> = emptyList(),
     /** Нумерованные источники RAG именно текущего запроса; null для других инструментов. */
     val documentSources: List<DocumentChunkHit>? = null,
+    val retrieval: RagRetrievalTrace? = null,
 )
 
 data class AgentToolStep(

@@ -18,6 +18,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,6 +47,7 @@ import com.mau89.talkloop.llm.TaskStage
 import com.mau89.talkloop.llm.UserProfile
 import com.mau89.talkloop.llm.allowedEvents
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /** Основной экран агента: задача, память, профиль и диалог. */
 @Composable
@@ -107,6 +109,21 @@ fun AgentLabScreen(
             }
         }
 
+        if (ragEnabled) {
+            Row(Modifier.fillMaxWidth().toggleable(
+                value = ragSettings.filterEnabled || ragSettings.rewriteEnabled,
+                role = Role.Checkbox,
+                onValueChange = { onRagSettingsChange(ragSettings.copy(filterEnabled = it, rewriteEnabled = it)) },
+            ).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(checked = ragSettings.filterEnabled || ragSettings.rewriteEnabled, onCheckedChange = null)
+                Column(Modifier.padding(start = 8.dp)) {
+                    Text("Улучшенный поиск")
+                    Text("Уточнение запроса и фильтр · параметры в настройках",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
         if (settingsExpanded) {
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
@@ -156,7 +173,7 @@ fun AgentLabScreen(
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                         )
-                        Text("Индекс · 5 фрагментов", style = MaterialTheme.typography.bodySmall)
+                        Text("Индекс", style = MaterialTheme.typography.bodySmall)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("fixed", "structural").forEach { strategyName ->
                                 FilterChip(
@@ -166,6 +183,37 @@ fun AgentLabScreen(
                                 )
                             }
                         }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Уточнять поисковый запрос", Modifier.weight(1f))
+                            Switch(checked = ragSettings.rewriteEnabled,
+                                onCheckedChange = { onRagSettingsChange(ragSettings.copy(rewriteEnabled = it)) })
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Отсекать слабые совпадения", Modifier.weight(1f))
+                            Switch(checked = ragSettings.filterEnabled,
+                                onCheckedChange = { onRagSettingsChange(ragSettings.copy(filterEnabled = it)) })
+                        }
+                        Text("До фильтра: до ${ragSettings.candidateLimit} фрагментов")
+                        Slider(value = ragSettings.candidateLimit.toFloat(), valueRange = 1f..10f, steps = 8,
+                            enabled = ragSettings.filterEnabled,
+                            onValueChange = {
+                                val count = it.roundToInt()
+                                onRagSettingsChange(ragSettings.copy(candidateLimit = count, limit = minOf(count, ragSettings.limit)))
+                            })
+                        Text(if (ragSettings.filterEnabled) "После фильтра: до ${ragSettings.limit} фрагментов"
+                            else "Обычный поиск: до ${ragSettings.limit} фрагментов")
+                        Slider(value = ragSettings.limit.toFloat(), valueRange = 1f..10f, steps = 8,
+                            onValueChange = {
+                                val count = it.roundToInt()
+                                onRagSettingsChange(ragSettings.copy(limit = count, candidateLimit = maxOf(count, ragSettings.candidateLimit)))
+                            })
+                        Text("Порог сходства: ${(ragSettings.minSimilarity * 100).roundToInt() / 100.0}")
+                        Slider(value = ragSettings.minSimilarity.toFloat(), valueRange = -1f..1f, steps = 199,
+                            enabled = ragSettings.filterEnabled,
+                            onValueChange = { onRagSettingsChange(ragSettings.copy(minSimilarity = (it * 100).roundToInt() / 100.0)) })
+                        Text("Чем выше порог, тем меньше источников. Сходство не означает вероятность верного ответа. " +
+                            "Если все совпадения отсечены, агент сообщит, что сведений недостаточно.",
+                            style = MaterialTheme.typography.bodySmall)
                         Text(
                             "При ошибке поиска ответ не отправляется модели. Чекбокс действует " +
                                 "на следующий запрос и сохраняет текущую переписку.",

@@ -21,16 +21,16 @@ class AgentKnowledgeTools(
         if (selected.mcpEnabled) mcp.callFor(request)?.let { return it }
         if (!selected.ragEnabled) return null
         val question = request.trim()
-        val hits = retrieveRagSources(retriever, question, selected.rag)
+        val context = retrieveRagContext(retriever, question, selected.rag)
         return AgentToolCall(
             toolName = "document_search",
             toolDescription = "Поиск в локальной кулинарной книге",
             inputSchema = """{"type":"object","properties":{"query":{"type":"string"}}}""",
-            arguments = Json.encodeToString(DocumentSearchRequest.serializer(),
-                DocumentSearchRequest(question, strategy = selected.rag.strategy, limit = selected.rag.limit)),
-            result = encodeRagPrompt(question, hits),
+            arguments = Json.encodeToString(DocumentSearchRequest.serializer(), context.request),
+            result = encodeRagPrompt(question, context.sources),
             serverName = "Кулинарная книга",
-            documentSources = hits,
+            documentSources = context.sources,
+            retrieval = context.trace,
         )
     }
 }

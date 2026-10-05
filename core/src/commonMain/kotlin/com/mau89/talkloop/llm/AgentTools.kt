@@ -13,6 +13,8 @@ data class AgentToolCall(
     val serverName: String? = null,
     /** Упорядоченная трасса для длинного флоу через несколько MCP-серверов. */
     val steps: List<AgentToolStep> = emptyList(),
+    /** Нумерованные источники RAG именно текущего запроса; null для других инструментов. */
+    val documentSources: List<DocumentChunkHit>? = null,
 )
 
 data class AgentToolStep(
@@ -37,6 +39,10 @@ internal fun systemPromptWithToolCall(
     toolCall: AgentToolCall?,
 ): String {
     if (toolCall == null) return systemPrompt
+    if (toolCall.documentSources != null) {
+        return systemPrompt + "\n\n" + GROUNDED_RAG_SYSTEM.trimIndent() +
+            "\n\nКонтекст текущего запроса (JSON):\n" + toolCall.result
+    }
 
     return """
         $systemPrompt

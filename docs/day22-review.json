@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "method": "Ручная сверка 20 ответов с ожиданиями и фактически переданными фрагментами. Выполнил Codex; это учебная оценка, не независимый слепой judge.",
+  "comparisonSha256": "b7b1c5e5e68bdd40c9cbf41fa8e526ae49dcf879b0482b66ae66db5266989c1a",
+  "corpusSha256": "e486f0d55bed96765d175b7ac2b493057f783839106a92fde5686740971c363e",
+  "datasetSha256": "b624d73dd50485d419562fac80ff7de0312b3806d1c4b74c17b223b79028cf72",
+  "model": "claude-haiku-4-5",
+  "settings": {
+    "strategy": "fixed",
+    "limit": 5
+  },
+  "cases": [
+    {
+      "id": "q01",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "partial",
+        "inventedBookFacts": false,
+        "citationsSupported": false,
+        "note": "Время 3–5 минут и помешивание верны. Модель пишет «когда картофель будет почти готов»; источник сначала требует добавить лук и морковь и довести до готовности, а затем добавить сыр. Порядок описан неточно. Проверка регулярными выражениями не заметила различия."
+      }
+    },
+    {
+      "id": "q02",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q03",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q04",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q05",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Верно указаны 750 г костей, суммарные 2,5 л воды и основная варка 3 часа. Дополнительная деталь источника: на втором этапе наливают 1,5 л воды; вопрос не требовал описания всех этапов."
+      }
+    },
+    {
+      "id": "q06",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q07",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q08",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q09",
+      "withoutRag": {
+        "fulfillment": "no_answer",
+        "inventedBookFacts": false,
+        "note": "Честно сообщает, что книга недоступна; точных сведений из книги не даёт."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": true,
+        "note": "Числа и единицы совпали с ожидаемым вариантом; указанный фрагмент поддерживает ответ."
+      }
+    },
+    {
+      "id": "q10",
+      "withoutRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "note": "Сообщает об отсутствии доступа к базе и не придумывает нормы борща."
+      },
+      "withRag": {
+        "fulfillment": "complete",
+        "inventedBookFacts": false,
+        "citationsSupported": null,
+        "note": "Корректно ограничивает вывод найденными фрагментами: рецепта борща в них нет. Не выдумывает количества и не утверждает наличие полного обзора книги."
+      }
+    }
+  ],
+  "summary": {
+    "withoutRag": {
+      "complete": 1,
+      "partial": 0,
+      "noAnswer": 9,
+      "honestAbstentions": 10
+    },
+    "withRag": {
+      "complete": 9,
+      "partial": 1,
+      "noAnswer": 0
+    },
+    "automaticAllChecksMatched": {
+      "withoutRag": 1,
+      "withRag": 10
+    },
+    "expectedRecipeSourcesRetrieved": 9,
+    "expectedRecipeSourcesCited": 9,
+    "expectedRecipeSourceQuestions": 9,
+    "invalidCitationNumbers": 0,
+    "limitations": "Вопросы требуют конкретных вариантов книги; это проверка доступа к источнику, а не общей кулинарной компетентности. Отказы базового режима честны. Параметры RAG и системная инструкция отличаются от базового режима; один небольшой прогон не доказывает преимущество на любых вопросах."
+  }
+}

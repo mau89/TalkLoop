@@ -8,6 +8,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,6 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AgentRuntime
+import com.mau89.talkloop.llm.AgentKnowledgeSettings
+import com.mau89.talkloop.llm.AgentKnowledgeTools
+import com.mau89.talkloop.llm.DocumentRetriever
+import com.mau89.talkloop.llm.RagSettings
 import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.ChatHistoryStore
 import com.mau89.talkloop.llm.ContextCompressionConfig
@@ -56,7 +61,22 @@ fun App(
         }
         val weatherToolProvider = remember { McpWeatherToolProvider() }
         var mcpEnabled by remember { mutableStateOf(true) }
-        var generalAgentConfig by remember(agentRuntime) {
+        var ragEnabled by remember { mutableStateOf(false) }
+        var ragSettings by remember { mutableStateOf(RagSettings()) }
+        var documentAddress by remember { mutableStateOf(defaultDocumentServerAddress()) }
+        val documents = remember { DocumentIndexClient() }
+        DisposableEffect(documents) { onDispose { documents.close() } }
+        val generalLlm = remember(apiKey) { createAgentLlmClient(apiKey, directConnection = true) }
+        DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
+        val generalRuntime = remember(generalLlm) { AgentRuntime(generalLlm) }
+        val knowledgeTools = remember(weatherToolProvider, documents) {
+            AgentKnowledgeTools(
+                mcp = weatherToolProvider,
+                retriever = DocumentRetriever { documents.search(documentAddress, it) },
+                settings = { AgentKnowledgeSettings(mcpEnabled, ragEnabled, ragSettings) },
+            )
+        }
+        var generalAgentConfig by remember(generalRuntime) {
             mutableStateOf(
                 AgentConfig(
                     systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
@@ -66,17 +86,17 @@ fun App(
             )
         }
         var generalAgent by remember(
-            agentRuntime,
+            generalRuntime,
             agentHistoryStore,
             agentInvariantStore,
-            weatherToolProvider,
+            knowledgeTools,
         ) {
             mutableStateOf(
-                agentRuntime.spawn(
+                generalRuntime.spawn(
                     config = generalAgentConfig,
                     historyStore = agentHistoryStore,
                     invariantStore = agentInvariantStore,
-                    toolProvider = weatherToolProvider,
+                    toolProvider = knowledgeTools,
                 )
             )
         }
@@ -127,22 +147,20 @@ fun App(
                     agent = generalAgent,
                     config = generalAgentConfig,
                     mcpEnabled = mcpEnabled,
-                    onMcpEnabledChange = { enabled ->
-                        mcpEnabled = enabled
-                        generalAgent = agentRuntime.spawn(
-                            config = generalAgentConfig,
-                            historyStore = agentHistoryStore,
-                            invariantStore = agentInvariantStore,
-                            toolProvider = weatherToolProvider.takeIf { enabled },
-                        )
-                    },
+                    onMcpEnabledChange = { mcpEnabled = it },
+                    ragEnabled = ragEnabled,
+                    onRagEnabledChange = { ragEnabled = it },
+                    documentAddress = documentAddress,
+                    onDocumentAddressChange = { documentAddress = it },
+                    ragSettings = ragSettings,
+                    onRagSettingsChange = { ragSettings = it },
                     onCreateAgent = { config ->
                         generalAgentConfig = config
-                        generalAgent = agentRuntime.spawn(
+                        generalAgent = generalRuntime.spawn(
                             config = config,
                             historyStore = agentHistoryStore,
                             invariantStore = agentInvariantStore,
-                            toolProvider = weatherToolProvider.takeIf { mcpEnabled },
+                            toolProvider = knowledgeTools,
                         )
                     },
                     modifier = Modifier.fillMaxSize(),

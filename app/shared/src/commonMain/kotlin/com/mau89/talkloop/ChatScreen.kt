@@ -209,6 +209,7 @@ fun ChatScreen(
 
         if (showToolActivity) {
             lastToolCall?.let { call ->
+                val documentSources = call.documentSources
                 Card(Modifier.fillMaxWidth().padding(top = 4.dp)) {
                     Column(
                         Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
@@ -220,7 +221,8 @@ fun ChatScreen(
                         ) {
                             Text(
                                 if (call.steps.isEmpty()) {
-                                    "MCP · " + listOfNotNull(call.serverName, call.toolName)
+                                    if (documentSources != null) "Кулинарная книга · ${documentSources.size} источников"
+                                    else "MCP · " + listOfNotNull(call.serverName, call.toolName)
                                         .joinToString(" → ")
                                 } else {
                                     "MCP · ${call.steps.size} шага · погода → книги"
@@ -237,7 +239,20 @@ fun ChatScreen(
                             }
                         }
                         if (toolActivityExpanded) {
-                            if (call.steps.isEmpty()) {
+                            if (documentSources != null) {
+                                Column(
+                                    Modifier.fillMaxWidth().heightIn(max = 240.dp)
+                                        .verticalScroll(rememberScrollState()),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Text("Номера [1], [2] в ответе соответствуют источникам ниже.",
+                                        style = MaterialTheme.typography.bodySmall)
+                                    if (documentSources.isEmpty()) Text("Фрагменты не найдены.")
+                                    documentSources.forEachIndexed { index, hit ->
+                                        DocumentChunkCard(index + 1, hit)
+                                    }
+                                }
+                            } else if (call.steps.isEmpty()) {
                                 Text(
                                     "Аргументы: ${call.arguments}",
                                     style = MaterialTheme.typography.bodySmall,

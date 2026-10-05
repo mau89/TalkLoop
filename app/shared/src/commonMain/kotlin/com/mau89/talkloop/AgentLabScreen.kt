@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import com.mau89.talkloop.llm.AgentConfig
 import com.mau89.talkloop.llm.AssistantPreferences
 import com.mau89.talkloop.llm.ContextStrategy
@@ -35,6 +38,7 @@ import com.mau89.talkloop.llm.LongTermMemoryKind
 import com.mau89.talkloop.llm.MemoryLayer
 import com.mau89.talkloop.llm.MemoryWrite
 import com.mau89.talkloop.llm.TalkLoopAgent
+import com.mau89.talkloop.llm.RagSettings
 import com.mau89.talkloop.llm.TaskActor
 import com.mau89.talkloop.llm.TaskEvent
 import com.mau89.talkloop.llm.TaskEventType
@@ -51,6 +55,12 @@ fun AgentLabScreen(
     config: AgentConfig,
     mcpEnabled: Boolean,
     onMcpEnabledChange: (Boolean) -> Unit,
+    ragEnabled: Boolean,
+    onRagEnabledChange: (Boolean) -> Unit,
+    documentAddress: String,
+    onDocumentAddressChange: (String) -> Unit,
+    ragSettings: RagSettings,
+    onRagSettingsChange: (RagSettings) -> Unit,
     onCreateAgent: (AgentConfig) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,6 +86,24 @@ fun AgentLabScreen(
             }
             TextButton(onClick = { settingsExpanded = !settingsExpanded }) {
                 Text(if (settingsExpanded) "Скрыть" else "Настройки")
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .toggleable(value = ragEnabled, role = Role.Checkbox, onValueChange = onRagEnabledChange)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(checked = ragEnabled, onCheckedChange = null)
+            Column(Modifier.padding(start = 8.dp)) {
+                Text("Использовать кулинарную книгу (RAG)")
+                Text(
+                    if (ragEnabled) "Ответ по найденным рецептам со ссылками на источники"
+                    else "Обычный ответ агента без поиска в книге",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
 
@@ -113,6 +141,34 @@ fun AgentLabScreen(
                         }
                         Text(
                             "Проверка: /weather-recommend Тюмень или /books детектив",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Кулинарная книга", style = MaterialTheme.typography.titleSmall)
+                        OutlinedTextField(
+                            value = documentAddress,
+                            onValueChange = onDocumentAddressChange,
+                            label = { Text("Адрес локального сервера") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                        )
+                        Text("Индекс · 5 фрагментов", style = MaterialTheme.typography.bodySmall)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("fixed", "structural").forEach { strategyName ->
+                                FilterChip(
+                                    selected = ragSettings.strategy == strategyName,
+                                    onClick = { onRagSettingsChange(ragSettings.copy(strategy = strategyName)) },
+                                    label = { Text(strategyLabel(strategyName)) },
+                                )
+                            }
+                        }
+                        Text(
+                            "При ошибке поиска ответ не отправляется модели. Чекбокс действует " +
+                                "на следующий запрос и сохраняет текущую переписку.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

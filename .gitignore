@@ -19,6 +19,7 @@ captures
 node_modules/
 server-data/
 day21-data/
+day22-data/
 .day21-venv/
 __pycache__/
 

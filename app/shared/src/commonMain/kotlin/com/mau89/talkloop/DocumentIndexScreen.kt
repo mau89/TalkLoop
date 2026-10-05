@@ -214,7 +214,7 @@ internal fun strategyLabel(value: String): String = when (value) {
 }
 
 @Composable
-private fun DocumentChunkCard(rank: Int, hit: DocumentChunkHit) {
+internal fun DocumentChunkCard(rank: Int, hit: DocumentChunkHit) {
     var expanded by remember(hit.chunkId) { mutableStateOf(false) }
     var linkError by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current

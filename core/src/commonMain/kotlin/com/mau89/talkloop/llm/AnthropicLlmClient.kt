@@ -1,6 +1,8 @@
 package com.mau89.talkloop.llm
 
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -27,9 +29,14 @@ class AnthropicLlmClient(
     private val apiKey: String,
     private val model: String = DEFAULT_MODEL,
     private val systemPrompt: String = TUTOR_SYSTEM_PROMPT,
+    /** When supplied, this client owns and closes the engine. */
+    private val httpEngine: HttpClientEngine? = null,
 ) : LlmClient {
 
-    private val http = HttpClient {
+    private val http = if (httpEngine == null) HttpClient { configureLlmClient() }
+        else HttpClient(httpEngine) { configureLlmClient() }
+
+    private fun HttpClientConfig<*>.configureLlmClient() {
         expectSuccess = true
         // Opus с adaptive thinking легко сидит дольше дефолтных ~10 с OkHttp.
         // Без этого лаборатория моделей обрывается на сильной модели.
@@ -52,6 +59,12 @@ class AnthropicLlmClient(
 
     override suspend fun reply(history: List<ChatMessage>): String =
         answer(history, ResponseSpec(system = systemPrompt)).text
+
+    /** Owned CLI clients can release connections after a finite evaluation run. */
+    fun close() {
+        http.close()
+        httpEngine?.close()
+    }
 
     override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
         val requestModel = spec.model ?: model

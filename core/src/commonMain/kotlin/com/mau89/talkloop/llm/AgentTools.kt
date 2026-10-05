@@ -16,6 +16,9 @@ data class AgentToolCall(
     /** Нумерованные источники RAG именно текущего запроса; null для других инструментов. */
     val documentSources: List<DocumentChunkHit>? = null,
     val retrieval: RagRetrievalTrace? = null,
+    val evidenceEnabled: Boolean = false,
+    val evidence: RagEvidenceResult? = null,
+    val evidenceVerifierModel: String = "claude-sonnet-5",
 )
 
 data class AgentToolStep(
@@ -41,7 +44,8 @@ internal fun systemPromptWithToolCall(
 ): String {
     if (toolCall == null) return systemPrompt
     if (toolCall.documentSources != null) {
-        return systemPrompt + "\n\n" + GROUNDED_RAG_SYSTEM.trimIndent() +
+        return systemPrompt + "\n\n" + (if (toolCall.evidenceEnabled) GROUNDED_RAG_FACTS else GROUNDED_RAG_SYSTEM).trimIndent() +
+            (if (toolCall.evidenceEnabled) "\n\n" + RAG_EVIDENCE_SYSTEM.trimIndent() else "") +
             "\n\nКонтекст текущего запроса (JSON):\n" + toolCall.result
     }
 

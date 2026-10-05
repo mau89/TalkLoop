@@ -111,6 +111,19 @@ fun AgentLabScreen(
 
         if (ragEnabled) {
             Row(Modifier.fillMaxWidth().toggleable(
+                value = ragSettings.evidenceEnabled, role = Role.Checkbox,
+                onValueChange = { onRagSettingsChange(ragSettings.copy(evidenceEnabled = it, filterEnabled = it || ragSettings.filterEnabled)) },
+            ).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(checked = ragSettings.evidenceEnabled, onCheckedChange = null)
+                Column(Modifier.padding(start = 8.dp)) {
+                    Text("Подтверждать ответ цитатами")
+                    Text("Точные цитаты и проверка смысла · дополнительный запрос к модели",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+        if (ragEnabled && !ragSettings.evidenceEnabled) {
+            Row(Modifier.fillMaxWidth().toggleable(
                 value = ragSettings.filterEnabled || ragSettings.rewriteEnabled,
                 role = Role.Checkbox,
                 onValueChange = { onRagSettingsChange(ragSettings.copy(filterEnabled = it, rewriteEnabled = it)) },
@@ -190,7 +203,8 @@ fun AgentLabScreen(
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Отсекать слабые совпадения", Modifier.weight(1f))
-                            Switch(checked = ragSettings.filterEnabled,
+                            Switch(checked = ragSettings.filterEnabled || ragSettings.evidenceEnabled,
+                                enabled = !ragSettings.evidenceEnabled,
                                 onCheckedChange = { onRagSettingsChange(ragSettings.copy(filterEnabled = it)) })
                         }
                         Text("До фильтра: до ${ragSettings.candidateLimit} фрагментов")
@@ -211,6 +225,8 @@ fun AgentLabScreen(
                         Slider(value = ragSettings.minSimilarity.toFloat(), valueRange = -1f..1f, steps = 199,
                             enabled = ragSettings.filterEnabled,
                             onValueChange = { onRagSettingsChange(ragSettings.copy(minSimilarity = (it * 100).roundToInt() / 100.0)) })
+                        if (ragSettings.evidenceEnabled) Text("Для ответов с цитатами порог обязателен. Если доказательств нет, агент скажет «не знаю» и попросит уточнение.",
+                            style = MaterialTheme.typography.bodySmall)
                         Text("Чем выше порог, тем меньше источников. Сходство не означает вероятность верного ответа. " +
                             "Если все совпадения отсечены, агент сообщит, что сведений недостаточно.",
                             style = MaterialTheme.typography.bodySmall)

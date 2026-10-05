@@ -15,6 +15,19 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 class McpWeatherToolProviderTest {
+    @Test fun cookingTemperaturesDoNotInvokeWeatherButCityTemperatureStillDoes() {
+        for (question in listOf(
+            "При какой температуре и сколько минут по книге выпекают «Булочку с корицей 1»?",
+            "Как замочить рис: температура воды и время?",
+            "Какой температуры должно быть масло для рецепта?",
+        )) {
+            assertFalse(isWeatherRequest(question))
+            assertEquals(null, weatherToolIntent(question))
+        }
+        assertTrue(isWeatherRequest("Какая температура в Екатеринбурге?"))
+        assertEquals("get_current_weather", weatherToolIntent("Какая температура в Екатеринбурге?")?.toolName)
+        assertTrue(isWeatherRequest("/weather Екатеринбург"))
+    }
     @Test
     fun `явная команда weather распознаёт город`() {
         assertTrue(isWeatherRequest("/weather Екатеринбург"))

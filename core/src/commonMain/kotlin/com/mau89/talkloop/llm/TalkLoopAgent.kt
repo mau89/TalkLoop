@@ -549,6 +549,7 @@ class TalkLoopAgent(
                 stopSequences = config.stopSequences,
                 temperature = config.temperature,
                 model = config.model,
+                jsonSchema = if (toolCall?.evidenceEnabled == true) RAG_EVIDENCE_SCHEMA else null,
             )
             // Текущую реплику считаем отдельно, а полный контекст — вместе с system prompt
             // и всей историей. Это две разные метрики из задания, их нельзя подменять
@@ -628,7 +629,35 @@ class TalkLoopAgent(
                         "${answer.outputTokens} токенов. Неполный ответ не сохранён в истории.",
                 )
             }
-            val candidateResponse = config.outputPolicies.foldSuspend(answer.text) { output, policy ->
+            val evidenceRun = if (toolCall?.evidenceEnabled == true) {
+                verifyRagEvidence(llmClient, request, answer, toolCall.documentSources.orEmpty(), toolCall.evidenceVerifierModel, repairSpec = spec)
+            } else null
+            if (evidenceRun != null) {
+                mutableLastToolCall.value = toolCall?.copy(evidence = evidenceRun.evidence)
+                var countedTurn = turnUsage
+                evidenceRun.usage.forEach { extra ->
+                    val verification = extra.answer
+                    val (verifyInputCost, verifyOutputCost) = estimateTokenCostUsd(tokenPricingForModel(extra.model), verification.inputTokens,
+                        verification.outputTokens, verification.cacheCreationInputTokens, verification.cacheReadInputTokens,
+                        verification.cacheCreation5mInputTokens, verification.cacheCreation1hInputTokens)
+                    countedTurn = countedTurn.copy(
+                        inputTokens = countedTurn.inputTokens + verification.totalInputTokens,
+                        outputTokens = countedTurn.outputTokens + verification.outputTokens,
+                        inputCostUsd = countedTurn.inputCostUsd + verifyInputCost,
+                        outputCostUsd = countedTurn.outputCostUsd + verifyOutputCost,
+                        verificationInputTokens = countedTurn.verificationInputTokens + if (extra.verification) verification.totalInputTokens else 0,
+                        verificationOutputTokens = countedTurn.verificationOutputTokens + if (extra.verification) verification.outputTokens else 0,
+                        repairInputTokens = countedTurn.repairInputTokens + if (!extra.verification) verification.totalInputTokens else 0,
+                    )
+                    mutableStatistics.value = mutableStatistics.value.let { current ->
+                        current.copy(inputTokens = current.inputTokens + verification.totalInputTokens,
+                            outputTokens = current.outputTokens + verification.outputTokens,
+                            turns = current.turns.dropLast(1) + countedTurn)
+                    }
+                }
+            }
+            val displayAnswer = evidenceRun?.let { renderRagEvidence(it.evidence, toolCall?.documentSources.orEmpty()) } ?: answer.text
+            val candidateResponse = config.outputPolicies.foldSuspend(displayAnswer) { output, policy ->
                 policy.apply(
                     output,
                     OutputPolicyContext(request = request, history = historySnapshot),

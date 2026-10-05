@@ -42,6 +42,7 @@ import com.mau89.talkloop.llm.RECAP_REQUEST
 import com.mau89.talkloop.llm.TalkLoopAgent
 import com.mau89.talkloop.llm.TokenTurnOutcome
 import com.mau89.talkloop.llm.formatUsd
+import com.mau89.talkloop.llm.ragEvidenceDiagnostic
 import kotlinx.coroutines.launch
 
 /**
@@ -246,6 +247,15 @@ fun ChatScreen(
                                         .verticalScroll(rememberScrollState()),
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
+                                    call.evidence?.let { evidence ->
+                                        Text(if (evidence.status == "answered") "Цитаты проверены по тексту; соответствие утверждений проверено моделью."
+                                            else if (evidence.reason in listOf("verification_unavailable", "repair_unavailable")) "Проверка недоступна — повторите запрос."
+                                            else "Подтверждённого ответа нет — требуется уточнение.", style = MaterialTheme.typography.bodySmall)
+                                        Text(ragEvidenceDiagnostic(evidence), style = MaterialTheme.typography.bodySmall)
+                                        if (evidence.repairAttempts > 0) Text("Исправление черновика: ${evidence.repairAttempts} попытка", style = MaterialTheme.typography.bodySmall)
+                                        Text("Запросов к модели: ${evidence.apiCalls}; проверка: ${evidence.verificationInputTokens}/${evidence.verificationOutputTokens} токенов",
+                                            style = MaterialTheme.typography.bodySmall)
+                                    }
                                     call.retrieval?.let { trace ->
                                         Text("Вопрос: ${trace.originalQuery}", style = MaterialTheme.typography.bodySmall)
                                         Text("Поисковый запрос: ${trace.searchQuery}", style = MaterialTheme.typography.bodySmall)

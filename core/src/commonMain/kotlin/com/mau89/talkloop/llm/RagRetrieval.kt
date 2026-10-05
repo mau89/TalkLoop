@@ -50,10 +50,11 @@ suspend fun retrieveRagContext(
     val kept = mutableListOf<DocumentChunkHit>()
     val seen = mutableSetOf<String>()
     // Stable descending order also protects against a server returning unsorted candidates.
-    val ordered = if (settings.filterEnabled) candidates.sortedByDescending { it.score } else candidates
+    val processing = settings.filterEnabled || settings.evidenceEnabled
+    val ordered = if (processing) candidates.sortedByDescending { it.score } else candidates
     for (hit in ordered) {
         val reason = when {
-            !settings.filterEnabled -> null
+            !processing -> null
             !seen.add(hit.chunkId) -> "duplicate"
             hit.score < settings.minSimilarity -> "below_similarity"
             kept.size >= settings.limit -> "top_k"

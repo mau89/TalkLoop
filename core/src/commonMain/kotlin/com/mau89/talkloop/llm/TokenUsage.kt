@@ -5,7 +5,9 @@ package com.mau89.talkloop.llm
  *
  * [requestTokens] — текущая реплика пользователя, посчитанная отдельно.
  * [inputTokens] — весь вход модели: system prompt, прежняя история и новая реплика.
- * [outputTokens] — ответ модели. Только input/output тарифицируются; предварительный
+ * При проверке цитат [inputTokens] и [outputTokens] включают оба вызова;
+ * доля окна контекста считается для генерации, без отдельной проверки.
+ * Только input/output тарифицируются; предварительный
  * вызов Token Count API бесплатный и нужен, чтобы поймать переполнение заранее.
  */
 data class AgentTurnUsage(
@@ -18,12 +20,15 @@ data class AgentTurnUsage(
     val outputCostUsd: Double,
     val stopReason: String?,
     val outcome: TokenTurnOutcome,
+    val verificationInputTokens: Int = 0,
+    val verificationOutputTokens: Int = 0,
+    val repairInputTokens: Int = 0,
 ) {
     val totalTokens: Int get() = inputTokens + outputTokens
     val costUsd: Double get() = inputCostUsd + outputCostUsd
     val contextUsage: Double
         get() = if (contextWindowTokens <= 0) 0.0
-        else inputTokens.toDouble() / contextWindowTokens
+        else (inputTokens - verificationInputTokens - repairInputTokens).toDouble() / contextWindowTokens
 }
 
 enum class TokenTurnOutcome {

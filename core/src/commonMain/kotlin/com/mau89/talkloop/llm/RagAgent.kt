@@ -19,6 +19,8 @@ data class RagSettings(
     val filterEnabled: Boolean = false,
     val candidateLimit: Int = 10,
     val minSimilarity: Double = 0.86,
+    val evidenceEnabled: Boolean = false,
+    val evidenceVerifierModel: String = "claude-sonnet-5",
 ) {
     fun validate() {
         require(strategy in listOf("fixed", "structural")) { "Выберите один индекс для RAG." }
@@ -26,6 +28,7 @@ data class RagSettings(
         require(candidateLimit in 1..10) { "До фильтра должно быть от 1 до 10 фрагментов." }
         require(!filterEnabled || limit <= candidateLimit) { "Лимит после фильтра не должен превышать лимит до него." }
         require(minSimilarity.isFinite() && minSimilarity in -1.0..1.0) { "Порог сходства должен быть от −1 до 1." }
+        require(evidenceVerifierModel.isNotBlank()) { "Выберите модель проверки цитат." }
     }
 }
 
@@ -44,8 +47,9 @@ data class RagAnswer(
     val invalidCitationNumbers: List<Int> = emptyList(),
     val strategy: String? = null,
     val retrieval: RagRetrievalTrace? = null,
+    val evidence: RagEvidenceResult? = null,
 ) {
-    val complete: Boolean get() = stopReason == "end_turn" || stopReason == "stop_sequence"
+    val complete: Boolean get() = stopReason in listOf("end_turn", "stop_sequence", "local_refusal")
 }
 
 @Serializable
@@ -65,7 +69,7 @@ private const val COMMON_RAG_SYSTEM = """
 Не придумывай источники, номера фрагментов, количества или цитаты.
 """
 
-internal const val GROUNDED_RAG_SYSTEM = """
+internal const val GROUNDED_RAG_FACTS = """
 Контекст текущего запроса содержит question и fragments в JSON.
 Отвечай на русском.
 Не упоминай служебные поля JSON и внутреннее устройство поиска в ответе.
@@ -75,6 +79,9 @@ internal const val GROUNDED_RAG_SYSTEM = """
 Если сведений недостаточно, скажи: «В найденных фрагментах нет этих сведений».
 Не подменяй недостающий рецепт похожим и не добавляй знания извне.
 Не объединяй нормы разных вариантов рецепта. Числа и единицы сохраняй точно.
+"""
+
+internal const val GROUNDED_RAG_SYSTEM = GROUNDED_RAG_FACTS + """
 После подтверждённых утверждений указывай номера реально использованных
 фрагментов в формате [1], [2]. Не ссылайся на отсутствующие номера.
 """
@@ -118,18 +125,20 @@ class RagAgent(
         }
         settings.validate()
         val started = TimeSource.Monotonic.markNow()
-        val context = if (mode == RagMode.WITH_RAG && mainAgentConfig == null) {
+        val useTools = mainAgentConfig != null || settings.evidenceEnabled
+        val context = if (mode == RagMode.WITH_RAG && !useTools) {
             retrieveRagContext(retriever, cleanQuestion, settings)
         } else null
         val hits = context?.sources.orEmpty()
-        val input = if (mode == RagMode.WITH_RAG && mainAgentConfig == null) {
+        val input = if (mode == RagMode.WITH_RAG && !useTools) {
             encodeRagPrompt(cleanQuestion, hits)
         } else cleanQuestion
         // Each answer has a fresh history. Neither comparison arm sees the other answer,
         // evaluation expectations, previous questions, memory writes or MCP tool results.
-        val agent = if (mainAgentConfig != null) runtime.spawn(
-            config = mainAgentConfig,
-            invariantStore = InMemoryInvariantStore(FOOD_ASSISTANT_INVARIANTS),
+        val agent = if (useTools) runtime.spawn(
+            config = mainAgentConfig ?: AgentConfig(model = model, systemPrompt = COMMON_RAG_SYSTEM.trimIndent(), maxTokens = maxTokens,
+                contextCompression = ContextCompressionConfig(enabled = false)),
+            invariantStore = InMemoryInvariantStore(if (mainAgentConfig != null) FOOD_ASSISTANT_INVARIANTS else emptyList()),
             toolProvider = AgentKnowledgeTools(AgentToolProvider { null }, retriever) {
                 AgentKnowledgeSettings(mcpEnabled = false, ragEnabled = mode == RagMode.WITH_RAG, rag = settings)
             },
@@ -142,15 +151,18 @@ class RagAgent(
             contextCompression = ContextCompressionConfig(enabled = false),
         ))
         val text = agent.respond(input)
-        val sources = if (mainAgentConfig != null) agent.lastToolCall.value?.documentSources.orEmpty() else hits
-        val usage = checkNotNull(agent.statistics.value.lastTurn) { "Модель не вернула статистику ответа." }
-        val citations = Regex("\\[(\\d+)]").findAll(text).mapNotNull { it.groupValues[1].toIntOrNull() }.distinct().toList()
+        val sources = if (useTools) agent.lastToolCall.value?.documentSources.orEmpty() else hits
+        val evidence = agent.lastToolCall.value?.evidence
+        val usage = agent.statistics.value.lastTurn
+        check(usage != null || evidence?.reason == "weak_context") { "Модель не вернула статистику ответа." }
+        val citations = evidence?.usedSourceNumbers ?: Regex("\\[(\\d+)]").findAll(text).mapNotNull { it.groupValues[1].toIntOrNull() }.distinct().toList()
         return RagAnswer(
-            mode, text, model, usage.inputTokens, usage.outputTokens,
-            started.elapsedNow().inWholeMilliseconds, usage.stopReason, sources,
+            mode, text, model, usage?.inputTokens ?: 0, usage?.outputTokens ?: 0,
+            started.elapsedNow().inWholeMilliseconds, usage?.stopReason ?: "local_refusal", sources,
             citations.filter { it in 1..sources.size }, citations.filter { it !in 1..sources.size },
             settings.strategy.takeIf { mode == RagMode.WITH_RAG },
-            if (mainAgentConfig != null) agent.lastToolCall.value?.retrieval else context?.trace,
+            if (useTools) agent.lastToolCall.value?.retrieval else context?.trace,
+            evidence,
         )
     }
 

@@ -62,7 +62,7 @@ fun App(
         val weatherToolProvider = remember { McpWeatherToolProvider() }
         var mcpEnabled by remember { mutableStateOf(true) }
         var ragEnabled by remember { mutableStateOf(false) }
-        var ragSettings by remember { mutableStateOf(RagSettings()) }
+        var ragSettings by remember { mutableStateOf(RagSettings(evidenceEnabled = true, filterEnabled = true, rewriteEnabled = true)) }
         var documentAddress by remember { mutableStateOf(defaultDocumentServerAddress()) }
         val documents = remember { DocumentIndexClient() }
         DisposableEffect(documents) { onDispose { documents.close() } }

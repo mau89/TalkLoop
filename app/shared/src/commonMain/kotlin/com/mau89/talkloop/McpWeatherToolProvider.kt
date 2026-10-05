@@ -585,9 +585,12 @@ private fun Exception.isMcpConnectionFailure(): Boolean {
 
 internal fun isWeatherRequest(request: String): Boolean {
     val normalized = request.trim().lowercase()
+    // Temperature alone is ambiguous: cooking instructions belong to the cookbook.
+    val cooking = Regex("(?:^|\\s)(?:выпек|выпеч|духов|готов|варк|варить|жарить|рецепт|ингредиент|кулинар|замач|замоч|масл|тесто)\\p{L}*")
+        .containsMatchIn(normalized)
     return normalized.startsWith("/weather") ||
         "погод" in normalized ||
-        "температур" in normalized ||
+        ("температур" in normalized && !cooking) ||
         "weather" in normalized ||
         ("сводк" in normalized && listOf("сбор", "замер", "монитор").any(normalized::contains))
 }

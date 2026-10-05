@@ -22,6 +22,7 @@ class AgentKnowledgeTools(
         if (!selected.ragEnabled) return null
         val question = request.trim()
         val context = retrieveRagContext(retriever, question, selected.rag)
+        val weakContext = selected.rag.evidenceEnabled && context.sources.isEmpty()
         return AgentToolCall(
             toolName = "document_search",
             toolDescription = "Поиск в локальной кулинарной книге",
@@ -31,6 +32,10 @@ class AgentKnowledgeTools(
             serverName = "Кулинарная книга",
             documentSources = context.sources,
             retrieval = context.trace,
+            evidenceEnabled = selected.rag.evidenceEnabled,
+            evidenceVerifierModel = selected.rag.evidenceVerifierModel,
+            evidence = if (weakContext) RagEvidenceResult("unknown", "weak_context") else null,
+            directResponse = if (weakContext) ragUnknownResponse("weak_context") else null,
         )
     }
 }

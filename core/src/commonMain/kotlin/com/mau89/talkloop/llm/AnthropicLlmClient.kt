@@ -61,7 +61,7 @@ class AnthropicLlmClient(
         answer(history, ResponseSpec(system = systemPrompt)).text
 
     /** Owned CLI clients can release connections after a finite evaluation run. */
-    fun close() {
+    override fun close() {
         http.close()
         httpEngine?.close()
     }

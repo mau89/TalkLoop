@@ -53,8 +53,11 @@ interface LlmClient {
     /** То же, но с явными ограничениями формата и с диагностикой ответа. */
     suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer
 
-    /** Оценка полного входа тем же токенизатором, который использует выбранная модель. */
+    /** Полный вход: точный подсчёт провайдера или документированная оценка транспорта. */
     suspend fun countInputTokens(history: List<ChatMessage>, spec: ResponseSpec): Int
+
+    /** Освобождает соединения принадлежащего клиенту транспорта. */
+    fun close() {}
 }
 
 class LlmException(message: String, cause: Throwable? = null) : Exception(message, cause)

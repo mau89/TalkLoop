@@ -571,8 +571,8 @@ class TalkLoopAgent(
                 jsonSchema = if (toolCall?.evidenceEnabled == true) RAG_EVIDENCE_SCHEMA else null,
             )
             // Текущую реплику считаем отдельно, а полный контекст — вместе с system prompt
-            // и всей историей. Это две разные метрики из задания, их нельзя подменять
-            // длиной строки или делением количества символов на четыре.
+            // и всей историей. Anthropic считает точно, Ollama использует консервативную
+            // предварительную оценку; фактический вход приходит в ответе генерации.
             val requestTokens = llmClient.countInputTokens(
                 history = listOf(userMessage),
                 spec = spec.copy(system = null),

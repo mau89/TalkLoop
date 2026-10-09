@@ -113,6 +113,15 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   и вкомпилируется в APK, поэтому собранное приложение никому не раздавать; для этого понадобится
   прокси через `:server`
 - Server: `./gradlew :server:run`
+- День 26 (запуск локальной LLM): установите и запустите Ollama на Mac,
+  затем скачайте Qwen: `ollama pull qwen3.5:9b`. Первый диалог:
+  `ollama run qwen3.5:9b`; загруженная модель: `ollama ps`.
+  Три запроса разной сложности через `TalkLoopAgent` и локальный HTTP API:
+  `./gradlew :cli:day26 -q --console=plain`. Ключ Claude не нужен.
+  Фактические ответы, время и токены: [docs/day26-local-llm.json](docs/day26-local-llm.json).
+  Подробные шаги и назначение каждого: [День 26](docs/day26-local-llm.md).
+  До генерации контекст оценивается консервативно по UTF-8 байтам;
+  фактические токены берутся из ответа Ollama. Окно ограничено 16 384 токенами.
 - iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
   Ключ подставляется в сгенерированный `Secrets.kt` из того же `secrets.properties`,
   что и на Android, и так же вкомпилируется в сборку — раздавать её нельзя.

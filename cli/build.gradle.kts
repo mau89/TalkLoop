@@ -154,3 +154,11 @@ tasks.register<JavaExec>("day25") {
     workingDir = rootProject.projectDir
     standardInput = System.`in`
 }
+
+tasks.register<JavaExec>("day26") {
+    group = "application"
+    description = "День 26: три запроса через агента к локальной модели Ollama без ключа"
+    mainClass = "com.mau89.talkloop.cli.Day26Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

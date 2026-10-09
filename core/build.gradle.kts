@@ -48,6 +48,7 @@ kotlin {
             implementation(libs.ktor.clientDarwin)
         }
         commonTest.dependencies {
+            implementation(libs.ktor.clientMock)
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }

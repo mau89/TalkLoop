@@ -66,8 +66,9 @@ fun ChatScreen(
     factsEnabled: Boolean = false,
     showToolActivity: Boolean = false,
     showFullDialogue: Boolean = false,
+    requiresApiKey: Boolean = true,
 ) {
-    if (apiKey.isBlank()) {
+    if (requiresApiKey && apiKey.isBlank()) {
         MissingKeyHint(modifier)
         return
     }

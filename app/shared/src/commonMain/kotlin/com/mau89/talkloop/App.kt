@@ -33,6 +33,9 @@ import com.mau89.talkloop.llm.InMemoryChatHistoryStore
 import com.mau89.talkloop.llm.InMemoryInvariantStore
 import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
+import com.mau89.talkloop.llm.DEFAULT_MODEL
+import com.mau89.talkloop.llm.OLLAMA_CONTEXT_WINDOW_TOKENS
+import com.mau89.talkloop.llm.contextWindowForModel
 import kotlinx.coroutines.delay
 
 private val TABS = listOf(
@@ -49,11 +52,13 @@ private val TABS = listOf(
 @Composable
 fun App(
     apiKey: String,
+    agentConnectionStore: AgentConnectionStore? = null,
     agentHistoryStore: ChatHistoryStore = InMemoryChatHistoryStore(),
     agentInvariantStore: InvariantStore =
         InMemoryInvariantStore(FOOD_ASSISTANT_INVARIANTS),
 ) {
     MaterialTheme {
+        val connectionStore = agentConnectionStore ?: remember { InMemoryAgentConnectionStore() }
         val agentRuntime = remember(apiKey) {
             AgentRuntime(AnthropicLlmClient(apiKey))
         }
@@ -67,7 +72,13 @@ fun App(
         var documentAddress by remember { mutableStateOf(defaultDocumentServerAddress()) }
         val documents = remember { DocumentIndexClient() }
         DisposableEffect(documents) { onDispose { documents.close() } }
-        val generalLlm = remember(apiKey) { createAgentLlmClient(apiKey, directConnection = true) }
+        var agentConnection by remember(connectionStore) { mutableStateOf(connectionStore.load()) }
+        val generalLlm = remember(apiKey, agentConnection) {
+            when (agentConnection.provider) {
+                AgentProvider.CLAUDE -> createAgentLlmClient(apiKey, directConnection = true)
+                AgentProvider.OLLAMA -> createOllamaLlmClient(agentConnection.ollamaAddress, agentConnection.ollamaModel)
+            }
+        }
         DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
         val generalRuntime = remember(generalLlm) { AgentRuntime(generalLlm) }
         val knowledgeTools = remember(weatherToolProvider, documents, generalLlm) {
@@ -78,14 +89,21 @@ fun App(
                 settings = { AgentKnowledgeSettings(mcpEnabled, ragEnabled, ragSettings, taskMemoryEnabled = ragEnabled) },
             )
         }
-        var generalAgentConfig by remember(generalRuntime) {
+        var generalAgentConfig by remember {
             mutableStateOf(
                 AgentConfig(
+                    model = if (agentConnection.provider == AgentProvider.OLLAMA) agentConnection.ollamaModel else DEFAULT_MODEL,
+                    contextWindowTokens = if (agentConnection.provider == AgentProvider.OLLAMA) OLLAMA_CONTEXT_WINDOW_TOKENS
+                        else contextWindowForModel(DEFAULT_MODEL),
                     systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
                     contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 10),
                     contextCompression = ContextCompressionConfig(enabled = false),
                 )
             )
+        }
+        LaunchedEffect(agentConnection) {
+            ragSettings = ragSettings.copy(evidenceVerifierModel = if (agentConnection.provider == AgentProvider.OLLAMA)
+                agentConnection.ollamaModel else "claude-sonnet-5")
         }
         var generalAgent by remember(
             generalRuntime,
@@ -148,6 +166,19 @@ fun App(
                     apiKey = apiKey,
                     agent = generalAgent,
                     config = generalAgentConfig,
+                    connection = agentConnection,
+                    onConnectionChange = { connection ->
+                        val model = if (connection.provider == AgentProvider.OLLAMA) connection.ollamaModel else DEFAULT_MODEL
+                        generalAgentConfig = generalAgentConfig.copy(
+                            model = model,
+                            contextWindowTokens = if (connection.provider == AgentProvider.OLLAMA) OLLAMA_CONTEXT_WINDOW_TOKENS
+                                else contextWindowForModel(model),
+                        )
+                        ragSettings = ragSettings.copy(evidenceVerifierModel =
+                            if (connection.provider == AgentProvider.OLLAMA) model else "claude-sonnet-5")
+                        agentConnection = connection
+                        connectionStore.save(connection)
+                    },
                     mcpEnabled = mcpEnabled,
                     onMcpEnabledChange = { mcpEnabled = it },
                     ragEnabled = ragEnabled,

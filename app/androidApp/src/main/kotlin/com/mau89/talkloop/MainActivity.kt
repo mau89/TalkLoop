@@ -13,10 +13,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val agentHistoryStore = createPersistentChatHistoryStore(applicationContext)
         val agentInvariantStore = createPersistentInvariantStore(applicationContext)
+        val agentConnectionStore = createPersistentAgentConnectionStore(applicationContext)
 
         setContent {
             App(
                 apiKey = BuildConfig.ANTHROPIC_API_KEY,
+                agentConnectionStore = agentConnectionStore,
                 agentHistoryStore = agentHistoryStore,
                 agentInvariantStore = agentInvariantStore,
             )

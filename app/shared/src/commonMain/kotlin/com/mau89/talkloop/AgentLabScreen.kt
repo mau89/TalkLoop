@@ -57,6 +57,8 @@ fun AgentLabScreen(
     apiKey: String,
     agent: TalkLoopAgent,
     config: AgentConfig,
+    connection: AgentConnection,
+    onConnectionChange: (AgentConnection) -> Unit,
     mcpEnabled: Boolean,
     onMcpEnabledChange: (Boolean) -> Unit,
     ragEnabled: Boolean,
@@ -116,7 +118,8 @@ fun AgentLabScreen(
             Column(Modifier.weight(1f)) {
                 Text("Агент", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Задача, профиль, MCP-инструменты и диалог",
+                    if (connection.provider == AgentProvider.OLLAMA) "Локально на Mac · ${connection.ollamaModel}"
+                    else "Claude · задача, профиль и диалог",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -187,6 +190,7 @@ fun AgentLabScreen(
                     .imePadding().padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                AgentConnectionCard(connection, onConnectionChange)
                 Card(Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.padding(12.dp),
@@ -299,8 +303,7 @@ fun AgentLabScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Text(
-                            "Модель, лимиты и стоимость используют безопасные настройки " +
-                                "приложения и здесь не показываются.",
+                            "Инструкция применяется к выбранной модели агента.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -343,6 +346,7 @@ fun AgentLabScreen(
         } else if (strategy != null) {
             ChatScreen(
                 apiKey = apiKey,
+                requiresApiKey = connection.provider == AgentProvider.CLAUDE,
                 agent = agent,
                 modifier = Modifier.weight(1f),
                 title = "Диалог текущей задачи",

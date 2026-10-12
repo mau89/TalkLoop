@@ -156,7 +156,7 @@ suspend fun verifyRagEvidence(
 private suspend fun verifyRagEvidenceOnce(
     llm: LlmClient, question: String, draft: LlmAnswer, sources: List<DocumentChunkHit>, model: String,
 ): RagEvidenceVerification {
-    val validated = if (draft.stopReason !in listOf("end_turn", "stop_sequence")) {
+    val validated = if (!draft.complete) {
         RagEvidenceResult("unknown", "incomplete_response", rawDraft = draft.text, validationErrors = listOf("incomplete_response"))
     } else validateRagEvidence(draft.text, sources)
     val counted = validated.copy(generationInputTokens = draft.totalInputTokens, generationOutputTokens = draft.outputTokens, apiCalls = 1)
@@ -189,7 +189,7 @@ private suspend fun verifyRagEvidenceOnce(
             verificationModel = model))
     }
     val verdict = try { Json.decodeFromString(RagSemanticVerdict.serializer(), response.text) } catch (_: IllegalArgumentException) { null }
-    val accepted = response.stopReason in listOf("end_turn", "stop_sequence") && verdict?.supported == true && verdict.unsupportedClaimNumbers.isEmpty()
+    val accepted = response.complete && verdict?.supported == true && verdict.unsupportedClaimNumbers.isEmpty()
     val result = counted.copy(status = if (accepted) "answered" else "unknown",
         reason = if (accepted) "verified" else "unsupported_claim",
         claims = counted.claims.takeIf { accepted }.orEmpty(), usedSourceNumbers = counted.usedSourceNumbers.takeIf { accepted }.orEmpty(),

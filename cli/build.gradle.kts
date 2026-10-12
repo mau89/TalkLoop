@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinSerialization)
     application
 }
 
@@ -159,6 +160,14 @@ tasks.register<JavaExec>("day26") {
     group = "application"
     description = "День 26: три запроса через агента к локальной модели Ollama без ключа"
     mainClass = "com.mau89.talkloop.cli.Day26Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}
+
+tasks.register<JavaExec>("day28") {
+    group = "application"
+    description = "День 28: проверка полного RAG с Ollama или Claude на одинаковых вопросах"
+    mainClass = "com.mau89.talkloop.cli.Day28Kt"
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }

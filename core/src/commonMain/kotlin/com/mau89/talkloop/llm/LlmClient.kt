@@ -37,6 +37,9 @@ data class LlmAnswer(
     val cacheCreation5mInputTokens: Int = 0,
     val cacheCreation1hInputTokens: Int = 0,
 ) {
+    /** Нормальное завершение генерации Anthropic или нативного API Ollama. */
+    val complete: Boolean get() = stopReason in listOf("end_turn", "stop_sequence", "stop")
+
     /** Полный вход контекста; API выносит кэшированные части в отдельные поля. */
     val totalInputTokens: Int
         get() = inputTokens + cacheCreationInputTokens + cacheReadInputTokens

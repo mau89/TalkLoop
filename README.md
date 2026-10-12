@@ -121,7 +121,8 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   Фактические ответы, время и токены: [docs/day26-local-llm.json](docs/day26-local-llm.json).
   Подробные шаги и назначение каждого: [День 26](docs/day26-local-llm.md).
   До генерации контекст оценивается консервативно по UTF-8 байтам;
-  фактические токены берутся из ответа Ollama. Окно ограничено 16 384 токенами.
+  фактические токены берутся из ответа Ollama. Исходный прогон использовал
+  окно 16 384; для RAG в Дне 28 оно расширено до 32 768 токенов.
 - День 27 (интеграция локальной LLM): во вкладке «Агент» откройте «Настройки»,
   выберите «Ollama · локально», нажмите «Проверить подключение» и
   «Использовать выбранную модель». Android Emulator обращается к
@@ -132,6 +133,12 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   Другие учебные вкладки продолжают использовать Claude.
   Подробные шаги, назначение каждого и проверка связи:
   [День 27](docs/day27-local-llm-integration.md).
+- День 28 (локальная LLM + RAG): выбрать Ollama во вкладке «Агент», включить
+  кулинарную книгу и отключить внешние MCP. Поиск использует индекс и ONNX-модель
+  Дня 21 на Mac; генерация, память задачи и проверка цитат — выбранную локальную Qwen.
+  Повторяемый прогон: `./gradlew :cli:day28 -q --console=plain`.
+  Облачное сравнение запускается отдельно с `--args='--provider cloud --repeats 3'`.
+  Шаги, методика и результаты: [День 28](docs/day28-local-rag.md).
 - iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
   Ключ подставляется в сгенерированный `Secrets.kt` из того же `secrets.properties`,
   что и на Android, и так же вкомпилируется в сборку — раздавать её нельзя.

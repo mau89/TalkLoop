@@ -1,0 +1,10 @@
+{
+  "baseCommit": "b2cc8f3c634943838456f6615246dd9f9bfb38e5",
+  "files": {
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/OllamaLlmClient.kt": "819e8de1ac341915fa243e11d2079479a4e3ac1e4ab782ef01f75cb28af5cfa6",
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/RagTaskMemory.kt": "30dc6847511f3c73d21592b2d9e13b2301121c5b52ad970b008dacbc88ad3999",
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/RagEvidence.kt": "924bc6fb0776c66be00a6db8aa2bb7134f0f047d76ab5f6039fe1b8a9b8639b9",
+    "cli/src/main/kotlin/com/mau89/talkloop/cli/Day28.kt": "ce3fae4b56d33c5f979fcdc71da0fd5d333fa69d43410eb488251907788a137a",
+    "tools/day21/index_documents.py": "6bc11304622ac50876f7909b677a0dca803ac25bdad9384d00d30dfb9068cbba"
+  }
+}

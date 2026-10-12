@@ -9,6 +9,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RagAgentTest {
+    @Test fun ollamaStopIsCompleteButTokenLimitIsNot() {
+        val answer = RagAnswer(RagMode.WITH_RAG, "Готово", "qwen3.5:9b", 10, 2, 100, "stop")
+        assertTrue(answer.complete)
+        assertFalse(answer.copy(stopReason = "max_tokens").complete)
+        assertFalse(answer.copy(stopReason = null).complete)
+    }
+
     private val hit = DocumentChunkHit("chunk", "https://example.com/recipe", "Суп", "raw/soup.html",
         "Приготовление", listOf("cook"), emptyList(), 20, "Варить 3–5 минут. Секретный текст корпуса.", 0.9)
 

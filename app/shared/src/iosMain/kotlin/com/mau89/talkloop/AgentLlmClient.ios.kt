@@ -17,10 +17,11 @@ internal actual fun createAgentLlmClient(apiKey: String, directConnection: Boole
 internal actual fun defaultOllamaAddress() = "http://127.0.0.1:11434"
 
 @OptIn(ExperimentalForeignApi::class)
-internal actual fun createOllamaLlmClient(address: String, model: String, tuning: OllamaTuning) = OllamaLlmClient(
+internal actual fun createOllamaLlmClient(address: String, model: String, tuning: OllamaTuning, serviceToken: String) = OllamaLlmClient(
     baseUrl = address,
     model = model,
     tuning = tuning,
+    serviceToken = serviceToken,
     httpEngine = Darwin.create {
         configureSession { connectionProxyDictionary = emptyMap<Any?, Any>() }
     },

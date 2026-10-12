@@ -15,12 +15,15 @@ fun createPersistentAgentConnectionStore(context: Context): AgentConnectionStore
             val model = preferences.getString("model", null)?.takeIf {
                 it.isNotBlank() && !it.endsWith(":cloud", ignoreCase = true)
             } ?: COOKBOOK_OLLAMA_MODEL
-            return AgentConnection(provider, address, model, decodeOllamaTuning(preferences.getString("tuning", null)))
+            return AgentConnection(provider, address, model, decodeOllamaTuning(preferences.getString("tuning", null)),
+                ServiceTokenStorage.decrypt(preferences.getString("service-token-encrypted", null)))
         }
         override fun save(connection: AgentConnection) {
+            val encryptedToken = ServiceTokenStorage.encrypt(connection.serviceToken)
             preferences.edit().putString("provider", connection.provider.name)
                 .putString("address", connection.ollamaAddress)
                 .putString("model", connection.ollamaModel)
-                .putString("tuning", encodeOllamaTuning(connection.tuning)).apply()
+                .putString("tuning", encodeOllamaTuning(connection.tuning))
+                .putString("service-token-encrypted", encryptedToken).apply()
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.mau89.talkloop.llm.OllamaTuning
 import com.mau89.talkloop.llm.COOKBOOK_OLLAMA_MODEL
 import androidx.compose.runtime.Composable
@@ -35,12 +36,14 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
     var address by remember(connection) { mutableStateOf(connection.ollamaAddress) }
     var model by remember(connection) { mutableStateOf(connection.ollamaModel) }
     var form by remember(connection) { mutableStateOf(OllamaTuningForm.from(connection.tuning)) }
+    var serviceToken by remember(connection) { mutableStateOf(connection.serviceToken) }
     val tuning = form.parse()
     var checking by remember { mutableStateOf(false) }
-    var status by remember(provider, address, model, form) { mutableStateOf<String?>(null) }
+    var status by remember(provider, address, model, form, serviceToken) { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val valid = provider == AgentProvider.CLAUDE || (isValidOllamaAddress(address) &&
-        model.isNotBlank() && !model.trim().endsWith(":cloud", ignoreCase = true) && tuning != null)
+        model.isNotBlank() && !model.trim().endsWith(":cloud", ignoreCase = true) && tuning != null &&
+        (serviceToken.isBlank() || address.trim().startsWith("https://", ignoreCase = true)))
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Модель агента", style = MaterialTheme.typography.titleSmall)
@@ -48,11 +51,11 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
                 AgentProvider.entries.forEach { option ->
                     FilterChip(selected = provider == option, enabled = !checking,
                         onClick = { provider = option },
-                        label = { Text(if (option == AgentProvider.CLAUDE) "Claude" else "Ollama · локально") })
+                        label = { Text(if (option == AgentProvider.CLAUDE) "Claude" else "Ollama · своя модель") })
                 }
             }
             if (provider == AgentProvider.OLLAMA) {
-                Text("Модель отвечает на твоём Mac. Регистрация и ключ API не нужны.",
+                Text("Модель отвечает на твоём Mac или приватном сервере. Ключ облачной модели не нужен.",
                     style = MaterialTheme.typography.bodySmall)
                 OutlinedTextField(value = address, onValueChange = { address = it },
                     label = { Text("Адрес Ollama") }, singleLine = true, enabled = !checking,
@@ -60,7 +63,12 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
                 OutlinedTextField(value = model, onValueChange = { model = it },
                     label = { Text("Скачанная модель") }, singleLine = true, enabled = !checking,
                     modifier = Modifier.fillMaxWidth())
-                Text("Параметры локальной модели · День 29", style = MaterialTheme.typography.titleSmall)
+                OutlinedTextField(value = serviceToken, onValueChange = { serviceToken = it },
+                    label = { Text("Ключ приватного сервиса") }, singleLine = true, enabled = !checking,
+                    visualTransformation = PasswordVisualTransformation(),
+                    supportingText = { Text("Для VPS. На Mac без авторизации оставь пустым. Ключ передаётся только по HTTPS.") },
+                    modifier = Modifier.fillMaxWidth())
+                Text("Параметры модели", style = MaterialTheme.typography.titleSmall)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(enabled = !checking, onClick = {
                         model = "qwen3.5:9b"
@@ -71,7 +79,17 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
                         form = OllamaTuningForm.from(OllamaTuning())
                     }) { Text("День 29 · Q8") }
                 }
-                Text("Кнопки заполняют поля. Для применения нажми «Сохранить и применить». Модель должна быть скачана на Mac.",
+                TextButton(enabled = !checking, onClick = {
+                    val vps = vpsAgentConnection()
+                    address = vps.ollamaAddress
+                    model = vps.ollamaModel
+                    form = OllamaTuningForm.from(vps.tuning)
+                    status = "Профиль VPS заполнен. Вставь ключ сервиса, проверь подключение и сохрани настройки."
+                }) { Text("День 30 · VPS · Qwen 0.5B") }
+                Text("Кнопки заполняют поля. Для применения нажми «Сохранить и применить». Модель должна быть скачана на выбранном компьютере или сервере.",
+                    style = MaterialTheme.typography.bodySmall)
+                if (model.trim() == "qwen2.5:0.5b") Text(
+                    "VPS: контекст 8192, ответ до 256 токенов. Для первой проверки начни новую задачу без RAG и MCP. Подключение по внешнему IP работает и в эмуляторе, и на телефоне.",
                     style = MaterialTheme.typography.bodySmall)
                 TuningNumber("Температура · от 0 до 2", "Меньше значение — меньше случайных формулировок.", form.temperature, !checking, true) {
                     form = form.copy(temperature = it)
@@ -109,7 +127,7 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
                     checking = true
                     status = null
                     scope.launch {
-                        val client = createOllamaLlmClient(selectedAddress, selectedModel, checkNotNull(tuning))
+                        val client = createOllamaLlmClient(selectedAddress, selectedModel, checkNotNull(tuning), serviceToken.trim())
                         try {
                             status = client.checkConnection()
                         } catch (e: CancellationException) {
@@ -124,8 +142,12 @@ internal fun AgentConnectionCard(connection: AgentConnection, onApply: (AgentCon
                 }) { Text(if (checking) "Проверяем…" else "Проверить подключение") }
             }
             Button(enabled = valid && !checking, modifier = Modifier.fillMaxWidth(), onClick = {
-                onApply(AgentConnection(provider, address.trim(), model.trim(), tuning ?: connection.tuning))
-                status = "Настройки сохранены и применены"
+                try {
+                    onApply(AgentConnection(provider, address.trim(), model.trim(), tuning ?: connection.tuning, serviceToken.trim()))
+                    status = "Настройки сохранены и применены"
+                } catch (e: Exception) {
+                    status = "Не удалось сохранить настройки сервиса"
+                }
             }) { Text("Сохранить и применить") }
             status?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         }

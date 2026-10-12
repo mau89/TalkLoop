@@ -76,7 +76,8 @@ fun App(
         val generalLlm = remember(apiKey, agentConnection) {
             when (agentConnection.provider) {
                 AgentProvider.CLAUDE -> createAgentLlmClient(apiKey, directConnection = true)
-                AgentProvider.OLLAMA -> createOllamaLlmClient(agentConnection.ollamaAddress, agentConnection.ollamaModel, agentConnection.tuning)
+                AgentProvider.OLLAMA -> createOllamaLlmClient(agentConnection.ollamaAddress, agentConnection.ollamaModel,
+                    agentConnection.tuning, agentConnection.serviceToken)
             }
         }
         DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
@@ -170,6 +171,7 @@ fun App(
                     config = generalAgentConfig,
                     connection = agentConnection,
                     onConnectionChange = { connection ->
+                        connectionStore.save(connection)
                         val model = if (connection.provider == AgentProvider.OLLAMA) connection.ollamaModel else DEFAULT_MODEL
                         generalAgentConfig = generalAgentConfig.copy(
                             model = model,
@@ -181,7 +183,6 @@ fun App(
                         ragSettings = ragSettings.copy(evidenceVerifierModel =
                             if (connection.provider == AgentProvider.OLLAMA) model else "claude-sonnet-5")
                         agentConnection = connection
-                        connectionStore.save(connection)
                     },
                     mcpEnabled = mcpEnabled,
                     onMcpEnabledChange = { mcpEnabled = it },

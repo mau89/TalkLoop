@@ -37,4 +37,16 @@ class OllamaTuningFormTest {
             assertEquals(profile, OllamaTuningForm.from(profile).parse())
         }
     }
+
+    @Test
+    fun vpsProfileUsesExternalHttpsAndSmallGenerationBudget() {
+        val vps = vpsAgentConnection()
+        assertEquals("https://89.40.70.118:18443", vps.ollamaAddress)
+        assertEquals("qwen2.5:0.5b", vps.ollamaModel)
+        assertEquals(8192, vps.tuning.contextWindowTokens)
+        assertEquals(256, vps.tuning.answerMaxTokens)
+        assertEquals(vps.tuning, OllamaTuningForm.from(vps.tuning).parse())
+        assertEquals("", vps.serviceToken)
+        assertFalse(vps.copy(serviceToken = "secret-test-token").toString().contains("secret-test-token"))
+    }
 }

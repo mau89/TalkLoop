@@ -118,7 +118,7 @@ fun AgentLabScreen(
             Column(Modifier.weight(1f)) {
                 Text("Агент", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    if (connection.provider == AgentProvider.OLLAMA) "Локально на Mac · ${connection.ollamaModel}"
+                    if (connection.provider == AgentProvider.OLLAMA) "Ollama · ${connection.ollamaModel}"
                     else "Claude · задача, профиль и диалог",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -1,7 +1,7 @@
 package com.mau89.talkloop
 
 import android.content.Context
-import com.mau89.talkloop.llm.DEFAULT_OLLAMA_MODEL
+import com.mau89.talkloop.llm.COOKBOOK_OLLAMA_MODEL
 import com.mau89.talkloop.llm.isValidOllamaAddress
 
 fun createPersistentAgentConnectionStore(context: Context): AgentConnectionStore =
@@ -14,12 +14,13 @@ fun createPersistentAgentConnectionStore(context: Context): AgentConnectionStore
                 ?: defaultOllamaAddress()
             val model = preferences.getString("model", null)?.takeIf {
                 it.isNotBlank() && !it.endsWith(":cloud", ignoreCase = true)
-            } ?: DEFAULT_OLLAMA_MODEL
-            return AgentConnection(provider, address, model)
+            } ?: COOKBOOK_OLLAMA_MODEL
+            return AgentConnection(provider, address, model, decodeOllamaTuning(preferences.getString("tuning", null)))
         }
         override fun save(connection: AgentConnection) {
             preferences.edit().putString("provider", connection.provider.name)
                 .putString("address", connection.ollamaAddress)
-                .putString("model", connection.ollamaModel).apply()
+                .putString("model", connection.ollamaModel)
+                .putString("tuning", encodeOllamaTuning(connection.tuning)).apply()
         }
     }

@@ -1,0 +1,4208 @@
+{
+  "startedAt": "2026-10-12T04:05:17.005726+00:00",
+  "endedAt": "2026-10-12T04:07:10.412079+00:00",
+  "sampleIntervalSeconds": 1,
+  "samples": [
+    {
+      "at": "2026-10-12T04:05:17.005951+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37024,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11139360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:18.071866+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37024,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11139360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:19.130936+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11136272,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:20.205405+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11329232,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:21.329005+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11329408,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:22.486576+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11383216,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:23.618642+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11383296,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:24.854370+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:16.884028+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11383552,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:26.147860+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37456,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11385936,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:27.462002+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11569744,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:28.835968+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11570480,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:29.986703+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11570480,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:31.134579+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11571568,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:32.248229+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11571216,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:33.394874+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11572672,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:34.517991+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11433616,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:35.620035+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11433616,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:36.728583+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11434144,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:37.830599+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11434192,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:38.933231+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49120,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11487168,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:40.023714+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11487376,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:41.122393+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513568,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:42.248782+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513632,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:43.393536+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513584,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:44.549691+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513600,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:45.668410+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513616,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:46.845908+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513696,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:47.972903+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513760,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:49.109980+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513824,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:50.234767+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513872,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:51.348982+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513904,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:52.451636+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513904,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:53.566684+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513904,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:54.688876+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:26.011567+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11513904,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:55.842126+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11798032,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:56.937648+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11797888,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:58.039207+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11797984,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:05:59.135614+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11797984,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:00.244500+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11798016,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:01.399517+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:10:54.936166+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11798064,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:02.510612+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11978704,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:03.607673+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11978704,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:04.710128+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11981968,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:05.822112+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982000,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:06.979096+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982000,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:08.526538+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:02.047784+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37536,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982000,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:10.133141+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982560,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:11.275199+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982592,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:12.426637+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11982512,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:13.632824+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:14.732277+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:15.853312+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666592,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:16.972109+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:18.083050+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:19.182988+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:20.263864+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11666608,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:21.352762+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11678880,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:22.458433+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693328,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:23.572691+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:24.697699+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:25.812216+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:26.939179+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:28.063263+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:29.175257+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:08.817074+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37616,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11693392,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:30.297467+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:29.713586+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962208,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:31.490258+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:29.713586+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962208,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:32.611229+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:29.713586+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962112,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:33.710524+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:29.713586+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962112,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:34.838826+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962112,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:35.976085+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962112,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:37.092535+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 49136,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11962048,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:38.255887+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 45648,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11965360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:39.398709+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11965360,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:40.539926+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11965392,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:41.698515+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:34.559979+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11965392,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:42.823049+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37664,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11965392,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:43.931005+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12095024,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:45.022455+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12095040,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:46.124907+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12095040,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:47.221251+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11871248,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:48.315118+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11871248,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:49.404196+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11624368,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:50.497054+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11675840,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:51.584492+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11675840,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:52.674172+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11727312,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:53.766136+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11727312,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:54.860016+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11753552,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:55.972754+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:57.085340+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:58.226401+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:06:59.327833+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:00.439814+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:01.554630+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:02.668347+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:03.783821+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:11:42.653539+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11774624,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:04.890683+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:12:04.130292+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12032048,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:05.991094+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:12:04.130292+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12031952,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:07.094142+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:12:04.130292+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12031952,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:08.193328+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:12:04.130292+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 12031968,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T04:07:09.306261+00:00",
+      "models": [
+        {
+          "name": "qwen3.5:9b-q8_0",
+          "model": "qwen3.5:9b-q8_0",
+          "size": 10849227897,
+          "digest": "a8ee95bc3592ebaa624014ca8b429d25e0ef5f45030dc35786da7ff7e9e1b60a",
+          "details": {
+            "parent_model": "",
+            "format": "gguf",
+            "family": "qwen35",
+            "families": [
+              "qwen35"
+            ],
+            "parameter_size": "9.0B",
+            "quantization_level": "Q8_0"
+          },
+          "expires_at": "2026-10-12T09:12:04.130292+05:00",
+          "size_vram": 10849227897,
+          "context_length": 24576,
+          "runner": "llamacpp"
+        }
+      ],
+      "ollamaProcesses": [
+        {
+          "pid": 875,
+          "rssKiB": 48960,
+          "command": "/Applications/Ollama.app/Contents/MacOS/Ollama"
+        },
+        {
+          "pid": 968,
+          "rssKiB": 37680,
+          "command": "/Applications/Ollama.app/Contents/Resources/ollama"
+        },
+        {
+          "pid": 12403,
+          "rssKiB": 11881952,
+          "command": "/Applications/Ollama.app/Contents/Resources/llama-server"
+        }
+      ]
+    }
+  ],
+  "methodology": "Sampled /api/ps size_vram is allocated model memory, not peak system memory. RSS sums Ollama processes only, KiB from ps; macOS unified memory overlaps, do not add RSS to size_vram. Sampling may miss brief peaks. Other processes and energy are not measured."
+}

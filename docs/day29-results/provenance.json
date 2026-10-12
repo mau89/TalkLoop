@@ -1,0 +1,91 @@
+{
+  "baseCommit": "45aa20a72db5caf1cb3561222212bbb2e77e0eb1",
+  "hardware": {
+    "chip": "Apple M2 Max",
+    "memoryBytes": 68719476736,
+    "os": "macOS 27.0.1"
+  },
+  "ollama": {
+    "version": "0.40.2"
+  },
+  "resultSha256": {
+    "summary.json": "0d7feeec79c926dc32647d534831e25a5100eb51451df3466adc981c2cf346ef",
+    "holdout-optimized-q4-resources.json": "eea51836fdb67902e92990403465bbb9bb9470a152867dfd6b4fceb062b37125",
+    "pilot-baseline.json": "7d56285fd125c6ff6c612886f78fc507e55b2c0379ef3312b40c8b1988d6cece",
+    "pilot-parameters.json": "c686d47d4a107f480923b9c66bdcce35b7896c72a08100c3fec57d4e216bf102",
+    "pilot-parameters-metadata.json": "9ce09b1e02e7e43aa162e8c64cfe2923e03bb2810d1dcde74eaa7e0d30bf3af5",
+    "optimized-q4-resources.json": "4141ba7fe8e4a09e3be39f86d0c4fd704cb09ba56d6f8b1c820dc4d7e0bfc3a7",
+    "holdout-baseline-metadata.json": "059ee29b86ba51ce0f0f18882e23619f502dbc42051e3685b3be931b87d62017",
+    "pilot-prompt-v1-optimized-q4-metadata.json": "069df54997fda8af96bb4f956383baa9e6e61a4a4c161242f544680ca0f66597",
+    "holdout-optimized-q4-metadata.json": "92fc99c83757fb94744b0101e643270d7f10655eb49b0eb34a110a0d1a2095c3",
+    "pilot-prompt-v2-resources.json": "27df6aa737b1c3ad8b985c696493f256ef197549c5a4c083159f5d1fb041af5a",
+    "holdout-baseline.json": "8a7bfcb660c87a648771036cec4152caac0ce408ac146cc3a64dedae7343d4ea",
+    "dialogue-optimized-q8-metadata.json": "774ef365b159c5a298103db809804884d10ba7b26fea04c1c872ba4c1f399693",
+    "pilot-parameters-resources.json": "c67775f8f6a9c4ab104329890d2b5cdbfbacdda25e4ac304f625d5804ad1dfe4",
+    "optimized-q8-resources.json": "30bf36000ecf0d1ef56b178102cbb529313ef6e58cd6df0e82fc7829e2cf0569",
+    "dialogue-optimized-q8-resources.json": "39c6e9ffc8f68a11c49e46bf6804eb118443e0e207060a2199a26e6c8021d99c",
+    "optimized-q4-metadata.json": "22f315acdea6d3521bc1b92184b9054c11fb2d78c4ef374e762dc13a520a5366",
+    "dialogue-optimized-q8.json": "cce05ccd69ec983bf712c48e8ec0c0c19d928a24eeba9dc104880f7464488897",
+    "holdout-optimized-q8-resources.json": "74fb3289d06d0b115b4517b73a38f5d9f246b2b01e67899123dda3adb9fc194f",
+    "pilot-prompt-v2-metadata.json": "fb75d2b52f91aeeb915c1f46d107b8ed29dd2d4a92d325efe30f981812c4d237",
+    "holdout-optimized-q4.json": "36c3de8eca5b6c6d476de0119595cd522098672ccbbf372dd6407aecb6390354",
+    "baseline.json": "86839d25e5b5decff9702fdbe1ea995b868bbb3cb562298b0ebae25795f361a0",
+    "holdout-optimized-q8.json": "f41bf5853f03f9a10f53c2ddf39b19cf71e5126915e9881d0ab58605a14bfc65",
+    "manual-review.json": "8cae53540811e8809cbba1d2c2dfed78b9575f975475c05cf425d2c05018b5b2",
+    "optimized-q8.json": "7e3224f00e9a03836893902cc072855b040f7a07a748437c3e9d9cfabf5081ea",
+    "pilot-prompt-v1-optimized-q8.json": "b5c3023395f0851763e5fb26dc434b106d28b81b1c5a598106f8b12bd10dfca4",
+    "optimized-q4.json": "23df1dffbfd7539499a9c7f94cacabab2924a54e8aab33b953efc3cc457ebe92",
+    "pilot-prompt-v2.json": "6e43598def91fe5e9e2a59724ca7cc0eaa40dd6fe748d50a994f5d2b2d278bfc",
+    "pilot-prompt-v1-optimized-q4.json": "85dcdf849ee33d5c7b5f85bc0e7722ba188a3f5a67935d002c86bc18a9f12eec",
+    "optimized-q8-metadata.json": "893e6050a3421cf30629668491a86519372585c2caaf9a44b2c82110282b02f1",
+    "pilot-prompt-v1-optimized-q4-resources.json": "128a63abd1e4fae9414be266ce6009a28ac26e94f6ba2222c0c963c106944965",
+    "pilot-memory-diagnostic.json": "349036166887e768eca60140c6b13a5e4c4d2197f6d676ca3318334f4f95fca5",
+    "baseline-metadata.json": "12195f6b773f1299802b78248f7024665cac213441982dc01da36aae073cb715",
+    "holdout-optimized-q8-metadata.json": "8fe7a8c41ddaa12cca96a12f5a5e3ca612b1d62f310bed2734bcc8fea13d583f",
+    "pilot-prompt-v1-optimized-q8-metadata.json": "c1f09d05ec6cad1e73f10f7229e4dd911475a536019e403633b3838f5deb1971",
+    "holdout-baseline-resources.json": "508159ba8c0128f58311c7737bec2a152968a2adf755d51736e9d350a04981de",
+    "baseline-resources.json": "7cb17f498e94edde6450805de398448b8bff6a77c5ebd8688f0cd6cd67689df5",
+    "ui-validation.json": "1f9830db01d462cd9a06203d76bed7e6f9e58dff21e4811a3b5e2701b89dc96b"
+  },
+  "notes": [
+    "Базовый индекс и конфигурация retrieval сохранены относительно Дня 28.",
+    "pilot-prompt-v1-optimized-q8 — прерванный прогон; не включён в сравнение.",
+    "Пилоты не входят в основные метрики.",
+    "Диалог завершился ошибками assertions; не объявляется успешным.",
+    "После измерений добавлены редактируемые параметры в интерфейсе; thinking по умолчанию false, исходный оптимизированный профиль чисел и prompt не менялся."
+  ],
+  "validation": {
+    "jvmTests": 173,
+    "failures": 0,
+    "errors": 0,
+    "androidDebugBuild": "passed",
+    "iosSimulatorCompilation": "passed",
+    "cliCompilation": "passed",
+    "modelfileCreation": "passed"
+  },
+  "indexSha256": {
+    "day21-data/index-fixed.json": "01f318eec6fd2581b82c3b578abbb7392e2a4defe8cb0da89aa556772dcfe74b",
+    "day21-data/index-structural.json": "1735bfbfce5fabe60cfc1e9ddcee71bfc3e4761a3bd06f6001d7614f33cbaf54"
+  },
+  "benchmarkSourcesSha256": {
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/OllamaTuning.kt": "74ba9e2c1f77e554b83ca69b5690c35248f9e3438216c4c68aa16ec3335a8ac4",
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/OllamaLlmClient.kt": "b59fb90ada371b480de773be19f3ac6621a96a0ff5e917bc6abf074af771561f",
+    "cli/src/main/kotlin/com/mau89/talkloop/cli/Day28.kt": "50368e705f8684c7f2f06c451aadd6b838c2621f8112914416c3d638e00d04ab",
+    "cli/src/main/kotlin/com/mau89/talkloop/cli/Day29.kt": "26c8177b1a3a5a4af58c2915e11849abce80b43394407db3cecc2d05c648c091"
+  },
+  "currentUiSourcesSha256": {
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/OllamaTuning.kt": "01c80450a2048c236fb93a1992b9f5716fc97647e929582b4fece929842bd2b9",
+    "core/src/commonMain/kotlin/com/mau89/talkloop/llm/OllamaLlmClient.kt": "c016eea08de81b196e250d3ca85d34357089179245efc995012540309b39b617",
+    "app/shared/src/commonMain/kotlin/com/mau89/talkloop/OllamaTuningForm.kt": "4b84e1d1eff2ec4d44898f3f598769dccb3d4fa5abc3e386e21b76f4d6f41a17",
+    "app/shared/src/commonMain/kotlin/com/mau89/talkloop/AgentConnectionCard.kt": "8f88d9b18b25297b80c53c44fabe13f90c65c70c52092f5dc49c364a11d54bfb",
+    "app/shared/src/commonMain/kotlin/com/mau89/talkloop/AgentConnection.kt": "cbe2a611006e65d624644603f79fabfea6478c63ef8fd88c6b1e407126bce63a",
+    "app/shared/src/commonMain/kotlin/com/mau89/talkloop/App.kt": "a67db12aa4c9dd69f511c16dd4b65bdc3523ab040a3db36987251dcc5a4ed7a2"
+  },
+  "uiValidation": {
+    "coreTests": 174,
+    "sharedAndroidHostTests": 24,
+    "failures": 0,
+    "androidBuild": "passed",
+    "iosSimulatorCompilation": "passed"
+  }
+}

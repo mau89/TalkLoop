@@ -1,0 +1,103 @@
+{
+    "createdAt": "2026-10-12T03:48:38.202170Z",
+    "provider": "local",
+    "model": "qwen3.5:9b",
+    "verifierModel": "qwen3.5:9b",
+    "server": "http://127.0.0.1:8080",
+    "ollama": "http://127.0.0.1:11434",
+    "settings": {
+        "strategy": "fixed",
+        "limit": 5,
+        "rewriteEnabled": true,
+        "filterEnabled": true,
+        "candidateLimit": 10,
+        "minSimilarity": 0.86,
+        "evidenceEnabled": true,
+        "evidenceVerifierModel": "qwen3.5:9b"
+    },
+    "contextWindow": 24576,
+    "maxTokens": 2048,
+    "repeats": 1,
+    "controls": [
+        {
+            "id": "q07",
+            "question": "В основном рецепте оливье из книги какие количества мяса, картофеля и майонеза указаны примерно на четыре порции?",
+            "expectation": "200 г отварного или жареного мяса, 200 г отварного картофеля, 150 г майонеза.",
+            "expectedSources": [
+                "https://ru.wikibooks.org/wiki/Рецепт:Оливье"
+            ],
+            "checks": [
+                {
+                    "description": "Мясо 200 г",
+                    "anyOf": [
+                        "мяс[^\\n]{0,70}200",
+                        "200[^\\n]{0,70}мяс"
+                    ],
+                    "noneOf": []
+                },
+                {
+                    "description": "Картофель 200 г",
+                    "anyOf": [
+                        "картофел[^\\n]{0,70}200",
+                        "200[^\\n]{0,70}картофел"
+                    ],
+                    "noneOf": []
+                },
+                {
+                    "description": "Майонез 150 г",
+                    "anyOf": [
+                        "майонез[^\\n]{0,50}150",
+                        "150[^\\n]{0,50}майонез"
+                    ],
+                    "noneOf": []
+                }
+            ]
+        }
+    ],
+    "runs": [
+        {
+            "questionId": "q07",
+            "repeat": 1,
+            "durationMs": 22187,
+            "answer": null,
+            "grade": null,
+            "memory": null,
+            "modelCalls": 0,
+            "error": "Память содержит неподтверждённое уточнение. Повторите запрос; переписка не изменена.",
+            "failedSources": [],
+            "failedRetrieval": null,
+            "memoryRestored": null,
+            "goalRetained": null,
+            "constraintRetained": null,
+            "modelReplies": [
+                {
+                    "stage": "memory",
+                    "text": "{\n  \"goal\": null,\n  \"activeRecipe\": {\n    \"text\": \"основного рецепте оливье из книги\",\n    \"userTurn\": 1\n  },\n  \"clarifications\": [\n    {\n      \"text\": \"какие количества мяса, картофеля и майонеза указаны примерно на четыре порции\",\n      \"userTurn\": 1\n    }\n  ],\n  \"constraints\": [],\n  \"terms\": [],\n  \"resolvedQuestion\": \"В основном рецепте оливье из книги какие количества мяса, картофеля и майонеза указаны примерно на четыре порции?\",\n  \"searchQuery\": \"основной рецепт оливье из книги количество мяса картофеля майонеза на 4 порции\"\n}",
+                    "stopReason": "stop",
+                    "inputTokens": 889,
+                    "outputTokens": 165,
+                    "durationMs": 13822
+                },
+                {
+                    "stage": "memory",
+                    "text": "{\"goal\": null, \"activeRecipe\": {\"text\": \"основного рецепте оливье из книги\", \"userTurn\": 1}, \"clarifications\": [{\"text\": \"какие количества мяса, картофеля и майонеза указаны примерно на четыре порции\", \"userTurn\": 1}], \"constraints\": [], \"terms\": [], \"resolvedQuestion\": \"В основном рецепте оливье из книги какие количества мяса, картофеля и майонеза указаны примерно на четыре порции?\", \"searchQuery\": \"основной рецепт оливье из книги количество мяса картофеля майонеза на 4 порции\"}",
+                    "stopReason": "stop",
+                    "inputTokens": 1151,
+                    "outputTokens": 128,
+                    "durationMs": 8345
+                }
+            ]
+        }
+    ],
+    "tuning": {
+        "contextWindowTokens": 24576,
+        "temperature": 0.0,
+        "presencePenalty": 0.0,
+        "answerMaxTokens": 1600,
+        "memoryMaxTokens": 1400,
+        "verdictMaxTokens": 400,
+        "recipePrompts": true
+    },
+    "dialogue": false,
+    "methodology": "Свежий агент и пустая история на каждую попытку; одинаковые инварианты и настройки поиска; MCP отключён; эталоны не передаются модели. Полное время включает память, поиск, ответ, проверку и исправление. Автошаблоны требуют ручной сверки."
+}

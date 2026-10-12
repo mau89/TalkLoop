@@ -1,0 +1,286 @@
+{
+  "stages": {
+    "pilot-baseline": {
+      "attempts": 9,
+      "completed": 8,
+      "errors": 1,
+      "answered": 4,
+      "medianAllMs": 28674,
+      "medianCompletedMs": 35292.5,
+      "publishedQuotesChecked": 14,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "7d56285fd125c6ff6c612886f78fc507e55b2c0379ef3312b40c8b1988d6cece",
+      "byQuestion": {
+        "q04": {
+          "medianAllMs": 28674,
+          "medianCompletedMs": 35292.5
+        },
+        "q07": {
+          "medianAllMs": 73313,
+          "medianCompletedMs": 73313
+        },
+        "q10": {
+          "medianAllMs": 11881,
+          "medianCompletedMs": 11881
+        }
+      }
+    },
+    "pilot-parameters": {
+      "attempts": 3,
+      "completed": 3,
+      "errors": 0,
+      "answered": 2,
+      "medianAllMs": 31056,
+      "medianCompletedMs": 31056,
+      "publishedQuotesChecked": 2,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "c686d47d4a107f480923b9c66bdcce35b7896c72a08100c3fec57d4e216bf102",
+      "byQuestion": {
+        "q04": {
+          "medianAllMs": 31056,
+          "medianCompletedMs": 31056
+        },
+        "q07": {
+          "medianAllMs": 42548,
+          "medianCompletedMs": 42548
+        },
+        "q10": {
+          "medianAllMs": 6595,
+          "medianCompletedMs": 6595
+        }
+      },
+      "resources": {
+        "samples": 76,
+        "errors": 0,
+        "maxModelAllocatedBytes": 7018056252,
+        "medianModelAllocatedBytes": 7018056252.0,
+        "maxOllamaRssKiB": 8751312
+      }
+    },
+    "baseline": {
+      "attempts": 9,
+      "completed": 7,
+      "errors": 2,
+      "answered": 4,
+      "medianAllMs": 17229,
+      "medianCompletedMs": 47559,
+      "publishedQuotesChecked": 13,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "86839d25e5b5decff9702fdbe1ea995b868bbb3cb562298b0ebae25795f361a0",
+      "byQuestion": {
+        "q04": {
+          "medianAllMs": 17229,
+          "medianCompletedMs": 73143
+        },
+        "q07": {
+          "medianAllMs": 53089,
+          "medianCompletedMs": 53089
+        },
+        "q10": {
+          "medianAllMs": 5208,
+          "medianCompletedMs": 5208
+        }
+      },
+      "resources": {
+        "samples": 271,
+        "errors": 0,
+        "maxModelAllocatedBytes": 6689086504,
+        "medianModelAllocatedBytes": 6689086504,
+        "maxOllamaRssKiB": 9415328
+      }
+    },
+    "optimized-q4": {
+      "attempts": 9,
+      "completed": 9,
+      "errors": 0,
+      "answered": 6,
+      "medianAllMs": 28898,
+      "medianCompletedMs": 28898,
+      "publishedQuotesChecked": 6,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "23df1dffbfd7539499a9c7f94cacabab2924a54e8aab33b953efc3cc457ebe92",
+      "byQuestion": {
+        "q04": {
+          "medianAllMs": 28898,
+          "medianCompletedMs": 28898
+        },
+        "q07": {
+          "medianAllMs": 37110,
+          "medianCompletedMs": 37110
+        },
+        "q10": {
+          "medianAllMs": 5630,
+          "medianCompletedMs": 5630
+        }
+      },
+      "resources": {
+        "samples": 195,
+        "errors": 0,
+        "maxModelAllocatedBytes": 6950842530,
+        "medianModelAllocatedBytes": 6950842530,
+        "maxOllamaRssKiB": 8572864
+      }
+    },
+    "optimized-q8": {
+      "attempts": 9,
+      "completed": 9,
+      "errors": 0,
+      "answered": 6,
+      "medianAllMs": 32778,
+      "medianCompletedMs": 32778,
+      "publishedQuotesChecked": 6,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "7e3224f00e9a03836893902cc072855b040f7a07a748437c3e9d9cfabf5081ea",
+      "byQuestion": {
+        "q04": {
+          "medianAllMs": 32778,
+          "medianCompletedMs": 32778
+        },
+        "q07": {
+          "medianAllMs": 38019,
+          "medianCompletedMs": 38019
+        },
+        "q10": {
+          "medianAllMs": 6119,
+          "medianCompletedMs": 6119
+        }
+      },
+      "resources": {
+        "samples": 213,
+        "errors": 0,
+        "maxModelAllocatedBytes": 10849227897,
+        "medianModelAllocatedBytes": 10849227897,
+        "maxOllamaRssKiB": 12353744
+      }
+    },
+    "holdout-baseline": {
+      "attempts": 3,
+      "completed": 3,
+      "errors": 0,
+      "answered": 3,
+      "medianAllMs": 37084,
+      "medianCompletedMs": 37084,
+      "publishedQuotesChecked": 4,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "8a7bfcb660c87a648771036cec4152caac0ce408ac146cc3a64dedae7343d4ea",
+      "byQuestion": {
+        "q01": {
+          "medianAllMs": 81652,
+          "medianCompletedMs": 81652
+        },
+        "q03": {
+          "medianAllMs": 31820,
+          "medianCompletedMs": 31820
+        },
+        "q08": {
+          "medianAllMs": 37084,
+          "medianCompletedMs": 37084
+        }
+      },
+      "resources": {
+        "samples": 138,
+        "errors": 0,
+        "maxModelAllocatedBytes": 6689086504,
+        "medianModelAllocatedBytes": 6689086504.0,
+        "maxOllamaRssKiB": 9409008
+      }
+    },
+    "holdout-optimized-q4": {
+      "attempts": 3,
+      "completed": 3,
+      "errors": 0,
+      "answered": 3,
+      "medianAllMs": 34810,
+      "medianCompletedMs": 34810,
+      "publishedQuotesChecked": 4,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "36c3de8eca5b6c6d476de0119595cd522098672ccbbf372dd6407aecb6390354",
+      "byQuestion": {
+        "q01": {
+          "medianAllMs": 37887,
+          "medianCompletedMs": 37887
+        },
+        "q03": {
+          "medianAllMs": 32303,
+          "medianCompletedMs": 32303
+        },
+        "q08": {
+          "medianAllMs": 34810,
+          "medianCompletedMs": 34810
+        }
+      },
+      "resources": {
+        "samples": 100,
+        "errors": 0,
+        "maxModelAllocatedBytes": 7018056252,
+        "medianModelAllocatedBytes": 7018056252.0,
+        "maxOllamaRssKiB": 8471904
+      }
+    },
+    "holdout-optimized-q8": {
+      "attempts": 3,
+      "completed": 3,
+      "errors": 0,
+      "answered": 3,
+      "medianAllMs": 35207,
+      "medianCompletedMs": 35207,
+      "publishedQuotesChecked": 4,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "f41bf5853f03f9a10f53c2ddf39b19cf71e5126915e9881d0ab58605a14bfc65",
+      "byQuestion": {
+        "q01": {
+          "medianAllMs": 42985,
+          "medianCompletedMs": 42985
+        },
+        "q03": {
+          "medianAllMs": 32429,
+          "medianCompletedMs": 32429
+        },
+        "q08": {
+          "medianAllMs": 35207,
+          "medianCompletedMs": 35207
+        }
+      },
+      "resources": {
+        "samples": 100,
+        "errors": 0,
+        "maxModelAllocatedBytes": 10849227897,
+        "medianModelAllocatedBytes": 10849227897.0,
+        "maxOllamaRssKiB": 12181680
+      }
+    },
+    "dialogue-optimized-q8": {
+      "attempts": 3,
+      "completed": 0,
+      "errors": 3,
+      "answered": 0,
+      "medianAllMs": 40967,
+      "medianCompletedMs": null,
+      "publishedQuotesChecked": 0,
+      "invalidPublishedQuotes": [],
+      "reportSha256": "cce05ccd69ec983bf712c48e8ec0c0c19d928a24eeba9dc104880f7464488897",
+      "byQuestion": {
+        "dialogue-1": {
+          "medianAllMs": 40967,
+          "medianCompletedMs": null
+        },
+        "dialogue-2": {
+          "medianAllMs": 45241,
+          "medianCompletedMs": null
+        },
+        "dialogue-3": {
+          "medianAllMs": 36870,
+          "medianCompletedMs": null
+        }
+      },
+      "resources": {
+        "samples": 112,
+        "errors": 0,
+        "maxModelAllocatedBytes": 10849227897,
+        "medianModelAllocatedBytes": 10849227897.0,
+        "maxOllamaRssKiB": 12445472
+      }
+    }
+  },
+  "methodology": "Medians are descriptive, small fixed-order sample, not a statistical claim. Quality must be manually reviewed; automatic grades are unchanged. RSS and model allocation overlap on unified memory."
+}

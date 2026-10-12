@@ -1,0 +1,35 @@
+{
+  "answer": {
+    "model": "qwen3.5:9b-q8_0",
+    "stream": false,
+    "think": false,
+    "options": {
+      "num_ctx": 24576,
+      "temperature": 0,
+      "presence_penalty": 0,
+      "num_predict": 1600
+    }
+  },
+  "memory": {
+    "model": "qwen3.5:9b-q8_0",
+    "stream": false,
+    "think": false,
+    "options": {
+      "num_ctx": 24576,
+      "temperature": 0,
+      "presence_penalty": 0,
+      "num_predict": 1400
+    }
+  },
+  "verdict": {
+    "model": "qwen3.5:9b-q8_0",
+    "stream": false,
+    "think": false,
+    "options": {
+      "num_ctx": 24576,
+      "temperature": 0,
+      "presence_penalty": 0,
+      "num_predict": 400
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# Checked cookbook model for M2 Max / 64 GB. Uses the original Qwen chat template.
+FROM qwen3.5:9b-q8_0
+PARAMETER temperature 0
+PARAMETER presence_penalty 0
+PARAMETER num_ctx 24576
+PARAMETER num_predict 1600
+# Send think:false in /api/chat; it is not a Modelfile PARAMETER.
+# App memory/verdict calls override num_predict with 1400/400.
+# Stage-specific system prompts are supplied by OllamaTuning.kt in the app.

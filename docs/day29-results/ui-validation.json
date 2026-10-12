@@ -1,0 +1,19 @@
+{
+  "customTemperatureSavedAndRestoredInUi": 0.3,
+  "finalModel": "qwen3.5:9b-q8_0",
+  "finalProfile": {
+    "contextWindowTokens": 24576,
+    "temperature": 0.0,
+    "presencePenalty": 0.0,
+    "answerMaxTokens": 1600,
+    "memoryMaxTokens": 1400,
+    "verdictMaxTokens": 400,
+    "recipePrompts": true,
+    "thinking": false
+  },
+  "androidInstalled": true,
+  "coreTests": 174,
+  "sharedTests": 24,
+  "androidBuild": "passed",
+  "iosCompilation": "passed"
+}

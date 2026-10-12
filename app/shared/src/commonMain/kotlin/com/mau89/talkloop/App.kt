@@ -34,7 +34,7 @@ import com.mau89.talkloop.llm.InMemoryInvariantStore
 import com.mau89.talkloop.llm.InvariantStore
 import com.mau89.talkloop.llm.TUTOR_SYSTEM_PROMPT
 import com.mau89.talkloop.llm.DEFAULT_MODEL
-import com.mau89.talkloop.llm.OLLAMA_CONTEXT_WINDOW_TOKENS
+import com.mau89.talkloop.llm.DEFAULT_MAX_TOKENS
 import com.mau89.talkloop.llm.contextWindowForModel
 import kotlinx.coroutines.delay
 
@@ -76,7 +76,7 @@ fun App(
         val generalLlm = remember(apiKey, agentConnection) {
             when (agentConnection.provider) {
                 AgentProvider.CLAUDE -> createAgentLlmClient(apiKey, directConnection = true)
-                AgentProvider.OLLAMA -> createOllamaLlmClient(agentConnection.ollamaAddress, agentConnection.ollamaModel)
+                AgentProvider.OLLAMA -> createOllamaLlmClient(agentConnection.ollamaAddress, agentConnection.ollamaModel, agentConnection.tuning)
             }
         }
         DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
@@ -93,8 +93,10 @@ fun App(
             mutableStateOf(
                 AgentConfig(
                     model = if (agentConnection.provider == AgentProvider.OLLAMA) agentConnection.ollamaModel else DEFAULT_MODEL,
-                    contextWindowTokens = if (agentConnection.provider == AgentProvider.OLLAMA) OLLAMA_CONTEXT_WINDOW_TOKENS
+                    contextWindowTokens = if (agentConnection.provider == AgentProvider.OLLAMA) agentConnection.tuning.contextWindowTokens
                         else contextWindowForModel(DEFAULT_MODEL),
+                    maxTokens = if (agentConnection.provider == AgentProvider.OLLAMA) agentConnection.tuning.answerMaxTokens else DEFAULT_MAX_TOKENS,
+                    temperature = if (agentConnection.provider == AgentProvider.OLLAMA) agentConnection.tuning.temperature else null,
                     systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT,
                     contextStrategy = ContextStrategy.MemoryLayers(keepLastMessages = 10),
                     contextCompression = ContextCompressionConfig(enabled = false),
@@ -171,8 +173,10 @@ fun App(
                         val model = if (connection.provider == AgentProvider.OLLAMA) connection.ollamaModel else DEFAULT_MODEL
                         generalAgentConfig = generalAgentConfig.copy(
                             model = model,
-                            contextWindowTokens = if (connection.provider == AgentProvider.OLLAMA) OLLAMA_CONTEXT_WINDOW_TOKENS
+                            contextWindowTokens = if (connection.provider == AgentProvider.OLLAMA) connection.tuning.contextWindowTokens
                                 else contextWindowForModel(model),
+                            maxTokens = if (connection.provider == AgentProvider.OLLAMA) connection.tuning.answerMaxTokens else DEFAULT_MAX_TOKENS,
+                            temperature = if (connection.provider == AgentProvider.OLLAMA) connection.tuning.temperature else null,
                         )
                         ragSettings = ragSettings.copy(evidenceVerifierModel =
                             if (connection.provider == AgentProvider.OLLAMA) model else "claude-sonnet-5")

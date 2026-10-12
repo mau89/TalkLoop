@@ -12,6 +12,71 @@ import kotlin.test.*
 
 class OllamaLlmClientTest {
     @Test
+    fun editedThinkingSwitchReachesNativeApi() = runTest {
+        val engine = MockEngine { request ->
+            val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject
+            assertTrue(body.getValue("think").jsonPrimitive.boolean)
+            assertEquals(777, body.getValue("options").jsonObject.getValue("num_predict").jsonPrimitive.int)
+            respond("""{"message":{"role":"assistant","content":"Ответ"},"done":true,"done_reason":"stop"}""",
+                headers = headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        val client = OllamaLlmClient("http://localhost:11434", httpEngine = engine,
+            tuning = OllamaTuning(answerMaxTokens = 777, thinking = true))
+        try { client.answer(emptyList(), ResponseSpec(maxTokens = 2000)) } finally { client.close() }
+    }
+
+    @Test
+    fun tunedContextRejectsAddedRecipePromptBeforeNetworkRequest() = runTest {
+        val engine = MockEngine { error("Переполнение должно обнаруживаться до HTTP") }
+        val tuning = OllamaTuning(contextWindowTokens = 512, answerMaxTokens = 80)
+        val client = OllamaLlmClient("http://localhost:11434", httpEngine = engine, tuning = tuning)
+        try {
+            val schema = buildJsonObject {
+                putJsonObject("properties") { putJsonObject("claims") {}; putJsonObject("clarification") {} }
+            }
+            val spec = ResponseSpec(system = "Кратко", maxTokens = 100, jsonSchema = schema)
+            assertTrue(estimateOllamaInputTokens(emptyList(), spec) < 512)
+            assertTrue(client.countInputTokens(emptyList(), spec) > 512)
+            assertFailsWith<ContextWindowExceededException> { client.answer(emptyList(), spec) }
+        } finally { client.close() }
+    }
+
+    @Test
+    fun recipeProfileReachesNativeApiForMemoryAnswerAndVerifier() = runTest {
+        val limits = ArrayDeque(listOf(1400, 1600, 400, 100))
+        val temperatures = ArrayDeque(listOf(0.0, 0.0, 0.0, 0.3))
+        val engine = MockEngine { request ->
+            val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject
+            val options = body.getValue("options").jsonObject
+            assertEquals(limits.removeFirst(), options.getValue("num_predict").jsonPrimitive.int)
+            assertEquals(24_576, options.getValue("num_ctx").jsonPrimitive.int)
+            assertEquals(temperatures.removeFirst(), options.getValue("temperature").jsonPrimitive.double)
+            assertEquals(0.0, options.getValue("presence_penalty").jsonPrimitive.double)
+            assertEquals(false, body.getValue("think").jsonPrimitive.boolean)
+            val system = body.getValue("messages").jsonArray.first().jsonObject.getValue("content").jsonPrimitive.content
+            assertContains(system, "Исходные правила")
+            respond("""{"message":{"role":"assistant","content":"{}"},"done":true,"done_reason":"stop"}""",
+                headers = headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        val client = OllamaLlmClient("http://localhost:11434", httpEngine = engine, tuning = OllamaTuning())
+        try {
+            fun schema(vararg names: String) = buildJsonObject {
+                putJsonObject("properties") { names.forEach { putJsonObject(it) { put("type", "string") } } }
+            }
+            for (shape in listOf(schema("resolvedQuestion", "searchQuery"), schema("claims", "clarification"),
+                schema("supported", "unsupportedClaimNumbers"))) {
+                val spec = ResponseSpec(system = "Исходные правила", maxTokens = 2600, jsonSchema = shape)
+                val estimated = client.countInputTokens(emptyList(), spec)
+                if ("resolvedQuestion" in shape.toString()) assertEquals(estimateOllamaInputTokens(emptyList(), spec), estimated)
+                else assertTrue(estimated > estimateOllamaInputTokens(emptyList(), spec))
+                client.answer(emptyList(), spec)
+            }
+            client.answer(emptyList(), ResponseSpec(system = "Исходные правила", maxTokens = 100, temperature = 0.3))
+            assertTrue(limits.isEmpty())
+        } finally { client.close() }
+    }
+
+    @Test
     fun sendsHistorySystemSchemaAndLimitsWithoutCloudCredentials() = runTest {
         val schema = buildJsonObject { put("type", "object") }
         val engine = MockEngine { request ->

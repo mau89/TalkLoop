@@ -139,6 +139,13 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   Повторяемый прогон: `./gradlew :cli:day28 -q --console=plain`.
   Облачное сравнение запускается отдельно с `--args='--provider cloud --repeats 3'`.
   Шаги, методика и результаты: [День 28](docs/day28-local-rag.md).
+- День 29 (оптимизация локальной LLM): профили исходных параметров и настройки
+  под кулинарный RAG; сравнение Q4_K_M и Q8_0 той же Qwen3.5 9B.
+  В приложении: «Агент → Настройки → Ollama» — редактируемые параметры,
+  профили «До настройки»/«День 29», сохранение между запусками.
+  Прогон качества и ресурсов: `python3 tools/day29/compare.py`.
+  Только ответы: `./gradlew :cli:day29 -q --console=plain --args='--profile optimized'`.
+  [Шаги, методика и результаты](docs/day29-local-llm-optimization.md).
 - iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
   Ключ подставляется в сгенерированный `Secrets.kt` из того же `secrets.properties`,
   что и на Android, и так же вкомпилируется в сборку — раздавать её нельзя.

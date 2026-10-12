@@ -1,0 +1,6 @@
+top_p                          0.95
+num_ctx                        24576
+num_predict                    1600
+presence_penalty               0
+temperature                    0
+top_k                          20

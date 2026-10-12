@@ -32,7 +32,9 @@ class OllamaLlmClient(
     private val model: String = DEFAULT_OLLAMA_MODEL,
     private val contextWindowTokens: Int = OLLAMA_CONTEXT_WINDOW_TOKENS,
     private val httpEngine: HttpClientEngine? = null,
+    private val tuning: OllamaTuning? = null,
 ) : LlmClient {
+    private val effectiveContextWindow = tuning?.contextWindowTokens ?: contextWindowTokens
     private val endpoint = baseUrl.trim().trimEnd('/').also {
         require(isValidOllamaAddress(it)) { "Укажите адрес Ollama, например http://10.0.2.2:11434" }
     }
@@ -65,31 +67,32 @@ class OllamaLlmClient(
      * are a conservative preflight estimate, not measured tokens. Actual usage
      * below comes from prompt_eval_count/eval_count in the generation response. */
     override suspend fun countInputTokens(history: List<ChatMessage>, spec: ResponseSpec): Int =
-        estimateOllamaInputTokens(history, spec)
+        estimateOllamaInputTokens(history, tuning?.prepare(spec) ?: spec)
 
     override suspend fun reply(history: List<ChatMessage>): String =
         answer(history, ResponseSpec(system = TUTOR_SYSTEM_PROMPT)).text
 
     override suspend fun answer(history: List<ChatMessage>, spec: ResponseSpec): LlmAnswer {
+        val prepared = tuning?.prepare(spec) ?: spec
         val requestModel = spec.model ?: model
         requireLocalModel(requestModel)
         require(spec.maxTokens > 0)
-        val inputEstimate = estimateOllamaInputTokens(history, spec)
-        if (inputEstimate.toLong() + spec.maxTokens > contextWindowTokens) {
-            throw ContextWindowExceededException(inputEstimate, contextWindowTokens,
+        val inputEstimate = estimateOllamaInputTokens(history, prepared)
+        if (inputEstimate.toLong() + prepared.maxTokens > effectiveContextWindow) {
+            throw ContextWindowExceededException(inputEstimate, effectiveContextWindow,
                 "Оценка контекста Ollama превышает лимит с учётом места для ответа. " +
                     "Сократите запрос или начните новый диалог.")
         }
         val messages = buildList {
-            spec.system?.let { add(OllamaMessage("system", it)) }
+            prepared.system?.let { add(OllamaMessage("system", it)) }
             history.forEach { add(OllamaMessage(if (it.fromUser) "user" else "assistant", it.text)) }
         }
         val response = localRequest {
             http.post("$endpoint/api/chat") {
                 contentType(ContentType.Application.Json)
-                setBody(OllamaChatRequest(requestModel, messages, format = spec.jsonSchema,
-                    options = OllamaOptions(spec.maxTokens, contextWindowTokens, spec.temperature,
-                        spec.stopSequences.ifEmpty { null })))
+                setBody(OllamaChatRequest(requestModel, messages, think = tuning?.thinking ?: false, format = prepared.jsonSchema,
+                    options = OllamaOptions(prepared.maxTokens, effectiveContextWindow, prepared.temperature,
+                        prepared.stopSequences.ifEmpty { null }, tuning?.presencePenalty)))
             }.body<OllamaChatResponse>()
         }
         if (!response.done || response.message.content.isBlank()) {
@@ -162,6 +165,7 @@ private data class OllamaOptions(
     @SerialName("num_predict") val numPredict: Int,
     @SerialName("num_ctx") val numCtx: Int,
     val temperature: Double? = null, val stop: List<String>? = null,
+    @SerialName("presence_penalty") val presencePenalty: Double? = null,
 )
 
 @Serializable

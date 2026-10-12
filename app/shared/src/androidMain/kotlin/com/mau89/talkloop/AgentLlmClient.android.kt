@@ -2,6 +2,7 @@ package com.mau89.talkloop
 
 import com.mau89.talkloop.llm.AnthropicLlmClient
 import com.mau89.talkloop.llm.OllamaLlmClient
+import com.mau89.talkloop.llm.OllamaTuning
 import io.ktor.client.engine.okhttp.OkHttp
 import java.net.Proxy
 
@@ -14,8 +15,9 @@ internal actual fun createAgentLlmClient(apiKey: String, directConnection: Boole
 
 internal actual fun defaultOllamaAddress() = "http://10.0.2.2:11434"
 
-internal actual fun createOllamaLlmClient(address: String, model: String) = OllamaLlmClient(
+internal actual fun createOllamaLlmClient(address: String, model: String, tuning: OllamaTuning) = OllamaLlmClient(
     baseUrl = address,
     model = model,
+    tuning = tuning,
     httpEngine = OkHttp.create { config { proxy(Proxy.NO_PROXY) } },
 )

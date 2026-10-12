@@ -15,9 +15,10 @@ internal actual fun createAgentLlmClient(apiKey: String, directConnection: Boole
 
 internal actual fun defaultOllamaAddress() = "http://10.0.2.2:11434"
 
-internal actual fun createOllamaLlmClient(address: String, model: String, tuning: OllamaTuning) = OllamaLlmClient(
+internal actual fun createOllamaLlmClient(address: String, model: String, tuning: OllamaTuning, serviceToken: String) = OllamaLlmClient(
     baseUrl = address,
     model = model,
     tuning = tuning,
+    serviceToken = serviceToken,
     httpEngine = OkHttp.create { config { proxy(Proxy.NO_PROXY) } },
 )

@@ -5,6 +5,12 @@ import kotlinx.serialization.json.jsonObject
 
 const val COOKBOOK_OLLAMA_MODEL = "qwen3.5:9b-q8_0"
 
+const val VPS_OLLAMA_MODEL = "qwen2.5:0.5b"
+// Includes the agent's memory and invariant instructions, not just the user's question.
+val VPS_OLLAMA_TUNING = OllamaTuning(contextWindowTokens = 8192,
+    answerMaxTokens = 256, memoryMaxTokens = 256, verdictMaxTokens = 128,
+    recipePrompts = false, thinking = false)
+
 /** Explicit, opt-in recipe profile; the untuned transport remains available for comparisons. */
 @Serializable
 data class OllamaTuning(

@@ -8,6 +8,8 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -33,6 +35,7 @@ class OllamaLlmClient(
     private val contextWindowTokens: Int = OLLAMA_CONTEXT_WINDOW_TOKENS,
     private val httpEngine: HttpClientEngine? = null,
     private val tuning: OllamaTuning? = null,
+    private val serviceToken: String = "",
 ) : LlmClient {
     private val effectiveContextWindow = tuning?.contextWindowTokens ?: contextWindowTokens
     private val endpoint = baseUrl.trim().trimEnd('/').also {
@@ -43,6 +46,12 @@ class OllamaLlmClient(
 
     private fun HttpClientConfig<*>.configureLocalClient() {
         expectSuccess = true
+        followRedirects = false
+        // A private service key must never be sent over an unencrypted connection.
+        require(serviceToken.isEmpty() || Url(endpoint).protocol == URLProtocol.HTTPS) {
+            "Для ключа приватного сервиса нужен адрес HTTPS"
+        }
+        if (serviceToken.isNotEmpty()) defaultRequest { bearerAuth(serviceToken) }
         install(HttpTimeout) {
             connectTimeoutMillis = 10_000
             requestTimeoutMillis = 300_000
@@ -112,7 +121,7 @@ class OllamaLlmClient(
         val tags = http.get("$endpoint/api/tags").body<OllamaTags>()
         val name = if (':' in model) model else "$model:latest"
         if (tags.models.none { it.name == name || it.model == name }) {
-            throw LlmException("Модель $model не скачана. На Mac выполните: ollama pull $model")
+            throw LlmException("Модель $model не скачана на выбранном сервере Ollama. Выполните там: ollama pull $model")
         }
         "Ollama доступна · $model скачана"
     }
@@ -127,7 +136,7 @@ class OllamaLlmClient(
         throw LlmException("Ollama: ${e.response.status.value}: ${e.response.bodyAsText()}", e)
     } catch (e: Exception) {
         throw LlmException("Не удалось обратиться к Ollama по адресу $endpoint. " +
-            "Проверьте, что Ollama запущена на Mac и модель скачана.", e)
+            "Проверьте адрес, запуск Ollama и доступность приватного сервиса.", e)
     }
 }
 

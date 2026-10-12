@@ -11,8 +11,10 @@ fun createPersistentAgentConnectionStore(): AgentConnectionStore = object : Agen
         ollamaAddress = defaults.stringForKey("agent.address")?.takeIf(::isValidOllamaAddress) ?: defaultOllamaAddress(),
         ollamaModel = defaults.stringForKey("agent.model")?.takeIf { it.isNotBlank() && !it.endsWith(":cloud", true) } ?: COOKBOOK_OLLAMA_MODEL,
         tuning = decodeOllamaTuning(defaults.stringForKey("agent.tuning")),
+        serviceToken = ServiceTokenStorage.load(),
     )
     override fun save(connection: AgentConnection) {
+        ServiceTokenStorage.save(connection.serviceToken)
         defaults.setObject(connection.provider.name, forKey = "agent.provider")
         defaults.setObject(connection.ollamaAddress, forKey = "agent.address")
         defaults.setObject(connection.ollamaModel, forKey = "agent.model")

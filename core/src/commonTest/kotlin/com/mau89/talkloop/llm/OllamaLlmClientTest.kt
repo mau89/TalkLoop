@@ -12,6 +12,63 @@ import kotlin.test.*
 
 class OllamaLlmClientTest {
     @Test
+    fun privateServiceKeyRequiresHttpsAndReachesTagsAndChat() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            OllamaLlmClient("http://89.40.70.118:18443", serviceToken = "private-test-key")
+        }
+        val paths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            assertEquals("Bearer private-test-key", request.headers[HttpHeaders.Authorization])
+            paths += request.url.encodedPath
+            val response = if (request.url.encodedPath == "/api/tags")
+                """{"models":[{"name":"qwen2.5:0.5b"}]}"""
+            else """{"message":{"role":"assistant","content":"Париж"},"done":true}"""
+            respond(response, headers = headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        val client = OllamaLlmClient("https://89.40.70.118:18443", model = VPS_OLLAMA_MODEL,
+            tuning = VPS_OLLAMA_TUNING, serviceToken = "private-test-key", httpEngine = engine)
+        try {
+            client.checkConnection()
+            assertEquals("Париж", client.answer(listOf(ChatMessage(true, "Столица Франции?")), ResponseSpec()).text)
+            assertEquals(listOf("/api/tags", "/api/chat"), paths)
+        } finally { client.close() }
+    }
+
+    @Test
+    fun vpsBudgetFitsAgentInstructionsInvariantsAndThreeChatTurns() = runTest {
+        var calls = 0
+        val engine = MockEngine { request ->
+            val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject
+            val options = body.getValue("options").jsonObject
+            assertEquals(8192, options.getValue("num_ctx").jsonPrimitive.int)
+            assertEquals(256, options.getValue("num_predict").jsonPrimitive.int)
+            val messages = body.getValue("messages").jsonArray
+            val system = messages.first().jsonObject.getValue("content").jsonPrimitive.content
+            assertContains(system, "ALLERGY-001")
+            assertContains(system, "working_memory")
+            val bytes = 32 + messages.sumOf { it.jsonObject.getValue("content").jsonPrimitive.content.encodeToByteArray().size + 16 }
+            assertTrue(bytes > 2048, "A plain-question profile is too small for the agent")
+            assertTrue(bytes + 256 <= 8192, "Fresh agent conversation fits service preflight")
+            calls++
+            respond("""{"message":{"role":"assistant","content":"Короткий ответ"},"done":true,"prompt_eval_count":900,"eval_count":5}""",
+                headers = headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        val client = OllamaLlmClient("https://89.40.70.118:18443", model = VPS_OLLAMA_MODEL,
+            tuning = VPS_OLLAMA_TUNING, httpEngine = engine)
+        try {
+            val agent = TalkLoopAgent(client, config = AgentConfig(model = VPS_OLLAMA_MODEL,
+                systemPrompt = GENERAL_AGENT_SYSTEM_PROMPT, maxTokens = 256, contextWindowTokens = 8192,
+                contextStrategy = ContextStrategy.MemoryLayers(10), contextCompression = ContextCompressionConfig(enabled = false)),
+                invariantStore = InMemoryInvariantStore(FOOD_ASSISTANT_INVARIANTS))
+            for (question in listOf("Привет", "Сколько будет 12 + 9?", "Объясни, чем сервер отличается от приложения.")) {
+                assertEquals("Короткий ответ", agent.respond(question))
+            }
+            assertEquals(3, calls)
+            assertEquals(3, agent.statistics.value.requestCount)
+        } finally { client.close() }
+    }
+
+    @Test
     fun editedThinkingSwitchReachesNativeApi() = runTest {
         val engine = MockEngine { request ->
             val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject

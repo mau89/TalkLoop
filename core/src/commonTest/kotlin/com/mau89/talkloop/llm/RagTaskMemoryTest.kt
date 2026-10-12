@@ -6,6 +6,15 @@ import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class RagTaskMemoryTest {
+    @Test fun ollamaStopIsAcceptedForTaskMemoryWithoutUnnecessaryRepair() = runTest {
+        val llm = FakeLlmClient(ArrayDeque<Any>(listOf(LlmAnswer(raw(), "stop", null, 100, 20))))
+        val resolved = LlmRagTaskMemoryResolver(llm).resolve(
+            RagMemoryRequest("Готовлю обед", AgentToolContext(model = "qwen3.5:9b")))
+        assertEquals(goal, resolved.turn.memory.goal)
+        assertEquals(1, resolved.turn.memoryApiCalls)
+        assertEquals("qwen3.5:9b", llm.specs.single().model)
+    }
+
     private val goal = RagMemoryFact("Готовлю обед", 1)
     private fun raw(goal: RagMemoryFact? = this.goal, constraints: List<RagMemoryFact> = emptyList()) =
         Json.encodeToString(RagMemoryDraft.serializer(), RagMemoryDraft(goal, null, emptyList(), constraints, emptyList(),

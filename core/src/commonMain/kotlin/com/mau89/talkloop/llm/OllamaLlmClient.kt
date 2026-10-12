@@ -23,7 +23,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 const val DEFAULT_OLLAMA_MODEL = "qwen3.5:9b"
-const val OLLAMA_CONTEXT_WINDOW_TOKENS = 16_384
+// RAG adds source snippets and schemas; keep the conservative byte-based check.
+const val OLLAMA_CONTEXT_WINDOW_TOKENS = 32_768
 
 /** Native local API; never downloads models or falls back to a cloud provider. */
 class OllamaLlmClient(

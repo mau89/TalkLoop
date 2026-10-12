@@ -1,0 +1,83 @@
+{
+    "createdAt": "2026-10-09T05:44:03.757823Z",
+    "provider": "local",
+    "model": "qwen3.5:9b",
+    "verifierModel": "qwen3.5:9b",
+    "server": "http://127.0.0.1:8080",
+    "ollama": "http://127.0.0.1:11434",
+    "settings": {
+        "strategy": "fixed",
+        "limit": 5,
+        "rewriteEnabled": true,
+        "filterEnabled": true,
+        "candidateLimit": 10,
+        "minSimilarity": 0.86,
+        "evidenceEnabled": true,
+        "evidenceVerifierModel": "qwen3.5:9b"
+    },
+    "contextWindow": 16384,
+    "maxTokens": 2048,
+    "repeats": 1,
+    "controls": [
+        {
+            "id": "q04",
+            "question": "При какой температуре и сколько минут по книге выпекают «Булочку с корицей 1»?",
+            "expectation": "170–180 градусов, 12–15 минут.",
+            "expectedSources": [
+                "https://ru.wikibooks.org/wiki/Рецепт:Булочка_с_корицей"
+            ],
+            "checks": [
+                {
+                    "description": "170–180 градусов",
+                    "anyOf": [
+                        "(?<!\\d)170\\s*[-–—]\\s*180"
+                    ],
+                    "noneOf": []
+                },
+                {
+                    "description": "12–15 минут",
+                    "anyOf": [
+                        "(?<!\\d)12\\s*[-–—]\\s*15\\s*мин"
+                    ],
+                    "noneOf": []
+                }
+            ]
+        }
+    ],
+    "runs": [
+        {
+            "questionId": "q04",
+            "repeat": 1,
+            "durationMs": 7667,
+            "answer": null,
+            "grade": null,
+            "memory": {
+                "originalQuestion": "При какой температуре и сколько минут по книге выпекают «Булочку с корицей 1»?",
+                "resolvedQuestion": "При какой температуре и сколько минут по книге выпекают «Булочку с корицей 1»?",
+                "searchQuery": "температура и время выпечки Булочка с корицей 1",
+                "memory": {
+                    "goal": null,
+                    "activeRecipe": null,
+                    "clarifications": [
+                        {
+                            "text": "«Булочку с корицей 1»",
+                            "userTurn": 1
+                        }
+                    ],
+                    "constraints": [],
+                    "terms": [],
+                    "revision": 1
+                },
+                "memoryInputTokens": 693,
+                "memoryOutputTokens": 127,
+                "memoryApiCalls": 1,
+                "memoryRepairAttempts": 0,
+                "searchAttempts": 1,
+                "initialSearchQuery": null
+            },
+            "modelCalls": 0,
+            "error": "Контекст переполнен: 18551 токенов при лимите 16384. Запрос не отправлен, история не изменилась."
+        }
+    ],
+    "methodology": "Свежий TalkLoopAgent для каждой попытки; те же память RAG, пищевые инварианты, поиск и проверка цитат, что в приложении. MCP отключён. Индекс Дня 21, параметры поиска одинаковые. Ожидания не передаются модели. Разные модели могут по-разному восстановить поисковый запрос: трассы сохранены. Время включает весь запрос и служебные вызовы. Первый замер не исключён; возможна загрузка модели. Автопроверка признаков дополняется ручной оценкой."
+}

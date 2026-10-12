@@ -108,7 +108,7 @@ class LlmRagTaskMemoryResolver(private val llm: LlmClient) : RagTaskMemoryResolv
         catch (_: Exception) { throw RagTaskMemoryException("Не удалось обновить память задачи. Повторите запрос; переписка не изменена.") }
         val first = generate()
         fun parse(answer: LlmAnswer): Pair<RagTaskMemory, RagMemoryDraft> {
-            if (answer.stopReason !in listOf("end_turn", "stop_sequence")) {
+            if (!answer.complete) {
                 throw RagTaskMemoryException("Обновление памяти оборвалось. Повторите запрос; переписка не изменена.")
             }
             return validateRagMemoryDraft(answer.text, users, request.context.taskMemory.revision)

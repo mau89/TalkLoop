@@ -6,6 +6,15 @@ import kotlinx.serialization.json.Json
 import kotlin.test.*
 
 class RagEvidenceTest {
+    @Test fun ollamaStopCanCompleteBothDraftAndSemanticVerification() = runTest {
+        val llm = FakeLlmClient(ArrayDeque<Any>(listOf(LlmAnswer(yes, "stop", null, 40, 20))))
+        val result = verifyRagEvidence(llm, "Когда добавляют сыр?",
+            LlmAnswer(draft(), "stop", null, 100, 70), listOf(source), "qwen3.5:9b")
+        assertEquals("answered", result.evidence.status)
+        assertEquals(2, result.evidence.apiCalls)
+        assertEquals("qwen3.5:9b", llm.specs.single().model)
+    }
+
     private val source = DocumentChunkHit("soup-1", "https://example.com/soup", "Луковый суп", "soup.txt",
         "Луковый суп 1 / Приготовление", emptyList(), emptyList(), 80,
         "Когда картофель будет почти готов, добавить лук и морковь и довести до готовности.\nЗатем положить сыр. Варить 3–5 минут, постоянно помешивая.", .90)

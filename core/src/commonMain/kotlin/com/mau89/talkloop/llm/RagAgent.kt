@@ -49,7 +49,7 @@ data class RagAnswer(
     val retrieval: RagRetrievalTrace? = null,
     val evidence: RagEvidenceResult? = null,
 ) {
-    val complete: Boolean get() = stopReason in listOf("end_turn", "stop_sequence", "local_refusal")
+    val complete: Boolean get() = stopReason in listOf("end_turn", "stop_sequence", "stop", "local_refusal")
 }
 
 @Serializable

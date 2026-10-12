@@ -1,0 +1,180 @@
+{
+  "summary": {
+    "local": {
+      "attempts": 9,
+      "completed": 7,
+      "medianCompletedSeconds": 34.651,
+      "medianAllAttemptsSeconds": 18.627,
+      "manuallyAccepted": 7
+    },
+    "cloud": {
+      "attempts": 9,
+      "completed": 9,
+      "medianCompletedSeconds": 16.651,
+      "medianAllAttemptsSeconds": 16.651,
+      "manuallyAccepted": 6
+    }
+  },
+  "manualReview": [
+    {
+      "provider": "local",
+      "questionId": "q04",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут. Числовые диапазоны выражены словами «от … до …», автоматические шаблоны этого не учитывают. Название блюда у Qwen иногда грамматически искажено; численные факты и цитата корректны.",
+      "literalQuotesRechecked": 1
+    },
+    {
+      "provider": "local",
+      "questionId": "q07",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": false,
+      "notes": "Ошибка валидации памяти, ответа по книге не было; повтор не замаскирован успешным результатом.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "local",
+      "questionId": "q10",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "local",
+      "questionId": "q04",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут. Числовые диапазоны выражены словами «от … до …», автоматические шаблоны этого не учитывают. Название блюда у Qwen иногда грамматически искажено; численные факты и цитата корректны.",
+      "literalQuotesRechecked": 1
+    },
+    {
+      "provider": "local",
+      "questionId": "q07",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 200/200/150 г и вариант примерно на четыре порции. Все три цитаты подлинные. Автошаблон пропустил длинную формулировку про мясо.",
+      "literalQuotesRechecked": 3
+    },
+    {
+      "provider": "local",
+      "questionId": "q10",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "local",
+      "questionId": "q04",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут. Числовые диапазоны выражены словами «от … до …», автоматические шаблоны этого не учитывают. Название блюда у Qwen иногда грамматически искажено; численные факты и цитата корректны.",
+      "literalQuotesRechecked": 2
+    },
+    {
+      "provider": "local",
+      "questionId": "q07",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": false,
+      "notes": "Ошибка валидации памяти, ответа по книге не было; повтор не замаскирован успешным результатом.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "local",
+      "questionId": "q10",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q04",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут, точная цитата.",
+      "literalQuotesRechecked": 1
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q07",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": false,
+      "notes": "Нужный источник найден, но ответ не опубликован из-за неподтверждённых цитат или отказа модели. Полного ответа на вопрос нет.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q10",
+      "repeat": 1,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q04",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут, точная цитата.",
+      "literalQuotesRechecked": 1
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q07",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": false,
+      "notes": "Нужный источник найден, но ответ не опубликован из-за неподтверждённых цитат или отказа модели. Полного ответа на вопрос нет.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q10",
+      "repeat": 2,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q04",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Правильные 170–180 °C и 12–15 минут, точная цитата.",
+      "literalQuotesRechecked": 1
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q07",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": false,
+      "notes": "Нужный источник найден, но ответ не опубликован из-за неподтверждённых цитат или отказа модели. Полного ответа на вопрос нет.",
+      "literalQuotesRechecked": 0
+    },
+    {
+      "provider": "cloud",
+      "questionId": "q10",
+      "repeat": 3,
+      "correctAndCompleteForQuestion": true,
+      "notes": "Корректный отказ без выдуманных количеств. В корпусе нет нужного рецепта; пустой поиск сам по себе не доказывает отсутствие во всех возможных книгах.",
+      "literalQuotesRechecked": 0
+    }
+  ],
+  "reportSha256": {
+    "day28-local-results.json": "a31788ebce29595c4834f6265cda90365cad2a6e61c734ea95ddcdfaa0affce3",
+    "day28-cloud-results.json": "aa18e07b12190ecf82b54511a1bcdfc5a7fc5954be6e2c3dbf69220e16ed699d",
+    "day28-initial-context-error.json": "cf47662b23de35e9e9623054236d4c66def17692eeae859a2462dac789ba3885",
+    "day28-network-proof.json": "df94b563cb03bcf8d8e1f92a2bcef75e5e508ac2c3dcf8cf1d64df775474a797",
+    "day28-ollama-process.json": "e8b84500eb95f82e3a63bbf0f4edf0dae29e21ba216064ccd76a7ef068941930",
+    "day28-provenance.json": "1a5f8474fbf0a0bb938afebc0ee972855bfc0fb5b1c019bcac61faadf18a2bad"
+  },
+  "limits": [
+    "Три вопроса и три повтора — малая выборка; это проверка текущего пайплайна, а не общий рейтинг моделей.",
+    "Контекст свежий для каждой попытки, служебная память включена. Разные модели могли сформировать разные поисковые запросы.",
+    "Локальный генератор и проверяющий — Qwen; облачные — Haiku и Sonnet. Сравниваются полные пайплайны.",
+    "Первый замер не исключён; полное время включает подготовку, поиск, память, проверку и исправление.",
+    "Локальный прогон намеренно завершился ненулевым кодом из-за двух сохранённых ошибок памяти; результаты всех девяти попыток записаны.",
+    "Автоматические признаки сохранены как есть. Ручная оценка отдельно учитывает корректные перефразировки."
+  ]
+}

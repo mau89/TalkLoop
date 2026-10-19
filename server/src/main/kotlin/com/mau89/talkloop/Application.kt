@@ -55,6 +55,7 @@ fun Application.module(
         dataDirectory = Paths.get(System.getProperty("talkloop.project.root", ".")).resolve("day31-data"),
         preparationCommand = ".day21-venv/bin/python tools/day31/index_project.py",
     ),
+    prReviews: PrReviewGateway = LocalPrReviewGateway(),
 ) {
     val weatherMcpServer = createWeatherMcpServer(
         weatherApi,
@@ -73,6 +74,9 @@ fun Application.module(
     if (projectDocumentIndex is AutoCloseable) {
         monitor.subscribe(ApplicationStopped) { projectDocumentIndex.close() }
     }
+    if (prReviews is AutoCloseable) {
+        monitor.subscribe(ApplicationStopped) { prReviews.close() }
+    }
 
     mcpStreamableHttp(
         path = "/mcp",
@@ -83,6 +87,7 @@ fun Application.module(
     }
 
     routing {
+        prReviewRoutes(prReviews)
         documentIndexRoutes(documentIndex)
         documentIndexRoutes(projectDocumentIndex, "/api/project/documents")
         get("/") {

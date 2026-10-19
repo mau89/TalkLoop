@@ -1,0 +1,92 @@
+{
+  "checkedAt": "2026-10-19T10:43:33.030028+05:00",
+  "tests": {
+    "day32": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0
+    },
+    "day31": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "workflow": {
+    "yamlSyntax": "passed",
+    "runner": "talkloop-review-mac (self-hosted macOS ARM64)",
+    "prTriggerAndReadOnlyPermissions": "passed",
+    "githubRun": "not_started_at_this_checkpoint",
+    "cloudKeyRequired": false,
+    "ownerAndSameRepositoryPolicy": "installed on host and tested"
+  },
+  "realDiffPreparation": {
+    "baseSha": "f295b144f0be011e410ac9ff16679c1ebe7d2745",
+    "mergeBaseSha": "f295b144f0be011e410ac9ff16679c1ebe7d2745",
+    "headSha": "1d238671b3ba43c6b069d89d005118268c01dc33",
+    "coverage": {
+      "totalFiles": 25,
+      "reviewedFiles": 23,
+      "partial": true,
+      "fileExcerptsMayBePartial": true,
+      "batches": 3
+    },
+    "batchInputCharacters": [
+      69357,
+      68540,
+      41296
+    ],
+    "retrievedKinds": [
+      "code",
+      "docs"
+    ],
+    "excluded": [
+      {
+        "file": ".gitignore",
+        "reason": "Файл вне корпуса документации/исходного кода."
+      },
+      {
+        "file": "docs/day31-result.json",
+        "reason": "Файл вне корпуса документации/исходного кода."
+      }
+    ]
+  },
+  "demoPreparation": {
+    "coverage": {
+      "totalFiles": 1,
+      "reviewedFiles": 1,
+      "partial": false,
+      "fileExcerptsMayBePartial": true,
+      "batches": 1
+    },
+    "retrievedKinds": [
+      "code",
+      "docs"
+    ]
+  },
+  "realModelReview": {
+    "status": "passed",
+    "provider": "ollama",
+    "model": "qwen3.5:9b-q8_0",
+    "fixture": "Removed owner authorization before reading private chat history",
+    "expectedLocationFoundInBugs": true,
+    "modelRequests": 2
+  },
+  "providerTests": "Claude HTTP requests tested with mocks; Ollama tested with mocks and real local model.",
+  "sourceHashes": {
+    "tools/day32/demo.py": "c3b6204bfdae39ab8dbe6614c5a8694a3311320a7845a4f78c18f007173ea784",
+    "tools/day32/mac_runner.py": "e8c4f27e23a3f10467f8193cac3e750186609d65447101851f25b9bb59c4d3c0",
+    "tools/day32/review_pr.py": "c8ad4dd7c3d69984a9a239106a393acb780a48973c24685785f4bb0f192448c0",
+    "tools/day32/runner_guard.py": "cfbe5d0c302a6ac7efd6d1ce855e7b8aeb4a5b5519f2aa8a7ac1a8a0c3058e05",
+    "tools/day32/test_review_pr.py": "89f4bbbc6fce43553fbce67a1ebaede568696bea136429e77a5257def2d00de4",
+    "tools/day32/test_runner_guard.py": "dc4d1907d9192967a39651b4dcea787c3ebefc7733de661b3005295102f294aa",
+    ".github/workflows/ai-review.yml": "93741e409f00d6259e0362f03b95a72ffebb337211e61c9077388656768ebe13"
+  },
+  "runnerInstallation": {
+    "name": "talkloop-mac-a1",
+    "service": "user LaunchAgent",
+    "stopAndResume": "passed",
+    "workingCopy": "separate from Android Studio project",
+    "guard": "owner-only same-repository review jobs; other events rejected"
+  }
+}

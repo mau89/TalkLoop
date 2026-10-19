@@ -67,6 +67,9 @@ Android Emulator обращается к Mac по адресу
 - `POST /api/file-tasks` — фоновая задача по цели; `GET /api/file-tasks/latest`
   и `GET /api/file-tasks/{id}` — ход работы и diff; `POST /api/file-tasks/{id}/apply` —
   сохранение подготовленного Markdown в `docs/generated/day34`.
+- `POST /api/releases` — подготовка релиза на Mac; `GET /api/releases/latest`
+  и `GET /api/releases/{id}` — этапы, release notes и отчёт;
+  `GET /api/releases/{id}/artifacts/{name}` — скачивание файлов этой сборки.
 - `/mcp` — Streamable HTTP MCP погоды, планировщика и погодных отчётов.
 
 Проектный сервер, порт 8082: `/mcp` — read-only инструмент `git_branch`.

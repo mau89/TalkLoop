@@ -45,6 +45,7 @@ import kotlinx.coroutines.delay
 
 private val TABS = listOf(
     "Агент",
+    "Релиз",
     "Файлы",
     "Поддержка",
     "Ревью PR",
@@ -226,18 +227,19 @@ fun App(
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
-                1 -> FileTaskScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
-                2 -> SupportScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
-                3 -> PrReviewScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
-                4 -> DocumentIndexScreen(Modifier.fillMaxSize())
-                5 -> InvariantLabScreen(
+                1 -> ReleaseScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                2 -> FileTaskScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                3 -> SupportScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                4 -> PrReviewScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                5 -> DocumentIndexScreen(Modifier.fillMaxSize())
+                6 -> InvariantLabScreen(
                     agent = generalAgent,
                     modifier = Modifier.fillMaxSize(),
                 )
-                6 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
-                7 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
-                8 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
-                9 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                7 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
+                8 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                9 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
+                10 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
                 else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }

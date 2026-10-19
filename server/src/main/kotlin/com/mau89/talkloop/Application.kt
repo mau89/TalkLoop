@@ -61,6 +61,7 @@ fun Application.module(
     prReviews: PrReviewGateway = LocalPrReviewGateway(),
     support: SupportService = LocalSupportService(),
     fileTasks: FileTaskGateway = LocalFileTaskGateway(),
+    releases: ReleaseGateway = LocalReleaseGateway(),
 ) {
     val weatherMcpServer = createWeatherMcpServer(
         weatherApi,
@@ -88,6 +89,9 @@ fun Application.module(
     if (fileTasks is AutoCloseable) {
         monitor.subscribe(ApplicationStopped) { fileTasks.close() }
     }
+    if (releases is AutoCloseable) {
+        monitor.subscribe(ApplicationStopped) { releases.close() }
+    }
 
     mcpStreamableHttp(
         path = "/mcp",
@@ -98,6 +102,7 @@ fun Application.module(
     }
 
     routing {
+        releaseRoutes(releases)
         fileTaskRoutes(fileTasks)
         supportRoutes(support)
         prReviewRoutes(prReviews)

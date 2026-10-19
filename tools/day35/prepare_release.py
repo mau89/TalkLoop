@@ -313,9 +313,12 @@ def prepare(root, base_ref, version, code, output, provider=ollama, gate=command
         report.update(state='prepared', message='Кандидат собран. Проверьте черновик AI, подпишите APK и выполните ручные проверки.')
         render_report(output, report)
         save(output / 'release.json', report)
-        with zipfile.ZipFile(output / ('TalkLoop-' + version + '-candidate.zip'), 'w', zipfile.ZIP_DEFLATED) as package:
+        bundle = output / ('TalkLoop-' + version + '-candidate.zip')
+        temporary_bundle = bundle.with_suffix('.zip.tmp')
+        with zipfile.ZipFile(temporary_bundle, 'w', zipfile.ZIP_DEFLATED) as package:
             for name in [report['apk']['file'], 'release.json', 'release-notes.md', 'report.md', 'context.json', 'ai-response.json']:
                 package.write(output / name, name)
+        temporary_bundle.replace(bundle)
         return 0
     except (ReleaseError, OSError, ValueError, subprocess.SubprocessError, ET.ParseError) as error:
         (output / 'error.log').write_text(traceback.format_exc(), encoding='utf-8')

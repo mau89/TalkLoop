@@ -87,6 +87,8 @@ class ReleaseTests(unittest.TestCase):
         apk = self.output / report['apk']['file']
         self.assertEqual(release.sha256(apk), report['apk']['sha256'])
         self.assertNotIn('Dirty uncommitted', json.dumps(self.calls[0]))
+        self.assertFalse(self.calls[0]['releaseFacts']['cloudKeyEmbedded'])
+        self.assertFalse(self.calls[0]['releaseFacts']['signed'])
         with zipfile.ZipFile(self.output / 'TalkLoop-1.1.0-candidate.zip') as package:
             self.assertIn('release-notes.md', package.namelist())
             self.assertNotIn('secrets.properties', package.namelist())

@@ -50,6 +50,13 @@ class RunnerGuardTests(unittest.TestCase):
         self.assertTrue(runner_guard.allowed(self.environment, {'sender': {'login': 'mau89'}}))
         self.assertFalse(runner_guard.allowed(self.environment, {'sender': {'login': 'attacker'}}))
 
+    def test_release_is_owner_manual_only_and_never_pr(self):
+        self.environment['GITHUB_WORKFLOW_REF'] = 'mau89/TalkLoop/.github/workflows/prepare-release.yml@refs/heads/main'
+        self.assertFalse(runner_guard.allowed(self.environment, self.event))
+        self.environment['GITHUB_EVENT_NAME'] = 'workflow_dispatch'
+        self.assertTrue(runner_guard.allowed(self.environment, {'sender': {'login': 'mau89'}}))
+        self.assertFalse(runner_guard.allowed(self.environment, {'sender': {'login': 'attacker'}}))
+
     def test_invalid_or_missing_event_fails_closed(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'event.json'

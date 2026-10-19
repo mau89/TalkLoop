@@ -1,0 +1,59 @@
+name: Prepare Android release · Day 35
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Last release commit or tag (ancestor of selected branch)
+        required: true
+      version:
+        description: Version name, e.g. 1.1.0
+        required: true
+      version_code:
+        description: Android versionCode, greater than last published version
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: talkloop-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.actor == github.repository_owner
+    runs-on: talkloop-review-mac
+    timeout-minutes: 40
+    steps:
+      - name: Checkout selected committed version
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare candidate using local SDK and Ollama
+        env:
+          RELEASE_BASE: ${{ inputs.base }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_CODE: ${{ inputs.version_code }}
+        run: >-
+          /usr/bin/python3 tools/day35/prepare_release.py
+          --base "$RELEASE_BASE" --version "$RELEASE_VERSION"
+          --version-code "$RELEASE_CODE" --output day35-data/candidate
+
+      - name: Show outcome
+        if: always()
+        run: |
+          if [ -f day35-data/candidate/report.md ]; then
+            cat day35-data/candidate/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload candidate or failure evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: talkloop-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: day35-data/candidate/
+          if-no-files-found: warn
+          retention-days: 14

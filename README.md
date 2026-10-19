@@ -1,5 +1,10 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
+День 35: **подготовка реального Android-релиза** — пайплайн собирает зафиксированную
+версию TalkLoop, запускает тесты, проверяет APK без личного ключа и создаёт
+release notes через локальную Ollama. На выходе APK, SHA-256, отчёт и ZIP-кандидат.
+[Запуск на Mac и GitHub Actions](docs/day35-release-assistant.md).
+
 День 34: вкладка **«Файлы»** выполняет задачи по цели: сама ищет и читает файлы,
 готовит отчёт об использовании компонента или справку API по коду, показывает diff
 и сохраняет Markdown в `docs/generated/day34`. Локальная Ollama выбирает реальные

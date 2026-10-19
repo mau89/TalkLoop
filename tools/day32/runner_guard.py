@@ -8,6 +8,7 @@ import sys
 REPOSITORY = 'mau89/TalkLoop'
 OWNER = 'mau89'
 WORKFLOW = REPOSITORY + '/.github/workflows/ai-review.yml@'
+RELEASE_WORKFLOW = REPOSITORY + '/.github/workflows/prepare-release.yml@'
 
 
 def allowed(environment, event):
@@ -15,11 +16,15 @@ def allowed(environment, event):
         return False
     if environment.get('GITHUB_ACTOR') != OWNER:
         return False
-    if not environment.get('GITHUB_WORKFLOW_REF', '').startswith(WORKFLOW):
+    workflow = environment.get('GITHUB_WORKFLOW_REF', '')
+    release = workflow.startswith(RELEASE_WORKFLOW)
+    if not (workflow.startswith(WORKFLOW) or release):
         return False
     name = environment.get('GITHUB_EVENT_NAME')
     if name == 'workflow_dispatch':
         return event.get('sender', {}).get('login') == OWNER
+    if release:
+        return False
     if name != 'pull_request':
         return False
     pr = event.get('pull_request', {})
@@ -38,9 +43,9 @@ def main():
     except (KeyError, OSError, ValueError, TypeError, AttributeError):
         accepted = False
     if not accepted:
-        print('Job blocked by host policy: only the owner’s same-repository review PRs or manual review runs are allowed.', file=sys.stderr)
+        print('Job blocked by host policy: only owner review PRs or owner manual review/release runs are allowed.', file=sys.stderr)
         return 1
-    print('Host policy accepted this review job.')
+    print('Host policy accepted this TalkLoop job.')
     return 0
 
 

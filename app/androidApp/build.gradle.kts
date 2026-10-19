@@ -7,7 +7,8 @@ plugins {
 
 // Ключ читаем из secrets.properties в корне (файл в .gitignore, в репозиторий не попадает).
 // В собранный APK он всё же вкомпилируется — раздавать сборку нельзя, см. README.
-val anthropicApiKey: String = providers
+val distributionBuild = providers.gradleProperty("talkloop.distribution").map(String::toBoolean).getOrElse(false)
+val anthropicApiKey: String = if (distributionBuild) "" else providers
     .fileContents(rootProject.layout.projectDirectory.file("secrets.properties"))
     .asText
     .map { text ->
@@ -42,8 +43,8 @@ android {
         applicationId = "com.mau89.talkloop"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = providers.gradleProperty("talkloop.versionCode").map(String::toInt).getOrElse(1)
+        versionName = providers.gradleProperty("talkloop.versionName").getOrElse("1.0")
 
         buildConfigField("String", "ANTHROPIC_API_KEY", "\"$anthropicApiKey\"")
     }

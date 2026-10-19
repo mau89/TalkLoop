@@ -22,6 +22,7 @@ data class AgentToolCall(
     val ragConversation: RagConversationTurn? = null,
     val memoryUsage: LlmAnswer? = null,
     val memoryModel: String? = null,
+    val projectHelp: Boolean = false,
 )
 
 data class AgentToolStep(
@@ -53,6 +54,15 @@ internal fun systemPromptWithToolCall(
     toolCall: AgentToolCall?,
 ): String {
     if (toolCall == null) return systemPrompt
+    if (toolCall.projectHelp) {
+        // Git is displayed verbatim by projectHelpResponse; do not invite the model to recite it with a document citation.
+        val documentation = kotlinx.serialization.json.JsonObject(
+            kotlinx.serialization.json.Json.parseToJsonElement(toolCall.result).let {
+                it as kotlinx.serialization.json.JsonObject
+            } - "git",
+        )
+        return systemPrompt + "\n\n" + PROJECT_HELP_SYSTEM + "\n\nКонтекст текущего запроса (JSON):\n" + documentation
+    }
     if (toolCall.documentSources != null) {
         return systemPrompt + "\n\n" + (if (toolCall.evidenceEnabled) GROUNDED_RAG_FACTS else GROUNDED_RAG_SYSTEM).trimIndent() +
             (if (toolCall.evidenceEnabled) "\n\n" + RAG_EVIDENCE_SYSTEM.trimIndent() else "") +

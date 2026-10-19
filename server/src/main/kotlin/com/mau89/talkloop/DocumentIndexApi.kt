@@ -45,6 +45,7 @@ class LocalDocumentIndexGateway(
     private val dataDirectory: Path = Paths.get(
         System.getProperty("talkloop.index.directory", projectRoot.resolve("day21-data").toString())
     ).toAbsolutePath().normalize(),
+    private val preparationCommand: String = "tools/day21/run.sh prepare и tools/day21/run.sh build",
 ) : DocumentIndexGateway, AutoCloseable {
     private val json = Json { ignoreUnknownKeys = true }
     private val lock = Mutex()
@@ -94,8 +95,8 @@ class LocalDocumentIndexGateway(
                 stopWorker()
                 throw DocumentIndexUnavailable(
                     "Локальный индекс недоступен. В корне TalkLoop выполните " +
-                        "tools/day21/run.sh prepare и tools/day21/run.sh build. " +
-                        "После подготовки перезапустите сервер. Подробности: day21-data/worker.log."
+                        "$preparationCommand. " +
+                        "После подготовки перезапустите сервер. Подробности: $dataDirectory/worker.log."
                 )
             }
         }
@@ -132,9 +133,9 @@ class LocalDocumentIndexGateway(
     }
 }
 
-fun Route.documentIndexRoutes(gateway: DocumentIndexGateway) {
+fun Route.documentIndexRoutes(gateway: DocumentIndexGateway, prefix: String = "/api/documents") {
     val json = Json { ignoreUnknownKeys = true }
-    get("/api/documents/status") {
+    get("$prefix/status") {
         try {
             call.respondText(json.encodeToString(DocumentIndexCatalog.serializer(), gateway.catalog()), ContentType.Application.Json)
         } catch (error: DocumentIndexUnavailable) {
@@ -144,7 +145,7 @@ fun Route.documentIndexRoutes(gateway: DocumentIndexGateway) {
             )
         }
     }
-    post("/api/documents/search") {
+    post("$prefix/search") {
         try {
             val body = call.receiveText()
             require(body.length <= 16_000) { "Запрос слишком большой." }

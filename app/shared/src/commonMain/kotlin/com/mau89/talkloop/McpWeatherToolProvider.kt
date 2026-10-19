@@ -41,7 +41,7 @@ internal fun interface McpToolExecutor {
     ): AgentToolCall
 }
 
-private class NetworkMcpToolExecutor : McpToolExecutor {
+internal class NetworkMcpToolExecutor : McpToolExecutor {
     override suspend fun invoke(
         endpoint: McpEndpoint,
         toolName: String,

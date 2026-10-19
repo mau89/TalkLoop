@@ -1,0 +1,111 @@
+{
+  "question": "Как устроен проект TalkLoop и какая сейчас git-ветка?",
+  "model": "qwen3.5:9b",
+  "answer": "Проект **TalkLoop** — это Kotlin Multiplatform приложение, предназначенное для платформ Android, iOS, с серверной частью (JVM/Ktor) и командной строкой (CLI). Он реализует чат-интерфейс («Агент»), поддерживающий работу с большими языковыми моделями (Ollama, Claude), инструменты MCP (Model Context Protocol) и поиск по документам (RAG, включая кулинарную книгу).\n\n**Структура проекта:**\n*   **`core`**: Содержит общую бизнес-логику на Kotlin (`TalkLoopAgent`, `AgentRuntime`). Здесь реализованы клиенты LLM, управление историей диалогов, стратегии контекста и контракты RAG [2][5].\n*   **`app/shared`**: Общесистемный код для Compose Multiplatform (экран чата, настройки подключения к LLM). Платформенные части находятся в `androidMain` и `iosMain`.\n*   **`app/androidApp`**: Точка входа для Android.\n*   **`app/iosApp`**: Точка входа для iOS (SwiftUI/Compose).\n*   **`server`**: Сервер на Ktor, предоставляющий HTTP-API для поиска документов и MCP-серверы [2][5].\n*   **`cli`**: Команда строчная оболочка для воспроизведения учебных сценариев (например, сценарий Дня 31) [1][3].\n*   **`tools/day31`**: Скрипты и индексация для учебных задач (Python, ONNX) [1].\n\n**Архитектура агента:**\nЗапрос из интерфейса (`ChatScreen.kt`) попадает в `TalkLoopAgent.respond`. Агент обрабатывает инварианты задачи, вызывает выбранный LLM и сохраняет реплики. Инструменты `AgentKnowledgeTools` проверяют запрос: сначала `/help`, затем MCP (погода, книги), и если включено — кулинарный RAG [4].\nСпециальный инструмент `ProjectHelpTools` собирает контекст из документации и текущее состояние Git, формирует промпт с цитатами и ссылками на источники [4].\n\n**Git-ветка:**\nТекущий статус Git (отфильтрованная ветка или `detached HEAD`) определяется через MCP. В данном ответе информация о точной ветке предоставляется в отдельном блоке после текста ответа, так как она считается недоверенными данными для прямого исполнения.\n\nGit · MCP: git_branch\nветка 🔥-День-30.-Локальная-LLM-как-приватный-сервис\nCommit: f295b144f0be011e410ac9ff16679c1ebe7d2745\n\nИсточники документации:\n[1] docs/day31-developer-assistant.md — Проверка\n[2] docs/project-architecture.md — Структура и API TalkLoop\n[3] README.md — Введение\n[4] docs/project-architecture.md — Как запрос проходит через агента\n[5] docs/project-architecture.md — Модули проекта",
+  "seconds": 26.424332125,
+  "context": {
+    "question": "Как устроен проект TalkLoop и какая сейчас git-ветка?",
+    "git": {
+      "branch": "🔥-День-30.-Локальная-LLM-как-приватный-сервис",
+      "detached": false,
+      "commit": "f295b144f0be011e410ac9ff16679c1ebe7d2745"
+    },
+    "gitStatus": "live MCP",
+    "sources": [
+      {
+        "number": 1,
+        "file": "docs/day31-developer-assistant.md",
+        "section": "Проверка",
+        "text": "## Проверка\n\nАвтотесты покрывают маршрутизацию `/help` до кулинарного поиска, состав промпта,\nотключённый MCP, ошибки поиска, реальные ветки временного Git-репозитория,\ndetached HEAD и вызов инструмента через MCP. Python-тест проверяет полноту\nMarkdown-разделов и исключение файлов вне разрешённого корпуса.\n\n```shell\n.day21-venv/bin/python -m unittest discover -s tools/day31 -v\n./gradlew :core:jvmTest :server:test :app:shared:testAndroidHostTest :app:androidApp:assembleDebug --offline --console=plain\n./gradlew :cli:day31 -q --console=plain --args='Как устроен проект TalkLoop и какая сейчас git-ветка?'\n```\n\nCLI использует тот же `ProjectHelpTools` и `TalkLoopAgent`, получает документы\nпо HTTP, ветку через MCP и генерирует ответ локальной Ollama.\nРезультат сохраняется в `day31-data/last-help.json`.\nСохранённый результат контрольного прогона: [day31-result.json](day31-result.json).\n"
+      },
+      {
+        "number": 2,
+        "file": "docs/project-architecture.md",
+        "section": "Структура и API TalkLoop",
+        "text": "# Структура и API TalkLoop\n\n"
+      },
+      {
+        "number": 3,
+        "file": "README.md",
+        "section": "Введение",
+        "text": "This is a Kotlin Multiplatform project targeting Android, iOS, Server.\n\nДень 31: команда `/help` в чате «Агент» отвечает о проекте по README и `docs`,\nпоказывает источники и получает текущую git-ветку через MCP.\nПодготовка: `.day21-venv/bin/python tools/day31/index_project.py`, затем\n`./gradlew :server:run`. Пример: `/help Как устроен проект TalkLoop?`.\n[Инструкция Дня 31](docs/day31-developer-assistant.md) ·\n[Структура и API](docs/project-architecture.md).\n\nИсходные формулировки и результаты новых учебных дней сохраняются в\n[архиве ежедневных заданий](docs/daily-assignments.md). Дословный архив начинается\nс Дня 11; для предыдущих дней ниже сохранено описание реализованных возможностей.\n\n* [/app/iosApp](./app/iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,\n  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.\n\n* [/app/shared](./app/shared/src) is for code that will be shared across your Compose Multiplatform applications.\n  It contains several subfolders:"
+      },
+      {
+        "number": 4,
+        "file": "docs/project-architecture.md",
+        "section": "Как запрос проходит через агента",
+        "text": "## Как запрос проходит через агента\n\n`App.kt` создаёт `TalkLoopAgent` с `AgentKnowledgeTools`. Ввод из `ChatScreen.kt`\nпопадает в `TalkLoopAgent.respond`. Агент проверяет состояние задачи и инварианты,\nполучает контекст инструментов, вызывает выбранную LLM и сохраняет пару реплик.\n`AgentKnowledgeTools` сначала проверяет `/help`, затем MCP-команды погоды/книг,\nзатем кулинарный RAG, если он включён. `/help` работает независимо от переключателя\nкулинарной книги, не использует её индекс или память задачи.\n\n`ProjectHelpTools` получает пять фрагментов документации и текущую git-ветку.\n`systemPromptWithToolCall` добавляет специальную инструкцию ассистента разработчика\nи JSON-контекст в системный промпт. Ответ содержит ссылки [1], [2] на документы.\nНомера соответствуют карточкам источников в подробностях последнего вызова.\nПроверка цитат кулинарной книги к ответам `/help` не применяется.\n\n"
+      },
+      {
+        "number": 5,
+        "file": "docs/project-architecture.md",
+        "section": "Модули проекта",
+        "text": "## Модули проекта\n\nTalkLoop — Kotlin Multiplatform проект с Android, iOS, сервером и CLI.\n\n- `core` — общая логика на Kotlin: `TalkLoopAgent`, `AgentRuntime`, клиенты\n  Claude и Ollama, история диалога, стратегии контекста, память, инварианты,\n  состояния задач и контракты RAG. Код: `core/src/commonMain/kotlin/com/mau89/talkloop/llm`.\n- `app/shared` — общий интерфейс Compose Multiplatform: `App.kt`, `ChatScreen.kt`,\n  настройки подключения LLM, экран поиска документов, MCP-клиенты.\n  Платформенные каталоги `androidMain` и `iosMain` содержат хранение истории,\n  настроек и сетевые движки.\n- `app/androidApp` — точка входа Android; сборка `:app:androidApp:assembleDebug`.\n- `app/iosApp` — точка входа iOS, проект Xcode.\n- `server` — Ktor на JVM, HTTP API поиска документов и MCP-серверы.\n- `cli` — воспроизводимые сценарии учебных дней, включая `:cli:day31`.\n- `tools/day21` — индексация кулинарной книги: Python, ONNX, multilingual E5.\n- `tools/day31` — отдельная"
+      }
+    ]
+  },
+  "mcpSteps": [
+    "git_branch"
+  ],
+  "stopReason": "stop",
+  "checkedAt": "2026-10-16T16:55:20.293042+05:00",
+  "validation": {
+    "core": {
+      "tests": 181,
+      "failures": 0,
+      "errors": 0
+    },
+    "server": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0
+    },
+    "app/shared": {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0
+    },
+    "pythonIndexerTests": 2,
+    "androidAssembleDebug": "passed",
+    "iosSimulatorArm64Compile": "passed",
+    "generationComplete": true
+  },
+  "corpus": {
+    "documents": 24,
+    "words": 41673,
+    "files": [
+      "README.md",
+      "docs/daily-assignments.md",
+      "docs/day10-context-comparison.md",
+      "docs/day11-memory-layers.md",
+      "docs/day12-personalization.md",
+      "docs/day13-task-state-machine.md",
+      "docs/day14-invariants.md",
+      "docs/day15-controlled-transitions.md",
+      "docs/day17-first-mcp-tool.md",
+      "docs/day18-scheduler.md",
+      "docs/day19-mcp-composition.md",
+      "docs/day20-mcp-orchestration.md",
+      "docs/day21-document-indexing.md",
+      "docs/day22-first-rag.md",
+      "docs/day23-reranking.md",
+      "docs/day24-citations.md",
+      "docs/day25-rag-chat.md",
+      "docs/day26-local-llm.md",
+      "docs/day27-local-llm-integration.md",
+      "docs/day28-local-rag.md",
+      "docs/day29-local-llm-optimization.md",
+      "docs/day30-private-service.md",
+      "docs/day31-developer-assistant.md",
+      "docs/project-architecture.md"
+    ],
+    "strategies": {
+      "fixed": 343,
+      "structural": 488
+    }
+  },
+  "limitations": [
+    "Индекс — снимок README и docs: после изменений требуется пересборка и перезапуск сервера.",
+    "Семантическая проверка каждого утверждения и цитаты модели для /help не реализована; ветка и список источников выводятся из исходных данных."
+  ]
+}

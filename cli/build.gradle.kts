@@ -11,6 +11,14 @@ application {
     mainClass = "com.mau89.talkloop.cli.MainKt"
 }
 
+tasks.register<JavaExec>("day31") {
+    group = "application"
+    description = "День 31: /help по документации проекта, git-ветка через MCP, ответ Ollama"
+    mainClass = "com.mau89.talkloop.cli.Day31Kt"
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}
+
 dependencies {
     implementation(project(":core"))
     implementation(libs.anthropic.java)

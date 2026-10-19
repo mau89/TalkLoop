@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -223,7 +224,10 @@ fun ChatScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                if (call.steps.isEmpty()) {
+                                if (call.projectHelp) {
+                                    "Проект TalkLoop · ${documentSources.orEmpty().size} источников · " +
+                                        if (call.steps.isEmpty()) "MCP отключён" else "git через MCP"
+                                } else if (call.steps.isEmpty()) {
                                     if (documentSources != null) "Кулинарная книга · " +
                                         (call.retrieval?.let { "${it.candidates.size} → " } ?: "") + "${documentSources.size} источников"
                                     else "MCP · " + listOfNotNull(call.serverName, call.toolName)
@@ -249,6 +253,10 @@ fun ChatScreen(
                                         .verticalScroll(rememberScrollState()),
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
+                                    if (call.projectHelp) call.steps.forEach { step ->
+                                        Text("MCP · ${step.serverName} → ${step.toolName}", style = MaterialTheme.typography.labelLarge)
+                                        SelectionContainer { Text(step.result, style = MaterialTheme.typography.bodySmall) }
+                                    }
                                     call.evidence?.let { evidence ->
                                         Text(if (evidence.status == "answered") "Цитаты проверены по тексту; соответствие утверждений проверено моделью."
                                             else if (evidence.reason in listOf("verification_unavailable", "repair_unavailable")) "Проверка недоступна — повторите запрос."
@@ -503,6 +511,7 @@ private data class McpQuickCommand(
 )
 
 private val MCP_QUICK_COMMANDS = listOf(
+    McpQuickCommand("/help Как устроен проект TalkLoop?", "Документация проекта и текущая git-ветка"),
     McpQuickCommand("/weather Тюмень", "Текущая погода"),
     McpQuickCommand("/weather-watch Тюмень 1", "Начать периодический сбор"),
     McpQuickCommand("/weather-summary Тюмень", "Показать накопленную сводку"),

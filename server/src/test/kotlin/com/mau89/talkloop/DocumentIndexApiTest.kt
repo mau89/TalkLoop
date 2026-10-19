@@ -21,6 +21,30 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class DocumentIndexApiTest {
+    @Test
+    fun projectRoutesUseSeparateGatewayAndPreserveCookbook() = testApplication {
+        fun gateway(title: String) = object : DocumentIndexGateway {
+            override suspend fun catalog() = DocumentIndexCatalog(1, 10, 0.02, emptyList(), "E5", 384,
+                emptyList(), title = title)
+            override suspend fun search(request: DocumentSearchRequest) = DocumentSearchResponse(request.query,
+                results = listOf(DocumentStrategyResults(request.strategy, listOf(DocumentChunkHit(
+                    title, title, title, title, "Модули", emptyList(), emptyList(), 10, title, 0.9,
+                )))), searchSeconds = 0.01)
+        }
+        application {
+            module(documentIndex = gateway("cookbook"), projectDocumentIndex = gateway("README.md"))
+        }
+        val project = client.get("/api/project/documents/status")
+        assertEquals("README.md", Json.decodeFromString<DocumentIndexCatalog>(project.bodyAsText()).title)
+        assertEquals("cookbook", Json.decodeFromString<DocumentIndexCatalog>(client.get("/api/documents/status").bodyAsText()).title)
+        val response = client.post("/api/project/documents/search") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"query":"Где core?","strategy":"structural"}""")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("README.md", Json.decodeFromString<DocumentSearchResponse>(response.bodyAsText()).results.single().hits.single().file)
+    }
+
     private val catalog = DocumentIndexCatalog(
         documents = 79, words = 129505, textPages = 259.01, models = listOf("A1", "A1 mini"),
         embeddingModel = "intfloat/multilingual-e5-small", dimension = 384,

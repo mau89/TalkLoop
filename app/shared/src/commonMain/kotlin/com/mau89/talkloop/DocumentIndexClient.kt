@@ -19,7 +19,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class DocumentIndexClient {
+internal class DocumentIndexClient(private val route: String = "/api/documents") {
     private val http = createMcpHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -42,7 +42,7 @@ internal class DocumentIndexClient {
         require(url.protocol in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) && url.host.isNotBlank()) {
             "Укажите адрес сервера, например http://10.0.2.2:8080."
         }
-        return "$base/api/documents/$operation"
+        return "$base$route/$operation"
     }
 
     private suspend fun checked(response: HttpResponse): String {

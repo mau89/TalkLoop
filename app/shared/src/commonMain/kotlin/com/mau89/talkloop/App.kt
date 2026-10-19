@@ -21,6 +21,11 @@ import com.mau89.talkloop.llm.AgentRuntime
 import com.mau89.talkloop.llm.AgentKnowledgeSettings
 import com.mau89.talkloop.llm.AgentKnowledgeTools
 import com.mau89.talkloop.llm.DocumentRetriever
+import com.mau89.talkloop.llm.AgentToolProvider
+import com.mau89.talkloop.llm.ProjectHelpTools
+import io.ktor.http.URLBuilder
+import io.ktor.http.encodedPath
+import kotlinx.serialization.json.JsonObject
 import com.mau89.talkloop.llm.RagSettings
 import com.mau89.talkloop.llm.LlmRagTaskMemoryResolver
 import com.mau89.talkloop.llm.AnthropicLlmClient
@@ -72,6 +77,8 @@ fun App(
         var documentAddress by remember { mutableStateOf(defaultDocumentServerAddress()) }
         val documents = remember { DocumentIndexClient() }
         DisposableEffect(documents) { onDispose { documents.close() } }
+        val projectDocuments = remember { DocumentIndexClient("/api/project/documents") }
+        DisposableEffect(projectDocuments) { onDispose { projectDocuments.close() } }
         var agentConnection by remember(connectionStore) { mutableStateOf(connectionStore.load()) }
         val generalLlm = remember(apiKey, agentConnection) {
             when (agentConnection.provider) {
@@ -82,11 +89,24 @@ fun App(
         }
         DisposableEffect(generalLlm) { onDispose { generalLlm.close() } }
         val generalRuntime = remember(generalLlm) { AgentRuntime(generalLlm) }
-        val knowledgeTools = remember(weatherToolProvider, documents, generalLlm) {
+        val knowledgeTools = remember(weatherToolProvider, documents, projectDocuments, generalLlm) {
             AgentKnowledgeTools(
                 mcp = weatherToolProvider,
                 retriever = DocumentRetriever { documents.search(documentAddress, it) },
                 memoryResolver = LlmRagTaskMemoryResolver(generalLlm),
+                projectHelp = ProjectHelpTools(
+                    retriever = DocumentRetriever { projectDocuments.search(documentAddress, it) },
+                    branch = AgentToolProvider {
+                        NetworkMcpToolExecutor().invoke(
+                            McpEndpoint("talkloop-project", URLBuilder(documentAddress.trim()).apply {
+                                port = 8082
+                                encodedPath = "/mcp"
+                            }.buildString()),
+                            "git_branch", JsonObject(emptyMap()),
+                        )
+                    },
+                    mcpEnabled = { mcpEnabled },
+                ),
                 settings = { AgentKnowledgeSettings(mcpEnabled, ragEnabled, ragSettings, taskMemoryEnabled = ragEnabled) },
             )
         }

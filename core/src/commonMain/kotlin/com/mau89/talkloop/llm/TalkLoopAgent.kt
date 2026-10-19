@@ -685,7 +685,11 @@ class TalkLoopAgent(
                 }
             }
             val groundedAnswer = evidenceRun?.let { renderRagEvidence(it.evidence, toolCall?.documentSources.orEmpty()) } ?: answer.text
-            val displayAnswer = if (toolCall?.ragConversation != null) ragChatResponse(groundedAnswer, toolCall.documentSources.orEmpty()) else groundedAnswer
+            val displayAnswer = when {
+                toolCall?.projectHelp == true -> projectHelpResponse(groundedAnswer, toolCall)
+                toolCall?.ragConversation != null -> ragChatResponse(groundedAnswer, toolCall.documentSources.orEmpty())
+                else -> groundedAnswer
+            }
             val candidateResponse = config.outputPolicies.foldSuspend(displayAnswer) { output, policy ->
                 policy.apply(
                     output,

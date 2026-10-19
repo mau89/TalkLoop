@@ -239,12 +239,13 @@ internal fun DocumentChunkCard(rank: Int, hit: DocumentChunkHit) {
                         style = MaterialTheme.typography.bodySmall)
                 }
             }
-            TextButton(onClick = {
+            if (hit.source.startsWith("https://") || hit.source.startsWith("http://")) TextButton(onClick = {
                 val anchor = hit.anchors.firstOrNull { it.isNotBlank() }
                 linkError = runCatching {
                     uriHandler.openUri(hit.source + (anchor?.let { "#$it" } ?: ""))
                 }.isFailure
             }) { Text("Открыть источник") }
+            else Text("${hit.file} · ${hit.anchors.firstOrNull().orEmpty()}", style = MaterialTheme.typography.bodySmall)
             if (linkError) Text("Не удалось открыть ссылку. Адрес доступен в метаданных.", color = MaterialTheme.colorScheme.error)
         }
     }

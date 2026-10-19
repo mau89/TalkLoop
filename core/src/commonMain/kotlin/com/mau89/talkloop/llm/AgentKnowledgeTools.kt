@@ -15,12 +15,14 @@ class AgentKnowledgeTools(
     private val mcp: AgentToolProvider,
     private val retriever: DocumentRetriever,
     private val memoryResolver: RagTaskMemoryResolver? = null,
+    private val projectHelp: AgentToolProvider? = null,
     private val settings: () -> AgentKnowledgeSettings,
 ) : AgentToolProvider {
     override suspend fun callFor(request: String): AgentToolCall? = callFor(request, AgentToolContext())
 
     override suspend fun callFor(request: String, context: AgentToolContext): AgentToolCall? {
         val selected = settings()
+        projectHelp?.callFor(request, context)?.let { return it }
         // Служебные команды погоды и книжного MCP сохраняют прежний маршрут.
         if (selected.mcpEnabled) mcp.callFor(request)?.let { return it }
         if (!selected.ragEnabled) return null

@@ -1,5 +1,12 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
+День 31: команда `/help` в чате «Агент» отвечает о проекте по README и `docs`,
+показывает источники и получает текущую git-ветку через MCP.
+Подготовка: `.day21-venv/bin/python tools/day31/index_project.py`, затем
+`./gradlew :server:run`. Пример: `/help Как устроен проект TalkLoop?`.
+[Инструкция Дня 31](docs/day31-developer-assistant.md) ·
+[Структура и API](docs/project-architecture.md).
+
 Исходные формулировки и результаты новых учебных дней сохраняются в
 [архиве ежедневных заданий](docs/daily-assignments.md). Дословный архив начинается
 с Дня 11; для предыдущих дней ниже сохранено описание реализованных возможностей.

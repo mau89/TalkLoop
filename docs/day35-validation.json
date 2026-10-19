@@ -1,0 +1,96 @@
+{
+  "day": 35,
+  "date": "2026-10-19",
+  "state": "prepared",
+  "sourceCommit": "2d03cfaef71bca39f20be31ae42bf7a304e572b2",
+  "baseCommit": "8d64764358b2d783648d826d7c8392acda65eee4",
+  "localEndToEndRun": true,
+  "model": "qwen3.5:9b-q8_0",
+  "aiProvider": "native local Ollama, no mock in full run",
+  "gates": [
+    {
+      "name": "python-day32",
+      "state": "passed",
+      "log": "python-day32.log",
+      "exitCode": 0,
+      "seconds": 11.52,
+      "tests": 38
+    },
+    {
+      "name": "python-day34",
+      "state": "passed",
+      "log": "python-day34.log",
+      "exitCode": 0,
+      "seconds": 1.05,
+      "tests": 10
+    },
+    {
+      "name": "python-day35",
+      "state": "passed",
+      "log": "python-day35.log",
+      "exitCode": 0,
+      "seconds": 1.76,
+      "tests": 10
+    },
+    {
+      "name": "gradle",
+      "state": "passed",
+      "log": "gradle.log",
+      "exitCode": 0,
+      "seconds": 32.15
+    }
+  ],
+  "kotlinTests": {
+    "tests": 215,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "pythonTests": 58,
+  "totalTests": 273,
+  "apk": {
+    "applicationId": "com.mau89.talkloop",
+    "version": "1.1.0",
+    "versionCode": 2,
+    "variant": "release",
+    "signed": false,
+    "embeddedCloudKey": false,
+    "file": "TalkLoop-1.1.0-unsigned.apk",
+    "sha256": "c2c4655346621b408c5f3357b7ace6906ae617628026c4bb2c54abfd6e529da5",
+    "bytes": 35272378
+  },
+  "additionalApkChecks": {
+    "buildTools": "36.1.0",
+    "debuggable": false,
+    "testOnly": false,
+    "signature": "unsigned, apksigner reports missing META-INF/MANIFEST.MF"
+  },
+  "bundle": {
+    "localPath": "day35-data/1.1.0-candidate/TalkLoop-1.1.0-candidate.zip",
+    "sha256": "73cbda73d5135df3a2c5fc2142506b01c9f056d4a01300a73dd13ba4d2031f8c",
+    "bytes": 12350047,
+    "zipIntegrity": "passed",
+    "packagedApkShaMatchesManifest": true
+  },
+  "aiReview": {
+    "rawNotesSha256": "2f7c7e8155493b29a6bc85d957c8ae0fc934f9b1cea7e530b43efa0ad64173c9",
+    "rawResponseSha256": "24140a44e035dfc5827dfa8f20c4eb053fe2720065bb8cec84922981b9a25e5a",
+    "reviewedBy": "Codex",
+    "reviewedNotes": "docs/day35-release-notes.md",
+    "correction": "An in-range SHA was attached to the wrong change; version settings belong to da1024c3817b. Raw model output retained.",
+    "automaticSemanticVerification": false
+  },
+  "github": {
+    "workflow": "prepare-release.yml",
+    "hostPolicyUpdated": true,
+    "hostPolicyBackup": "runner_guard.before-day35.py",
+    "workflowRunExecuted": false,
+    "reason": "Manual workflow must first be present on the default branch; daily branch is not merged."
+  },
+  "publishingReady": false,
+  "remaining": [
+    "Owner review and device smoke test",
+    "Signing key and APK signing",
+    "AAB and store materials/access if publishing to Google Play"
+  ]
+}

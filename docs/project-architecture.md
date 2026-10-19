@@ -18,6 +18,7 @@ TalkLoop — Kotlin Multiplatform проект с Android, iOS, сервером
 - `tools/day21` — индексация кулинарной книги: Python, ONNX, multilingual E5.
 - `tools/day31` — отдельная индексация README и Markdown-документов из `docs`.
 - `tools/day33` — отдельная индексация `docs/support` и JSON с демо-клиентами/тикетами.
+- `tools/day34` — цикл файлового ассистента: инструменты, журнал, diff, применение и повтор.
 - `docs` — документация учебных дней, описание структуры и API, результаты проверок.
 
 ## Как запрос проходит через агента
@@ -62,6 +63,9 @@ Android Emulator обращается к Mac по адресу
 - `POST /api/project/documents/search` — поиск по документации проекта.
 - `GET /api/support/catalog` — демо-клиенты и краткие сведения о тикетах.
 - `POST /api/support/ask` — ответ по FAQ, текущему контексту MCP и истории тикета.
+- `POST /api/file-tasks` — фоновая задача по цели; `GET /api/file-tasks/latest`
+  и `GET /api/file-tasks/{id}` — ход работы и diff; `POST /api/file-tasks/{id}/apply` —
+  сохранение подготовленного Markdown в `docs/generated/day34`.
 - `/mcp` — Streamable HTTP MCP погоды, планировщика и погодных отчётов.
 
 Проектный сервер, порт 8082: `/mcp` — read-only инструмент `git_branch`.

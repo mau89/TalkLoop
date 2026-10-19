@@ -1,0 +1,66 @@
+{
+  "day": 34,
+  "date": "2026-10-19",
+  "model": "qwen3.5:9b-q8_0",
+  "tests": {
+    "coreJvm": 187,
+    "server": 28,
+    "python": 10,
+    "androidAssemble": "passed",
+    "iosSimulatorCompile": "passed"
+  },
+  "scenarios": [
+    {
+      "goal": "Найди все места использования SupportAssistant, прочитай реализацию, вызовы и тесты, подготовь краткий отчёт с путями и строками.",
+      "jobId": "d039cec7-5c25-4240-8022-e11187c7906f",
+      "state": "applied",
+      "readFiles": [
+        "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+        "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+        "docs/generated/day34/support-api.md",
+        "server/src/main/kotlin/com/mau89/talkloop/SupportApi.kt"
+      ],
+      "toolActions": 8,
+      "savedFromAndroidApp": true,
+      "output": "docs/generated/day34/support-api.md",
+      "savedSha256": "db0108cd3dcf5dfa36e180158d91919dec450ce601dbbb6c726089e119e46e0d",
+      "note": "First result copied to support-assistant-usage.md and reviewed before API guide replaced original target."
+    },
+    {
+      "goal": "Обнови документацию серверного HTTP API поддержки по текущему коду: составь краткую справку по маршрутам, полям запросов и ответов, ошибкам. Прочитай серверную реализацию, общие типы и серверные тесты. Подготовь новый документ; существующий отчёт об использовании компонента не изменяй.",
+      "jobId": "e90dd326-6df8-4cd2-888a-f9d8d46ac106",
+      "state": "applied",
+      "readFiles": [
+        "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+        "docs/generated/day34/support-api.md",
+        "server/src/main/kotlin/com/mau89/talkloop/SupportApi.kt",
+        "server/src/test/kotlin/com/mau89/talkloop/SupportServiceTest.kt"
+      ],
+      "toolActions": 10,
+      "savedFromAndroidApp": true,
+      "output": "docs/generated/day34/support-api.md",
+      "savedSha256": "b7c99a8d78c5b2000ec9b88a18dd8f60fe017170a3bc18466250258a52942ee9",
+      "note": "Reviewed plan applied from app; saved SHA-256 verified."
+    }
+  ],
+  "replay": {
+    "modelRequired": false,
+    "rawApiDiffIdentical": true,
+    "usageDiffIdenticalBeforeApply": true,
+    "reviewedFixture": "tools/day34/examples/api-reviewed-trace.json",
+    "afterApplyState": "no_changes"
+  },
+  "review": {
+    "reviewer": "Codex",
+    "note": "Local-model documentation was checked against sources before delivery; original model plan/trace/diff retained locally.",
+    "corrections": [
+      "catalog includes all demo tickets",
+      "request body limit is characters",
+      "timeout maps to HTTP 504",
+      "test descriptions and JSON example notation"
+    ]
+  },
+  "androidUi": {
+    "savedMessageVisible": true
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "goal": "Обнови документацию серверного HTTP API поддержки по текущему коду: составь краткую справку по маршрутам, полям запросов и ответов, ошибкам. Прочитай серверную реализацию, общие типы и серверные тесты. Подготовь новый документ; существующий отчёт об использовании компонента не изменяй.",
+  "steps": [
+    {
+      "action": {
+        "action": "search",
+        "path": "server",
+        "query": "supportRoutes",
+        "start_line": 1,
+        "content": "",
+        "message": "Поиск маршрутов поддержки в модуле server."
+      },
+      "result": {
+        "matches": [
+          {
+            "path": "server/src/main/kotlin/com/mau89/talkloop/Application.kt",
+            "line": 102,
+            "text": "        supportRoutes(support)"
+          },
+          {
+            "path": "server/src/main/kotlin/com/mau89/talkloop/SupportApi.kt",
+            "line": 73,
+            "text": "fun Route.supportRoutes(service: SupportService) {"
+          },
+          {
+            "path": "server/src/test/kotlin/com/mau89/talkloop/SupportServiceTest.kt",
+            "line": 72,
+            "text": "        application { routing { supportRoutes(service) } }"
+          },
+          {
+            "path": "server/src/test/kotlin/com/mau89/talkloop/SupportServiceTest.kt",
+            "line": 91,
+            "text": "        application { routing { supportRoutes(service) } }"
+          }
+        ],
+        "total": 4,
+        "truncated": false,
+        "skippedFiles": [],
+        "scope": "Только разрешённые отслеживаемые текстовые файлы, до 80 КБ каждый; не весь диск."
+      }
+    },
+    {
+      "action": {
+        "action": "read_file",
+        "path": "server/src/main/kotlin/com/mau89/talkloop/SupportApi.kt",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Чтение реализации маршрутов поддержки."
+      },
+      "result": {
+        "path": "server/src/main/kotlin/com/mau89/talkloop/SupportApi.kt",
+        "sha256": "8527b7eb882bdade853a9c4b26657c4bc40215532d1f4c15f8c9829861f752d5",
+        "startLine": 1,
+        "endLine": 109,
+        "totalLines": 109,
+        "truncated": false
+      }
+    },
+    {
+      "action": {
+        "action": "read_file",
+        "path": "core/src/main/kotlin/com/mau89/talkloop/dto/SupportRequest.kt",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Чтение DTO запроса поддержки."
+      },
+      "result": {
+        "error": "Файл не входит в разрешённые текстовые файлы проекта."
+      }
+    },
+    {
+      "action": {
+        "action": "search",
+        "path": "core",
+        "query": "SupportRequest",
+        "start_line": 1,
+        "content": "",
+        "message": "Поиск файла с DTO SupportRequest в модуле core."
+      },
+      "result": {
+        "matches": [
+          {
+            "path": "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+            "line": 26,
+            "text": "data class SupportRequest("
+          },
+          {
+            "path": "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+            "line": 57,
+            "text": "    suspend fun answer(request: SupportRequest): SupportReply {"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 40,
+            "text": "        val first = agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Почему не работает авторизация?\"))"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 43,
+            "text": "        val second = agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Что дальше?\", history))"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 58,
+            "text": "        assertFailsWith<IllegalArgumentException> { agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Вход\")) }"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 59,
+            "text": "        assertFailsWith<IllegalArgumentException> { agent.answer(SupportRequest(\"../secrets\", \"T1001\", \"Вход\")) }"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 67,
+            "text": "        assertEquals(\"needs_info\", agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Вопрос\")).disposition)"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 69,
+            "text": "        assertFailsWith<IllegalArgumentException> { cookbook.answer(SupportRequest(\"U1001\", \"T1001\", \"Вопрос\")) }"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 84,
+            "text": "            assertFailsWith<IllegalStateException>(bad) { agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Вопрос\")) }"
+          },
+          {
+            "path": "core/src/commonTest/kotlin/com/mau89/talkloop/llm/SupportAssistantTest.kt",
+            "line": 87,
+            "text": "        assertFailsWith<IllegalStateException> { agent.answer(SupportRequest(\"U1001\", \"T1001\", \"Вопрос\")) }"
+          }
+        ],
+        "total": 10,
+        "truncated": false,
+        "skippedFiles": [],
+        "scope": "Только разрешённые отслеживаемые текстовые файлы, до 80 КБ каждый; не весь диск."
+      }
+    },
+    {
+      "action": {
+        "action": "read_file",
+        "path": "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Чтение файла с DTO SupportRequest и SupportReply."
+      },
+      "result": {
+        "path": "core/src/commonMain/kotlin/com/mau89/talkloop/llm/SupportAssistant.kt",
+        "sha256": "b1484aba783035444ee90d9da2bb72ab09c687629fa3c041e37907fff5319d17",
+        "startLine": 1,
+        "endLine": 120,
+        "totalLines": 140,
+        "truncated": true
+      }
+    },
+    {
+      "action": {
+        "action": "read_file",
+        "path": "server/src/test/kotlin/com/mau89/talkloop/SupportServiceTest.kt",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Чтение тестов для проверки контрактов API."
+      },
+      "result": {
+        "path": "server/src/test/kotlin/com/mau89/talkloop/SupportServiceTest.kt",
+        "sha256": "6d04b0052f5a1b755913a26a4d31f7a55c1017bce8babce5859efe17d0016ece",
+        "startLine": 1,
+        "endLine": 98,
+        "totalLines": 98,
+        "truncated": false
+      }
+    },
+    {
+      "action": {
+        "action": "write_file",
+        "path": "docs/generated/day34/support-api.md",
+        "query": "",
+        "start_line": 1,
+        "content": "# Серверное HTTP API поддержки TalkLoop\n\n## Маршруты\n- **GET `/api/support/catalog`** — возвращает список демо-пользователей и открытых тикетов.\n- **POST `/api/support/ask`** — отправляет запрос на получение ответа поддержки. Требует заголовка `Content-Type: application/json`. Отклоняет запросы с заголовком `Origin`.\n\n## Поля запроса (POST `/api/support/ask`)\n```json\n{\n  \"userId\": \"U1001\",      // Строка, формат U[0-9]{4}\n  \"ticketId\": \"T1001\",    // Строка, формат T[0-9]{4}\n  \"question\": \"Текст вопроса\", // Строка, макс. 1500 символов\n  \"history\": [            // Массив объектов (опционально)\n    {\"fromUser\": true, \"text\": \"Предыдущий вопрос\"}  // текст макс. 1000 символов\n  ]\n}\n```\nОграничение: общий размер тела запроса не более 12 000 байт.\n\n## Поля ответа (Success 200 OK)\n```json\n{\n  \"answer\": \"Текст ответа поддержки\", // Строка, макс. 6000 символов\n  \"disposition\": \"answered\" | \"needs_info\" | \"escalate\",\n  \"context\": {\n    \"user\": {\"id\": \"U1001\", \"name\": \"Имя\", \"plan\": \"Basic\", \"language\": \"ru\"},\n    \"ticket\": {\"id\": \"T1001\", \"userId\": \"U1001\", \"subject\": \"Тема\", \"status\": \"open\", \"platform\": \"Android\", \"appVersion\": \"1.1.0\", \"issueCode\": \"EMAIL_NOT_VERIFIED\", \"facts\": {...}, \"notes\": \"\"}\n  },\n  \"sources\": [\n    {\"number\": 1, \"file\": \"docs/support/faq.md\", \"section\": \"Вход\", \"text\": \"...\"}\n  ],\n  \"usedSources\": [1],\n  \"mcpTool\": \"support_ticket_context\"\n}\n```\n\n## Ошибки\n| Код | Описание |\n|-----|----------|\n| **400 Bad Request** | Неверный формат JSON, пустой вопрос, нарушение формата ID (userId/ticketId), история слишком длинная. |\n| **409 Conflict** | Поддержка уже обрабатывает запрос (SupportBusy). Повторите позже. |\n| **404 Not Found** | Тикет недоступен или не найден в MCP (SupportTicketUnavailable). |\n| **503 Service Unavailable** | Ошибка сервера, проблемы с MCP/Ollama или индексом FAQ. |\n| **504 Gateway Timeout** | Ответ поддержки не получен вовремя (>180 сек). |\n\n## Примечания\n- API работает только с демо-данными (файл `tools/day33/support-demo.json`).\n- Запросы проверяются на безопасность пути и длину текста до вызова LLM.\n- Ответы содержат ссылки на источники из базы знаний (`docs/support/*.md`).",
+        "message": "Создан документ справки API поддержки."
+      },
+      "result": {
+        "error": "Перед изменением существующего документа прочитайте его через read_file."
+      }
+    },
+    {
+      "action": {
+        "action": "read_file",
+        "path": "docs/generated/day34/support-api.md",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Чтение существующего документа для обновления."
+      },
+      "result": {
+        "path": "docs/generated/day34/support-api.md",
+        "sha256": "db0108cd3dcf5dfa36e180158d91919dec450ce601dbbb6c726089e119e46e0d",
+        "startLine": 1,
+        "endLine": 81,
+        "totalLines": 81,
+        "truncated": false
+      }
+    },
+    {
+      "action": {
+        "action": "write_file",
+        "path": "docs/generated/day34/support-api.md",
+        "query": "",
+        "start_line": 1,
+        "content": "# Серверное HTTP API поддержки TalkLoop\n\n## Маршруты\n- **GET `/api/support/catalog`** — возвращает список демо-пользователей и всех демо-тикетов.\n- **POST `/api/support/ask`** — отправляет запрос на получение ответа поддержки. Требует заголовка `Content-Type: application/json`. Отклоняет запросы с заголовком `Origin`.\n\n## Поля запроса (POST `/api/support/ask`)\n```jsonc\n{\n  \"userId\": \"U1001\",      // Строка, формат U[0-9]{4}\n  \"ticketId\": \"T1001\",    // Строка, формат T[0-9]{4}\n  \"question\": \"Текст вопроса\", // Строка, макс. 1500 символов\n  \"history\": [            // Массив объектов (опционально)\n    {\"fromUser\": true, \"text\": \"Предыдущий вопрос\"}  // текст макс. 1000 символов\n  ]\n}\n```\nОграничение: общий размер тела запроса не более 12 000 символов. История содержит не более четырёх сообщений.\n\n## Поля ответа (схематично, HTTP 200)\n```text\n{\n  \"answer\": \"Текст ответа поддержки\", // Строка, макс. 6000 символов\n  \"disposition\": \"answered\" | \"needs_info\" | \"escalate\",\n  \"context\": {\n    \"user\": {\"id\": \"U1001\", \"name\": \"Имя\", \"plan\": \"Basic\", \"language\": \"ru\"},\n    \"ticket\": {\"id\": \"T1001\", \"userId\": \"U1001\", \"subject\": \"Тема\", \"status\": \"open\", \"platform\": \"Android\", \"appVersion\": \"1.1.0\", \"issueCode\": \"EMAIL_NOT_VERIFIED\", \"facts\": {...}, \"notes\": \"\"}\n  },\n  \"sources\": [\n    {\"number\": 1, \"file\": \"docs/support/faq.md\", \"section\": \"Вход\", \"text\": \"...\"}\n  ],\n  \"usedSources\": [1],\n  \"mcpTool\": \"support_ticket_context\"\n}\n```\n\n## Ошибки\n| Код | Описание |\n|-----|----------|\n| **400 Bad Request** | Неверный формат JSON, пустой вопрос, нарушение формата ID (userId/ticketId), история слишком длинная. |\n| **409 Conflict** | Поддержка уже обрабатывает запрос (SupportBusy). Повторите позже. |\n| **404 Not Found** | Тикет недоступен или не найден в MCP (SupportTicketUnavailable). |\n| **503 Service Unavailable** | Ошибка сервера, проблемы с MCP/Ollama или индексом FAQ. |\n| **504 Gateway Timeout** | Превышено время ожидания MCP или ответа модели. |\n\n## Примечания\n- API работает только с демо-данными (файл `tools/day33/support-demo.json`).\n- До LLM проверяются формат ID клиента/тикета, длина вопроса и размер истории. Выбор демо-клиента не является аутентификацией.\n- Ответы содержат ссылки на источники из базы знаний (`docs/support/*.md`).\n\nСгенерировано локальной Ollama; формулировки уточнены Codex по исходникам при проверке diff. Для HTTP отправляйте обычный JSON без комментариев.\n",
+        "message": "Обновлен документ справки API поддержки с актуальными маршрутами, полями и ошибками."
+      },
+      "result": {
+        "path": "docs/generated/day34/support-api.md",
+        "staged": true,
+        "changed": true
+      }
+    },
+    {
+      "action": {
+        "action": "finish",
+        "path": "",
+        "query": "",
+        "start_line": 1,
+        "content": "",
+        "message": "Документация серверного API поддержки обновлена с актуальными маршрутами, полями запроса/ответа и ошибками."
+      },
+      "result": {
+        "finished": true,
+        "summary": "Документация серверного API поддержки обновлена с актуальными маршрутами, полями запроса/ответа и ошибками."
+      }
+    }
+  ],
+  "outputHashes": {
+    "docs/generated/day34/support-api.md": "b7c99a8d78c5b2000ec9b88a18dd8f60fe017170a3bc18466250258a52942ee9"
+  },
+  "origin": {
+    "model": "qwen3.5:9b-q8_0",
+    "runId": "e90dd326-6df8-4cd2-888a-f9d8d46ac106",
+    "reviewedBy": "Codex",
+    "note": "Recorded file actions; final document wording corrected against source. Raw model trace is retained locally."
+  }
+}

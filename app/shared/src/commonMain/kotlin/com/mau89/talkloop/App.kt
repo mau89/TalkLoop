@@ -45,6 +45,7 @@ import kotlinx.coroutines.delay
 
 private val TABS = listOf(
     "Агент",
+    "Файлы",
     "Поддержка",
     "Ревью PR",
     "Документы",
@@ -225,17 +226,18 @@ fun App(
                     },
                     modifier = Modifier.fillMaxSize(),
                 )
-                1 -> SupportScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
-                2 -> PrReviewScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
-                3 -> DocumentIndexScreen(Modifier.fillMaxSize())
-                4 -> InvariantLabScreen(
+                1 -> FileTaskScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                2 -> SupportScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                3 -> PrReviewScreen(documentAddress, { documentAddress = it }, Modifier.fillMaxSize())
+                4 -> DocumentIndexScreen(Modifier.fillMaxSize())
+                5 -> InvariantLabScreen(
                     agent = generalAgent,
                     modifier = Modifier.fillMaxSize(),
                 )
-                5 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
-                6 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
-                7 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
-                8 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
+                6 -> ChatScreen(apiKey, conversationAgent, Modifier.fillMaxSize())
+                7 -> FormatLabScreen(apiKey, Modifier.fillMaxSize())
+                8 -> ReasoningLabScreen(apiKey, Modifier.fillMaxSize())
+                9 -> TemperatureLabScreen(apiKey, Modifier.fillMaxSize())
                 else -> ModelLabScreen(apiKey, Modifier.fillMaxSize())
             }
         }

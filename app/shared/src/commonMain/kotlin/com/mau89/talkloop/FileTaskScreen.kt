@@ -72,6 +72,22 @@ fun FileTaskScreen(address: String, onAddressChange: (String) -> Unit, modifier:
         if (busy || task?.isRunning == true) LinearProgressIndicator(Modifier.fillMaxWidth())
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         task?.let { result ->
+            val canSave = result.state == "prepared" || result.state == "no_changes"
+            Button(enabled = !busy && canSave, modifier = Modifier.fillMaxWidth(), onClick = {
+                scope.launch {
+                    busy = true; error = null
+                    try { task = client.apply(address, result.id) }
+                    catch (cancelled: CancellationException) { throw cancelled }
+                    catch (failure: Exception) { error = failure.message }
+                    finally { busy = false }
+                }
+            }) { Text(if (result.state == "applied") "Файлы уже сохранены" else "Сохранить файлы") }
+            Text(when (result.state) {
+                "applied" -> "Изменения сохранены на Mac в проекте TalkLoop. Для новой задачи нажмите «Выполнить задачу»."
+                "running" -> "Сохранение станет доступно, когда ассистент подготовит diff."
+                "prepared", "no_changes" -> "Перед сохранением проверяется, что исходники и документ не изменились после анализа."
+                else -> "Готовых изменений нет. Исправьте причину ошибки и выполните задачу заново."
+            }, style = MaterialTheme.typography.bodySmall)
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(result.message, color = if (result.state == "error") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
@@ -88,19 +104,6 @@ fun FileTaskScreen(address: String, onAddressChange: (String) -> Unit, modifier:
                     }
                 }
             }
-            if (result.state == "prepared" || result.state == "no_changes") {
-                Button(enabled = !busy, modifier = Modifier.fillMaxWidth(), onClick = {
-                    scope.launch {
-                        busy = true; error = null
-                        try { task = client.apply(address, result.id) }
-                        catch (cancelled: CancellationException) { throw cancelled }
-                        catch (failure: Exception) { error = failure.message }
-                        finally { busy = false }
-                    }
-                }) { Text("Сохранить файлы") }
-                Text("Перед сохранением проверяется, что исходники и документ не изменились после анализа.", style = MaterialTheme.typography.bodySmall)
-            }
-            if (result.state == "applied") Text("Изменения сохранены на Mac в проекте TalkLoop.")
             if (result.diff.isNotBlank()) {
                 TextButton(onClick = { showDiff = !showDiff }) { Text(if (showDiff) "Скрыть diff" else "Показать diff") }
                 if (showDiff) SelectionContainer { Text(result.diff, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall) }

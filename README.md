@@ -4,6 +4,10 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 GitHub Action получает diff и изменённые файлы, ищет документацию и связанный
 код через RAG и сохраняет ревью в Summary и артефакте запуска.
 Ревью выполняется на Mac через локальную Ollama; облачный ключ не нужен.
+В приложении доступна вкладка **«Ревью PR»**: укажите номер или ссылку PR,
+нажмите **«Проверить PR»** и дождитесь отчёта прямо на экране.
+Для этого запустите Ollama и локальный сервер `./gradlew :server:run`.
+Кнопка запускает тот же анализатор на Mac через сервер, независимо от GitHub Actions.
 [Управление раннером и отмена настройки](docs/day32-mac-runner.md).
 Проверка подготовки контекста без модели:
 `python3 tools/day32/review_pr.py --base HEAD^ --head HEAD --prepare-only`.

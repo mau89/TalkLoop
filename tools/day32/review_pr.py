@@ -501,7 +501,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
-def main(argv=None):
+def main(argv=None, on_progress=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo', type=Path, default=Path('.'))
     parser.add_argument('--base', required=True)
@@ -515,6 +515,8 @@ def main(argv=None):
     model = args.model or ('claude-sonnet-5' if args.provider == 'anthropic' else 'qwen3.5:9b-q8_0')
     args.output.mkdir(parents=True, exist_ok=True)
     try:
+        if on_progress:
+            on_progress('Готовим diff и ищем документацию и код через RAG…')
         batches = build_batches(args.repo.resolve(), args.base, args.head)
         context = combine_contexts(batches)
         write_json(args.output / 'context.json', context)
@@ -532,6 +534,8 @@ def main(argv=None):
             answers = []
             for number, batch in enumerate(batches, 1):
                 if batch['files']:
+                    if on_progress:
+                        on_progress(f'Ollama анализирует пакет {number} из {len(batches)}… Это может занять несколько минут.')
                     answers.append(generate(batch, args.provider, model, args.ollama_url,
                         on_reply=lambda reply, number=number: record_reply({'batch': number, **reply})))
             review = {'summary': '\n\n'.join(f"Пакет {i + 1}: {answer['summary']}" for i, answer in enumerate(answers)),

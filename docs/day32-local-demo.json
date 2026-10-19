@@ -1,0 +1,40 @@
+{
+  "status": "reviewed",
+  "model": "qwen3.5:9b-q8_0",
+  "provider": "ollama",
+  "createdAt": "2026-10-19T05:39:40.352596+00:00",
+  "review": {
+    "summary": "Пакет 1: Проверка ограничена предоставленным diff одного файла (HistoryService.kt) и фрагментами документации/кода из базовой версии. Полный контекст проекта, тесты и другие модули не были проанализированы.",
+    "findings": [
+      {
+        "category": "bugs",
+        "severity": "P1",
+        "file": "core/src/HistoryService.kt",
+        "side": "old",
+        "line": 7,
+        "title": "Удалена критическая проверка авторизации (Access Control Bypass)",
+        "description": "В строке 7 удалено требование `require(ownerId == callerId)`, которое гарантировало, что только владелец истории может её загружать. После этого изменения любой пользователь с любым `callerId` сможет вызвать метод и получить историю любого владельца (`ownerId`).",
+        "suggestion": "Верните строку проверки авторизации: `require(ownerId == callerId) { \"Access denied\" }`. Это соответствует контракту, описанному в документации (B1S1), где указано, что HistoryService должен проверять права доступа перед обращением к хранилищу.",
+        "source_ids": [
+          "B1S1",
+          "B1S2"
+        ]
+      }
+    ]
+  },
+  "contextSha256": "1b81a7757f32a4569a723a1b052f4252e03202bf1023bbe19e0f60753c52b931",
+  "coverage": {
+    "totalFiles": 1,
+    "reviewedFiles": 1,
+    "partial": false,
+    "fileExcerptsMayBePartial": true,
+    "batches": 1
+  },
+  "modelRequests": 2,
+  "smokeCheck": {
+    "fixture": "removed owner authorization before private history read",
+    "expectedLocationFoundInBugs": true,
+    "bugCount": 1,
+    "note": "Искусственный контрольный пример; качество на реальных PR оценивается отдельно."
+  }
+}

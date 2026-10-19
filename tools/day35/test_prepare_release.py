@@ -18,6 +18,8 @@ class ReleaseTests(unittest.TestCase):
         self.root.mkdir()
         self.sdk = self.folder / 'sdk'
         (self.sdk / 'build-tools/35.0.0').mkdir(parents=True)
+        for name in ['aapt', 'apksigner']:
+            (self.sdk / 'build-tools/35.0.0' / name).write_text('tool placeholder used with mock subprocess')
         for name, content in [('README.md', '# TalkLoop\n'), ('gradlew', '#!/bin/sh\nexit 0\n'),
                               ('app/Main.kt', 'fun main() {}\n')]:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text(content)
@@ -142,6 +144,17 @@ class ReleaseTests(unittest.TestCase):
             release.command_gate('python-empty', [__import__('sys').executable, '-m', 'unittest', 'discover', '-s', '.'],
                                  self.root, self.output, report, dict(os.environ), timeout=10)
         self.assertEqual('failed', report['gates'][0]['state'])
+
+    def test_incomplete_newer_sdk_is_skipped_for_complete_installed_tools(self):
+        (self.sdk / 'build-tools/37.0.0').mkdir()
+        apk = self.folder / 'test.apk'
+        with zipfile.ZipFile(apk, 'w') as package:
+            package.writestr('classes.dex', b'no embedded key')
+        responses = [subprocess.CompletedProcess([], 0, "package: name='com.mau89.talkloop' versionCode='2' versionName='1.1.0'\n", ''),
+                     subprocess.CompletedProcess([], 1, b'', b'')]
+        with patch.object(subprocess, 'run', side_effect=responses) as tool:
+            self.assertFalse(release.inspect_apk(apk, self.sdk, '1.1.0', 2)['embeddedCloudKey'])
+            self.assertIn('/35.0.0/aapt', tool.call_args_list[0].args[0][0])
 
     def test_missing_failed_or_skipped_xml_tests_are_not_success(self):
         with self.assertRaises(release.ReleaseError): release.test_counts(self.folder)

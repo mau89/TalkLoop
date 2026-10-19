@@ -18,6 +18,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -212,10 +213,11 @@ def test_counts(snapshot):
 
 
 def inspect_apk(apk, sdk, version, code):
-    tools = sorted([p for p in (sdk / 'build-tools').glob('*') if re.fullmatch(r'\d+\.\d+\.\d+', p.name)],
+    tools = sorted([p for p in (sdk / 'build-tools').glob('*') if re.fullmatch(r'\d+\.\d+\.\d+', p.name)
+                    and (p / 'aapt').is_file() and (p / 'apksigner').is_file()],
                    key=lambda p: tuple(map(int, p.name.split('.'))))
     if not tools:
-        raise ReleaseError('Не найдены Android SDK build-tools.')
+        raise ReleaseError('Не найдены полные Android SDK build-tools с aapt и apksigner.')
     aapt = tools[-1] / 'aapt'
     result = subprocess.run([str(aapt), 'dump', 'badging', str(apk)], text=True, capture_output=True, timeout=30)
     line = result.stdout.splitlines()[0] if result.stdout else ''
@@ -316,7 +318,8 @@ def prepare(root, base_ref, version, code, output, provider=ollama, gate=command
                 package.write(output / name, name)
         return 0
     except (ReleaseError, OSError, ValueError, subprocess.SubprocessError, ET.ParseError) as error:
-        report.update(state='blocked', message=str(error) if isinstance(error, ReleaseError) else 'Ошибка окружения. Проверьте журналы этапов.')
+        (output / 'error.log').write_text(traceback.format_exc(), encoding='utf-8')
+        report.update(state='blocked', message=str(error) if isinstance(error, ReleaseError) else 'Ошибка окружения. См. error.log и журналы этапов.')
         save(output / 'release.json', report); render_report(output, report)
         return 1
 

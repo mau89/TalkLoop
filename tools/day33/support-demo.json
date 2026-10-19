@@ -1,0 +1,11 @@
+{
+  "users": [
+    {"id":"U1001","name":"Елена","plan":"Basic (демо)","language":"ru"},
+    {"id":"U1002","name":"Максим","plan":"Pro (демо)","language":"ru"}
+  ],
+  "tickets": [
+    {"id":"T1001","userId":"U1001","subject":"Не работает авторизация по почте","status":"open","platform":"Android","appVersion":"1.1.0","issueCode":"EMAIL_NOT_VERIFIED","facts":{"emailVerified":"false","lastLoginResult":"EMAIL_NOT_VERIFIED"},"notes":"Письмо подтверждения пока не найдено. Пароль менять не пробовала."},
+    {"id":"T1002","userId":"U1002","subject":"Не работает авторизация через Google","status":"open","platform":"Android","appVersion":"1.0.0","issueCode":"OAUTH_CALLBACK_SCHEME","facts":{"emailVerified":"true","loginProvider":"Google","lastLoginResult":"OAUTH_CALLBACK_SCHEME"},"notes":"После выбора аккаунта Google возвращается на экран входа."},
+    {"id":"T1003","userId":"U1001","subject":"Приложение не видит локальный сервер","status":"waiting_for_user","platform":"Android Emulator","appVersion":"1.1.0","issueCode":"SERVER_UNREACHABLE","facts":{"serverRunning":"false","serverAddress":"http://10.0.2.2:8080"},"notes":"Терминал с сервером закрыт. Интернет в эмуляторе работает."}
+  ]
+}

@@ -17,6 +17,7 @@ TalkLoop — Kotlin Multiplatform проект с Android, iOS, сервером
 - `cli` — воспроизводимые сценарии учебных дней, включая `:cli:day31`.
 - `tools/day21` — индексация кулинарной книги: Python, ONNX, multilingual E5.
 - `tools/day31` — отдельная индексация README и Markdown-документов из `docs`.
+- `tools/day33` — отдельная индексация `docs/support` и JSON с демо-клиентами/тикетами.
 - `docs` — документация учебных дней, описание структуры и API, результаты проверок.
 
 ## Как запрос проходит через агента
@@ -37,7 +38,8 @@ TalkLoop — Kotlin Multiplatform проект с Android, iOS, сервером
 ## Запуск
 
 Из корня проекта: `./gradlew :server:run` запускает основной сервер на порту 8080
-и MCP-серверы книг на порту 8081 и проекта на порту 8082. Android Emulator обращается к Mac по адресу
+и MCP-серверы книг на порту 8081, проекта на порту 8082 и поддержки на `127.0.0.1:8083`.
+Android Emulator обращается к Mac по адресу
 `http://10.0.2.2:8080`, iOS Simulator — `http://127.0.0.1:8080`.
 Адрес поиска документов задаётся в настройках агента; `/help` использует этот же
 адрес для документации; проектный MCP доступен на том же хосте, порт 8082.
@@ -58,11 +60,20 @@ TalkLoop — Kotlin Multiplatform проект с Android, iOS, сервером
 - `POST /api/documents/search` — поиск по кулинарной книге.
 - `GET /api/project/documents/status` — сведения об индексе README и docs.
 - `POST /api/project/documents/search` — поиск по документации проекта.
+- `GET /api/support/catalog` — демо-клиенты и краткие сведения о тикетах.
+- `POST /api/support/ask` — ответ по FAQ, текущему контексту MCP и истории тикета.
 - `/mcp` — Streamable HTTP MCP погоды, планировщика и погодных отчётов.
 
 Проектный сервер, порт 8082: `/mcp` — read-only инструмент `git_branch`.
 
 Книжный сервер, порт 8081: `/mcp` — выбор жанра, поиск книг и сведения о книге.
+
+Сервер поддержки, только loopback `127.0.0.1:8083`: `/mcp`, read-only инструмент
+`support_ticket_context(userId,ticketId)`. `LocalSupportService` вызывает MCP через SDK,
+E5-поиск — через отдельный `LocalDocumentIndexGateway(day33-data)`, затем
+`SupportAssistant` в `core` обращается к локальной Ollama. `SupportScreen` отображает
+ответ и реальные источники. JSON содержит вымышленные записи; выбор клиента не
+является авторизацией. [Запуск, API и ограничения](day33-user-support.md).
 
 ## Схемы данных поиска
 

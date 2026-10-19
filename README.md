@@ -1,5 +1,11 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Server.
 
+День 33: вкладка **«Поддержка»** отвечает по отдельной базе FAQ и справке,
+учитывая клиента и тикет из JSON через MCP. Генерация — локальная Ollama на Mac.
+Учебные клиенты и сценарии входа вымышлены. Подготовка:
+`.day21-venv/bin/python tools/day33/index_support.py`, затем `./gradlew :server:run`.
+[Запуск и три контрольных сценария](docs/day33-user-support.md).
+
 День 32: [автоматическое AI-ревью PR](docs/day32-automated-review.md).
 GitHub Action получает diff и изменённые файлы, ищет документацию и связанный
 код через RAG и сохраняет ревью в Summary и артефакте запуска.

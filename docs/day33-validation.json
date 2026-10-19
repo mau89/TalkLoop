@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-19",
+  "provider": "local Ollama",
+  "model": "qwen3.5:9b-q8_0",
+  "rag": {
+    "embedding": "intfloat/multilingual-e5-small",
+    "documents": 2,
+    "structuralChunks": 9,
+    "directory": "docs/support"
+  },
+  "mcp": {
+    "url": "http://127.0.0.1:8083/mcp",
+    "tool": "support_ticket_context",
+    "readOnly": true
+  },
+  "tests": {
+    "coreJvm": 187,
+    "server": 25,
+    "pythonIndexers": 3,
+    "failures": 0
+  },
+  "builds": {
+    "androidDebug": "passed",
+    "iosSimulatorArm64Compile": "passed"
+  },
+  "liveChecks": {
+    "emailAdvice": true,
+    "oauthUpdateAdvice": true,
+    "differentAnswers": true,
+    "unknownAbstains": true,
+    "productQuestionAnswered": true
+  },
+  "liveExamples": [
+    {
+      "case": "email",
+      "ticket": "T1001",
+      "question": "Почему не работает авторизация?",
+      "httpStatus": 200,
+      "seconds": 8.03,
+      "disposition": "answered",
+      "answer": "В вашем тикете зафиксирована ошибка EMAIL_NOT_VERIFIED, так как адрес электронной почты пока не подтверждён (emailVerified=false). Пожалуйста, проверьте папку «Спам» на наличие письма с кодом подтверждения или используйте кнопку «Отправить письмо повторно» на экране входа. Не пытайтесь исправить это сменой пароля, так как она не активирует аккаунт.",
+      "sourceFiles": [
+        "docs/support/faq.md"
+      ]
+    },
+    {
+      "case": "oauth",
+      "ticket": "T1002",
+      "question": "Почему не работает авторизация?",
+      "httpStatus": 200,
+      "seconds": 7.08,
+      "disposition": "answered",
+      "answer": "В вашем случае (Android, версия 1.0.0) ошибка OAUTH_CALLBACK_SCHEME вызвана известной проблемой возврата из Google OAuth в этой версии приложения. Исправление доступно с версии 1.1.0, поэтому попробуйте обновить приложение до новой версии и повторить вход.",
+      "sourceFiles": [
+        "docs/support/faq.md"
+      ]
+    },
+    {
+      "case": "unknown",
+      "ticket": "T1001",
+      "question": "Каковы сроки возврата денег за подписку?",
+      "httpStatus": 200,
+      "seconds": 5.33,
+      "disposition": "escalate",
+      "answer": "В базе знаний TalkLoop нет информации о сроках возврата денег за подписку. Я не могу предоставить эти правила, поэтому предлагаю передать ваш вопрос оператору для уточнения деталей.",
+      "sourceFiles": [
+        "docs/support/faq.md",
+        "docs/support/product-guide.md"
+      ]
+    },
+    {
+      "case": "product",
+      "ticket": "T1001",
+      "question": "Что умеет локальное приложение TalkLoop?",
+      "httpStatus": 200,
+      "seconds": 6.43,
+      "disposition": "answered",
+      "answer": "Локальное приложение TalkLoop работает на Android/iOS с локальным сервером на Mac. Оно поддерживает диалог в вкладке «Агент», поиск по кулинарной книге, проверку PR через Ollama и ответы поддержки по базе знаний.",
+      "sourceFiles": [
+        "docs/support/faq.md",
+        "docs/support/product-guide.md"
+      ]
+    }
+  ],
+  "android": {
+    "realQuestionSubmitted": true,
+    "answerAndSourcesVisible": true
+  },
+  "note": "Демонстрационные пользователи и тикеты; проверки контрольных признаков не доказывают качество на всех вопросах."
+}

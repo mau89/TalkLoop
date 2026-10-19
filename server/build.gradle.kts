@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
     implementation(libs.mcp.kotlin.server)
+    implementation(libs.mcp.kotlin.client)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.ktor.clientCio)
     testImplementation(libs.mcp.kotlin.client)

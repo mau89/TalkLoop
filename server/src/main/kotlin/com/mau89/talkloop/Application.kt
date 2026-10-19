@@ -18,11 +18,14 @@ fun main() {
     val projectServer = embeddedServer(
         Netty, port = 8082, host = "0.0.0.0", module = Application::projectModule,
     )
+    val supportServer = embeddedServer(Netty, port = 8083, host = "127.0.0.1", module = Application::supportModule)
     try {
+        supportServer.start(wait = false)
         projectServer.start(wait = false)
         embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
             .start(wait = true)
     } finally {
+        supportServer.stop(gracePeriodMillis = 1_000L, timeoutMillis = 2_000L)
         bookServer.stop(gracePeriodMillis = 1_000L, timeoutMillis = 2_000L)
         projectServer.stop(gracePeriodMillis = 1_000L, timeoutMillis = 2_000L)
     }
@@ -56,6 +59,7 @@ fun Application.module(
         preparationCommand = ".day21-venv/bin/python tools/day31/index_project.py",
     ),
     prReviews: PrReviewGateway = LocalPrReviewGateway(),
+    support: SupportService = LocalSupportService(),
 ) {
     val weatherMcpServer = createWeatherMcpServer(
         weatherApi,
@@ -77,6 +81,9 @@ fun Application.module(
     if (prReviews is AutoCloseable) {
         monitor.subscribe(ApplicationStopped) { prReviews.close() }
     }
+    if (support is AutoCloseable) {
+        monitor.subscribe(ApplicationStopped) { support.close() }
+    }
 
     mcpStreamableHttp(
         path = "/mcp",
@@ -87,6 +94,7 @@ fun Application.module(
     }
 
     routing {
+        supportRoutes(support)
         prReviewRoutes(prReviews)
         documentIndexRoutes(documentIndex)
         documentIndexRoutes(projectDocumentIndex, "/api/project/documents")
@@ -110,6 +118,15 @@ fun Application.module(
             }
         }
     }
+}
+
+fun Application.supportModule(
+    enableDnsRebindingProtection: Boolean = true,
+    repository: SupportRepository = JsonSupportRepository(),
+) {
+    val server = createSupportMcpServer(repository)
+    mcpStreamableHttp(path = "/mcp", enableDnsRebindingProtection = enableDnsRebindingProtection,
+        allowedHosts = listOf("localhost", "127.0.0.1", "[::1]")) { server }
 }
 
 fun Application.projectModule(

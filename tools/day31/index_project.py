@@ -60,8 +60,8 @@ def collect(root):
     return documents
 
 
-def build(root, data):
-    documents = collect(root)
+def build(root, data, documents=None, title='Документация TalkLoop', example_queries=None):
+    documents = collect(root) if documents is None else documents
     if not documents:
         raise ValueError('README.md и docs/*.md не найдены')
     model_directory = root / 'day21-data/model'
@@ -73,10 +73,10 @@ def build(root, data):
         model_link.symlink_to(model_directory.resolve(), target_is_directory=True)
     model = indexer.LocalE5(data)
     words = sum(len(d['text'].split()) for d in documents)
-    corpus = {'schema_version': 1, 'title': 'Документация TalkLoop', 'language': 'ru',
+    corpus = {'schema_version': 1, 'title': title, 'language': 'ru',
               'documents': documents, 'words': words, 'words_per_page': 500,
               'estimated_text_pages': round(words / 500, 2), 'model_catalog': [],
-              'example_queries': ['Как устроен проект TalkLoop?', 'Где реализован MCP?',
+              'example_queries': example_queries if example_queries is not None else ['Как устроен проект TalkLoop?', 'Где реализован MCP?',
                                   'Как запустить сервер и Android-приложение?']}
     # Publish the corpus last. A partial rebuild fails the worker's hash validation.
     import json

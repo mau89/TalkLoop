@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-19",
+  "issue": "Status polling stopped after a network error; emulator Chrome returned ERR_EMPTY_RESPONSE.",
+  "userRelease": {
+    "id": "7827316f-6dc0-411d-94c5-b74935ca4179",
+    "version": "1.1.1",
+    "versionCode": 1,
+    "state": "prepared",
+    "sourceCommit": "5ea5ce7dcb2953e275999790fa8e49063af341b1",
+    "rebuiltDuringFix": false
+  },
+  "network": {
+    "directEmulatorHttp": "HTTP 200",
+    "configuredProxyHttp": "Empty response",
+    "proxyHostAndPortPreserved": true,
+    "localBypassHosts": [
+      "10.0.2.2",
+      "127.0.0.1",
+      "localhost"
+    ],
+    "deprecatedOverrideRemoved": true,
+    "emulatorRebootedToApply": true,
+    "adbReverseRequiredForFinalDownload": false,
+    "backup": "day35-data/emulator-proxy-before-fix.json"
+  },
+  "download": {
+    "urlHost": "10.0.2.2:8080",
+    "devicePath": "/sdcard/Download/TalkLoop-1.1.1-candidate.zip",
+    "bytes": 12375955,
+    "sha256": "07485ab362e8ca1af78e05022a21604f3cb2f31a97b44a310ec8443f3bab0a8b",
+    "matchesSavedZip": true
+  },
+  "app": {
+    "finalDebugInstalled": true,
+    "completedUserReleaseVisible": true,
+    "staleConnectionErrorCleared": true,
+    "automaticRetryTests": "Two transient failures, a running result, then a completed result; cancellation and empty latest result tested."
+  },
+  "checks": {
+    "coreJvm": {
+      "tests": 191,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidDebug": "passed",
+    "iosSimulatorCompile": "passed"
+  },
+  "apkDownload": {
+    "urlHost": "10.0.2.2:8080",
+    "devicePath": "/sdcard/Download/TalkLoop-1.1.1-unsigned.apk",
+    "bytes": 35354294,
+    "sha256": "7234141ebe279daeaff3b058ec21283df986122b4cb3b52bcfb8a24a345852d3",
+    "matchesSavedApk": true,
+    "installed": false
+  }
+}

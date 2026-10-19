@@ -13,8 +13,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mau89.talkloop.llm.ReleaseJob
 import com.mau89.talkloop.llm.ReleaseRequest
+import com.mau89.talkloop.llm.monitorReleaseStatus
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -28,6 +28,7 @@ fun ReleaseScreen(address: String, onAddressChange: (String) -> Unit, modifier: 
     var job by remember { mutableStateOf<ReleaseJob?>(null) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var connectionError by remember { mutableStateOf<String?>(null) }
     var settings by remember { mutableStateOf(false) }
     var showReport by remember(job?.id) { mutableStateOf(false) }
     var showLog by remember(job?.id) { mutableStateOf(false) }
@@ -37,23 +38,21 @@ fun ReleaseScreen(address: String, onAddressChange: (String) -> Unit, modifier: 
     suspend fun refresh(restoreForm: Boolean = false) {
         busy = true; error = null
         try {
-            job = client.latest(address); pollKey++
+            job = client.latest(address); connectionError = null
             if (restoreForm) job?.let { base = it.base; version = it.version; versionCode = it.versionCode.toString() }
         } catch (cancelled: CancellationException) { throw cancelled }
-        catch (failure: Exception) { error = failure.message }
-        finally { busy = false }
+        catch (failure: Exception) { connectionError = failure.message }
+        finally { busy = false; pollKey++ }
     }
     LaunchedEffect(Unit) { refresh(restoreForm = true) }
-    LaunchedEffect(address, job?.id, job?.isRunning, pollKey) {
-        val id = job?.takeIf { it.isRunning }?.id ?: return@LaunchedEffect
-        while (true) {
-            delay(3_000)
-            try {
-                val updated = client.get(address, id); job = updated; error = null
-                if (!updated.isRunning) break
-            } catch (cancelled: CancellationException) { throw cancelled }
-            catch (failure: Exception) { error = failure.message; break }
-        }
+    LaunchedEffect(address, job?.id, job?.isRunning, pollKey, job?.isRunning != true && connectionError != null) {
+        val id = job?.takeIf { it.isRunning }?.id
+        if (id == null && connectionError == null) return@LaunchedEffect
+        monitorReleaseStatus(
+            fetch = { if (id == null) client.latest(address) else client.get(address, id) },
+            onResult = { job = it; connectionError = null; error = null },
+            onConnectionError = { connectionError = it.message },
+        )
     }
     Column(modifier.verticalScroll(rememberScrollState()).imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Подготовка релиза", style = MaterialTheme.typography.headlineSmall)
@@ -70,7 +69,7 @@ fun ReleaseScreen(address: String, onAddressChange: (String) -> Unit, modifier: 
                 busy = true; error = null
                 try {
                     val code = versionCode.toIntOrNull() ?: throw IllegalArgumentException("Введите целый код версии, например 2.")
-                    job = client.start(address, ReleaseRequest(base.trim(), version.trim(), code)); pollKey++
+                    job = client.start(address, ReleaseRequest(base.trim(), version.trim(), code)); connectionError = null; pollKey++
                 } catch (cancelled: CancellationException) { throw cancelled }
                 catch (failure: Exception) { error = failure.message }
                 finally { busy = false }
@@ -79,19 +78,23 @@ fun ReleaseScreen(address: String, onAddressChange: (String) -> Unit, modifier: 
         TextButton(enabled = !busy, onClick = { scope.launch { refresh() } }) { Text("Обновить результат") }
         TextButton(onClick = { settings = !settings }) { Text(if (settings) "Скрыть параметры" else "Адрес Mac и предыдущий релиз") }
         if (settings) {
-            OutlinedTextField(value = address, onValueChange = { onAddressChange(it); job = null; error = null }, label = { Text("Адрес сервера TalkLoop") },
-                singleLine = true, enabled = !busy && (job?.isRunning != true || error != null), modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = address, onValueChange = { onAddressChange(it); job = null; error = null; connectionError = null }, label = { Text("Адрес сервера TalkLoop") },
+                singleLine = true, enabled = !busy && (job?.isRunning != true || connectionError != null), modifier = Modifier.fillMaxWidth())
             OutlinedTextField(value = base, onValueChange = { base = it }, label = { Text("Тег или коммит предыдущего релиза") },
                 supportingText = { Text("От него считаются изменения для release notes.") }, singleLine = true,
                 enabled = !busy && job?.isRunning != true, modifier = Modifier.fillMaxWidth())
         }
-        if (busy || job?.isRunning == true) LinearProgressIndicator(Modifier.fillMaxWidth())
+        if (busy || job?.isRunning == true && connectionError == null) LinearProgressIndicator(Modifier.fillMaxWidth())
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        if (job == null && !busy && error == null) Text("Результатов пока нет. Укажите версию и нажмите «Подготовить релиз».")
+        connectionError?.let {
+            Text("$it\nПроверка связи повторяется автоматически. Готовый результат остаётся на Mac.", color = MaterialTheme.colorScheme.error)
+        }
+        if (job == null && !busy && error == null && connectionError == null) Text("Результатов пока нет. Укажите версию и нажмите «Подготовить релиз».")
         job?.let { result ->
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("TalkLoop ${result.version} · код ${result.versionCode}", style = MaterialTheme.typography.titleMedium)
+                    if (connectionError != null) Text("Последний полученный статус:", style = MaterialTheme.typography.bodySmall)
                     Text(result.message, color = if (result.state == "blocked") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
                     if (result.head.isNotBlank()) Text("Коммит: ${result.head.take(12)}", style = MaterialTheme.typography.bodySmall)
                     result.gates.forEach { gate ->

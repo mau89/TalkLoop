@@ -283,7 +283,7 @@ def prepare(root, base_ref, version, code, output, provider=ollama, gate=command
             for day in [32, 34, 35]:
                 gate('python-day' + str(day), [sys.executable, '-m', 'unittest', 'discover', '-s', 'tools/day' + str(day), '-v'],
                      snapshot, output, report, environment, timeout=120)
-            gate('gradle', ['./gradlew', '--no-daemon', '--console=plain', '-Ptalkloop.distribution=true',
+            gate('gradle', ['./gradlew', '--no-daemon', '--no-build-cache', '--max-workers=4', '--console=plain', '-Ptalkloop.distribution=true',
                  '-Ptalkloop.versionName=' + version, '-Ptalkloop.versionCode=' + str(code), *TASKS],
                  snapshot, output, report, environment)
             report['tests'] = test_counts(snapshot)

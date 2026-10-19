@@ -1,0 +1,103 @@
+{
+  "day": 35,
+  "date": "2026-10-19",
+  "feature": "Prepare release from mobile app",
+  "jobId": "6e09325c-0355-4be4-a896-0384ed98c5da",
+  "state": "prepared",
+  "sourceCommit": "b140a3753d193480b90c73490f13ecd8e6010c49",
+  "androidUi": {
+    "installedFinalDebugApk": true,
+    "startedByPrepareReleaseButton": true,
+    "restoredRunningJobAfterTabSwitch": true,
+    "restoreObservedJobId": "217eae35-f969-4654-89ac-4f5cc35a90ec",
+    "downloadButtonOpensBrowser": true,
+    "browserSetupCompleted": false,
+    "note": "Emulator Chrome showed its first-run screen; no browser preferences were changed. Real binary downloads verified through HTTP."
+  },
+  "buildChecks": {
+    "androidAssembleDebug": "passed",
+    "iosSimulatorCompile": "passed",
+    "kotlinTests": 219,
+    "pythonTests": 58,
+    "totalTests": 277
+  },
+  "pipelineGates": [
+    {
+      "name": "python-day32",
+      "state": "passed",
+      "log": "python-day32.log",
+      "exitCode": 0,
+      "seconds": 34.47,
+      "tests": 38
+    },
+    {
+      "name": "python-day34",
+      "state": "passed",
+      "log": "python-day34.log",
+      "exitCode": 0,
+      "seconds": 3.53,
+      "tests": 10
+    },
+    {
+      "name": "python-day35",
+      "state": "passed",
+      "log": "python-day35.log",
+      "exitCode": 0,
+      "seconds": 6.79,
+      "tests": 10
+    },
+    {
+      "name": "gradle",
+      "state": "passed",
+      "log": "gradle.log",
+      "exitCode": 0,
+      "seconds": 125.83
+    }
+  ],
+  "releaseFacts": {
+    "version": "1.1.0",
+    "versionCode": 2,
+    "apkVariant": "release",
+    "cloudKeyEmbedded": false,
+    "signed": false,
+    "mobileExecution": "The mobile app calls the local Mac HTTP server directly, not GitHub Actions."
+  },
+  "downloads": [
+    {
+      "name": "TalkLoop-1.1.0-unsigned.apk",
+      "bytes": 35354298,
+      "sha256": "e807e16c92f4a6e8801d82d8741ab4e6aa47e04d3ec7c486c83042c7b7bfbfb7",
+      "downloadStatus": 200,
+      "attachment": "attachment; filename=TalkLoop-1.1.0-unsigned.apk",
+      "matchesSavedFile": true
+    },
+    {
+      "name": "TalkLoop-1.1.0-candidate.zip",
+      "bytes": 12376098,
+      "sha256": "65e18884dc1e3b774d86b8a93f974248771a0da54edf3f400b44c9d906b91662",
+      "downloadStatus": 200,
+      "attachment": "attachment; filename=TalkLoop-1.1.0-candidate.zip",
+      "matchesSavedFile": true
+    }
+  ],
+  "zipIntegrity": "passed",
+  "releaseNotesMatchServedAndPackagedFile": true,
+  "ai": {
+    "provider": "native local Ollama",
+    "model": "qwen3.5:9b-q8_0",
+    "mockUsedInFullRun": false,
+    "notesAreDraft": true,
+    "semanticCitationsVerifiedAutomatically": false,
+    "manualReviewNote": "The Files tab bullet cites da1024c3817b instead of e4e324e084e0; the raw AI draft remains unchanged and must be reviewed before publication."
+  },
+  "serverTests": [
+    "Background process launch and polling",
+    "Reject concurrent build",
+    "Download only allowed artifacts; reject traversal and symlinks",
+    "Restore completed job after gateway restart",
+    "Mark interrupted build blocked",
+    "Reject invalid parameters and browser Origin"
+  ],
+  "publishingPerformed": false,
+  "apkSigned": false
+}
